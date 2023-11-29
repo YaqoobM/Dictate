@@ -1,0 +1,22 @@
+# python
+__pycache__/
+*.py[cod]
+
+# log files
+*.log
+
+# vscode
+.vscode
+
+# database
+db.sqlite3
+
+# environments
+venv/
+.env
+
+# uploaded content
+/media/
+
+# grouped static files
+/staticfiles/
