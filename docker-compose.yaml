@@ -1,0 +1,26 @@
+version: '3.9'
+services:
+  app:
+    build:
+      context: .
+      args:
+        - DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME}
+        - DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL}
+        - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD}
+    restart: unless-stopped
+    ports:
+      - '8000:8000'
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:16-alpine3.18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dictate_core
+      POSTGRES_USER: dictate_admin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+volumes:
+  postgresql-data:
+    driver: local

@@ -15,6 +15,12 @@ db.sqlite3
 /venv/
 .env
 
+# docker
+.dockerignore
+docker-compose.yaml
+docker-compose.dev.yaml
+Dockerfile
+
 # uploaded content
 /media/
 
