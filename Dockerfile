@@ -12,7 +12,7 @@ RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
 
 # Setup pip
 RUN python3 -m ensurepip
-RUN pip3 install --no-cache --upgrade pip setuptools
+RUN pip3 install --no-cache-dir --upgrade pip setuptools
 
 # Set the working directory in the container
 #   opt is where we store projects
@@ -29,41 +29,46 @@ ENV PYTHONDONTWRITEBYTECODE 1
 #   process crashes
 ENV PYTHONUNBUFFERED 1
 
+# Copy only dependency list so docker can use cache when rebuilding
+#   when we want to rebuild an image because we changed a file's contents
+#     docker can cache the image steps until COPY . .
+COPY requirements.txt requirements.txt
+COPY frontend/react/package.json frontend/react/package.json
+
+# Installing python dependencies
+#   no cache stops pip from saving packages in cache for reuse
+#   since it is a container we don't need to install again
+#   also reduces image size
+RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir pytz
+RUN pip install --no-cache-dir tzdata
+
+# Installing npm dependencies
+RUN cd frontend/react && npm install
+
 # Copy project files (excluding .dockerignore)
 COPY . .
 
-# Installing dependencies
-RUN pip install -r requirements.txt
-RUN pip install pytz
-RUN pip install tzdata
-
-RUN cd frontend/react && npm install
-
-# building react project to static files
-RUN python manage.py build
-
-# make migrations
-RUN python manage.py makemigrations
-RUN python manage.py migrate
-
-# make superuser
-ARG DJANGO_SUPERUSER_USERNAME="admin"
-ARG DJANGO_SUPERUSER_EMAIL="no_reply@gmail.com"
-ARG DJANGO_SUPERUSER_PASSWORD=123456789
-RUN python manage.py createsuperuser --no-input
-
 # Expose the django development server port
-#   This is a type of documentation, you still need to publish the port when running
-#     the container
+#   you still need to publish the port when running the container
+#   simply a type of documentation
 EXPOSE 8000
 
 # Default command run if no command specified
-#   we bind it to 0.0.0.0:8000 meaning ALL interfaces
-#     we need to do this as we don't know what ip docker will assign
+#   first command is needed to set up container after postgres container if using docker compose
+#     i.e. we put the commands inside a script and use CMD so the commands run when container starts
+#     otherwise defaults to sqlite
 #   python by defaults assumes 127.0.0.1 (localhost)
-#   when we run a container in docker it is assigned an ip address
-#     which is custom to the docker network it is also attached to
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+#   we bind it to 0.0.0.0:8000 meaning all ips associated to the container
+#     the container has: ($ ip addr show)
+#       - 127.0.0.1 (lo) (localhost)
+#       - x.x.x.x (eth0) (ip associated with docker network) (~random)
+#   when we run a container in docker it is assigned an ip address attached to
+#     the docker network it is assigned to
+#       - default bridge (if no network is assigned and not docker-compose)
+#       - named bridge (if network specified or docker-compose)
+#   same as 0:8000
+CMD python manage.py build-docker; python manage.py runserver 0.0.0.0:8000
 
 # bash for alpine
 # CMD [ "/bin/ash" ]
