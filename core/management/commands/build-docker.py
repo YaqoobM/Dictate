@@ -1,3 +1,4 @@
+import os
 import subprocess
 from typing import Any
 
@@ -11,7 +12,16 @@ class Command(BaseCommand):
     help = "CMD script to build project in docker container after creation (used in Dockerfile)"
 
     def handle(self, *args: Any, **options: Any) -> str | None:
-        call_command("build")
+        os.replace(
+            os.path.join(
+                settings.BASE_DIR, "frontend/static/frontend/react/index.html"
+            ),
+            os.path.join(
+                settings.BASE_DIR, "frontend/templates/frontend/react/index.html"
+            ),
+        )
+
+        call_command("collectstatic", no_input=True)
         call_command("makemigrations")
         call_command("migrate")
 

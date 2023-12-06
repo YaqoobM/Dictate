@@ -30,6 +30,9 @@ Dockerfile
 # grouped static files
 /staticfiles/
 
+# random
+README.md
+
 # Logs
 logs
 *.log
@@ -40,7 +43,6 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules/
-/frontend/react/dist/
 dist-ssr
 *.local
 

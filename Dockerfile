@@ -3,20 +3,28 @@
 # Alpine is smaller (45mb vs 380mb) but has less functionality
 # - node version: 21
 # - alpine version: 3.18
-FROM node:21-alpine3.18
-
-# Install python (apk packgage manager)
-#   each alpine version comes with a specifc version of python
-#   alpine3.18 -> python3.11
-RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
-
-# Setup pip
-RUN python3 -m ensurepip
-RUN pip3 install --no-cache-dir --upgrade pip setuptools
+# Used as a build stage to build react project into html, js and css files
+FROM node:21-alpine3.18 AS build
 
 # Set the working directory in the container
-#   opt is where we store projects
-WORKDIR /opt/dictate
+WORKDIR /opt/build
+
+# Copy only dependency list so docker can use cache when rebuilding
+#   (if we rebuild the container but the pacakge.json stays the same then
+#    docker can use the cache and skip redownloading packages)
+COPY react/package.json package.json
+
+# Installing node dependencies
+RUN npm install
+
+# Copy project files (excluding .dockerignore)
+COPY react .
+
+# Create build files: html, css and js
+RUN npm run build
+
+# Using official python alpine image as final base image
+FROM python:3.10-alpine AS main
 
 # Prevents python writing .pyc files
 #   used for repeat process not having to repeat compiling the same py script
@@ -29,25 +37,26 @@ ENV PYTHONDONTWRITEBYTECODE 1
 #   process crashes
 ENV PYTHONUNBUFFERED 1
 
-# Copy only dependency list so docker can use cache when rebuilding
-#   when we want to rebuild an image because we changed a file's contents
-#     docker can cache the image steps until COPY . .
+# Set the working directory in the container
+WORKDIR /opt/dictate
+
+# Copy dependency list first for cache optimisation
 COPY requirements.txt requirements.txt
-COPY react/package.json react/package.json
 
 # Installing python dependencies
 #   no cache stops pip from saving packages in cache for reuse
 #   since it is a container we don't need to install again
 #   also reduces image size
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir pytz
-RUN pip install --no-cache-dir tzdata
-
-# Installing npm dependencies
-RUN cd react && npm install
 
 # Copy project files (excluding .dockerignore)
 COPY . .
+
+# Remove unneeded react dir
+RUN rm -rf react
+
+# Copy react build files from build stage
+COPY --from=build /opt/build/dist frontend/static/frontend/react
 
 # Expose the django development server port
 #   you still need to publish the port when running the container
