@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 from typing import Any
 
@@ -13,12 +14,22 @@ class Command(BaseCommand):
     def handle(self, *args: Any, **options: Any) -> str | None:
         subprocess.run(
             ["npm", "run", "build"],
-            cwd=f"{settings.BASE_DIR}/frontend/react",
+            cwd=f"{settings.BASE_DIR}/react",
+        )
+
+        shutil.copytree(
+            os.path.join(settings.BASE_DIR, "react/dist"),
+            os.path.join(settings.BASE_DIR, "frontend/static/frontend/react"),
+            dirs_exist_ok=True,
         )
 
         os.replace(
-            f"{settings.BASE_DIR}/frontend/static/frontend/react/index.html",
-            f"{settings.BASE_DIR}/frontend/templates/frontend/react/index.html",
+            os.path.join(
+                settings.BASE_DIR, "frontend/static/frontend/react/index.html"
+            ),
+            os.path.join(
+                settings.BASE_DIR, "frontend/templates/frontend/react/index.html"
+            ),
         )
 
         call_command("collectstatic", no_input=True)

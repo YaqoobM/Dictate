@@ -20,3 +20,7 @@ db.sqlite3
 
 # grouped static files
 /staticfiles/
+
+# files made on build
+/frontend/static/frontend/react/*
+/frontend/templates/frontend/react/*

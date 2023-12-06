@@ -33,7 +33,7 @@ ENV PYTHONUNBUFFERED 1
 #   when we want to rebuild an image because we changed a file's contents
 #     docker can cache the image steps until COPY . .
 COPY requirements.txt requirements.txt
-COPY frontend/react/package.json frontend/react/package.json
+COPY react/package.json react/package.json
 
 # Installing python dependencies
 #   no cache stops pip from saving packages in cache for reuse
@@ -44,7 +44,7 @@ RUN pip install --no-cache-dir pytz
 RUN pip install --no-cache-dir tzdata
 
 # Installing npm dependencies
-RUN cd frontend/react && npm install
+RUN cd react && npm install
 
 # Copy project files (excluding .dockerignore)
 COPY . .
