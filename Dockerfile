@@ -24,7 +24,7 @@ COPY react .
 RUN npm run build
 
 # Using official python alpine image as final base image
-FROM python:3.10-alpine AS main
+FROM python:3.10-alpine3.18 AS main
 
 # Prevents python writing .pyc files
 #   used for repeat process not having to repeat compiling the same py script
@@ -55,8 +55,19 @@ COPY . .
 # Remove unneeded react dir
 RUN rm -rf react
 
-# Copy react build files from build stage
+# Setup react build files from build stage
 COPY --from=build /opt/build/dist frontend/static/frontend/react
+RUN mv frontend/static/frontend/react/index.html frontend/templates/frontend/react/index.html
+
+# Setup build files
+RUN python manage.py collectstatic --no-input
+
+# Migrate tables (if needed)
+RUN python manage.py makemigrations --check || python manage.py makemigrations
+RUN python manage.py migrate --check || python manage.py migrate
+
+# Create superuser
+RUN python manage.py createsuperuser --no-input
 
 # Expose the django development server port
 #   you still need to publish the port when running the container
@@ -77,7 +88,7 @@ EXPOSE 8000
 #       - default bridge (if no network is assigned and not docker-compose)
 #       - named bridge (if network specified or docker-compose)
 #   same as 0:8000
-CMD python manage.py build-docker; python manage.py runserver 0.0.0.0:8000
+CMD python manage.py runserver 0.0.0.0:8000
 
 # bash for alpine
 # CMD [ "/bin/ash" ]
