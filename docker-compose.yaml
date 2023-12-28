@@ -13,6 +13,7 @@ services:
       - "8000:8000"
     depends_on:
       - postgres
+    container_name: dictate-app
   postgres:
     image: postgres:16-alpine3.18
     restart: unless-stopped
@@ -21,7 +22,18 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
     volumes:
-      - postgresql-data:/var/lib/postgresql/data
+      - dictate-postgresql-1:/var/lib/postgresql/data
+    container_name: dictate-postgres
+  redis:
+    image: redis:7.2-alpine3.18
+    restart: unless-stopped
+    container_name: dictate-redis
+    volumes:
+      - dictate-redis-1:/data
 volumes:
-  postgresql-data:
+  postgresql-dictate:
     driver: local
+networks:
+  default:
+    name: dictate-default
+  # backend

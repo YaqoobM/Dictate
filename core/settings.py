@@ -1,4 +1,5 @@
 import os
+import socket
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -17,7 +18,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "secret_key_123")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# DEBUG = True -> ALLOWED_HOSTS=[".localhost","127.0.0.1","[::1]"]
+# DEBUG = True && ALLOWED_HOSTS = [] -> ALLOWED_HOSTS = [".localhost","127.0.0.1","[::1]"]
 # DEBUG = False -> todo: set to domain name
 ALLOWED_HOSTS = []
 
@@ -26,8 +27,6 @@ ALLOWED_HOSTS = []
 INTERNAL_IPS = ["127.0.0.1"]
 
 if os.getenv("DOCKER") and DEBUG:
-    import socket
-
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
     INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + [
         "127.0.0.1",
@@ -101,6 +100,28 @@ else:
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
+
+if os.getenv("ENVIRONMENT") == "docker":
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://redis:6379/0",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            },
+        }
+    }
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "unique-snowflake",
+        }
+    }
+
+
+if os.getenv("ENVIRONMENT") == "docker":
+    SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 
 AUTH_USER_MODEL = "api.User"
