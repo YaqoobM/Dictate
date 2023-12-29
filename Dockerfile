@@ -26,12 +26,6 @@ RUN npm run build
 # Using official python alpine image as final base image
 FROM python:3.10-alpine3.18 AS main
 
-# Prevents python writing .pyc files
-#   used for repeat process not having to repeat compiling the same py script
-#   in docker this is not needed because a process only runs once then the
-#     container is shutdown
-ENV PYTHONDONTWRITEBYTECODE 1
-
 # Pushes python stdout and stderr straight to terminal w/o bufferring
 #   output (e.g. django logs) is seen in realtime and not lost if python
 #   process crashes
@@ -55,19 +49,11 @@ COPY . .
 # Remove unneeded react dir
 RUN rm -rf react
 
-# Setup react build files from build stage
 COPY --from=build /opt/build/dist frontend/static/frontend/react
 RUN mv frontend/static/frontend/react/index.html frontend/templates/frontend/react/index.html
 
 # Setup build files
 RUN python manage.py collectstatic --no-input
-
-# Migrate tables (if needed)
-RUN python manage.py makemigrations --check || python manage.py makemigrations
-RUN python manage.py migrate --check || python manage.py migrate
-
-# Create superuser
-RUN python manage.py createsuperuser --no-input
 
 # Expose the django development server port
 #   you still need to publish the port when running the container

@@ -1,39 +1,51 @@
 version: "3.9"
 services:
   app:
+    container_name: dictate-app
     build:
       context: .
+      args:
+        - DOCKER_COMPOSE=1
+    command: >
+      sh -c "python manage.py setup_db &&
+             python manage.py runserver 0.0.0.0:8000"
     environment:
-      - DJANGO_SUPERUSER_USERNAME
-      - DJANGO_SUPERUSER_EMAIL
-      - DJANGO_SUPERUSER_PASSWORD
       - ENVIRONMENT=docker
     restart: unless-stopped
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
-    container_name: dictate-app
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
   postgres:
     image: postgres:16-alpine3.18
+    container_name: dictate-postgres
     restart: unless-stopped
     environment:
       - POSTGRES_DB
       - POSTGRES_USER
       - POSTGRES_PASSWORD
     volumes:
-      - dictate-postgresql-1:/var/lib/postgresql/data
-    container_name: dictate-postgres
+      - postgresql-1:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER} || exit 1
+      interval: 5s
+      timeout: 5s
   redis:
     image: redis:7.2-alpine3.18
-    restart: unless-stopped
     container_name: dictate-redis
+    restart: unless-stopped
     volumes:
-      - dictate-redis-1:/data
+      - redis-1:/data
 volumes:
-  postgresql-dictate:
+  postgresql-1:
+    name: dictate-postgresql-1
+    driver: local
+  redis-1:
+    name: dictate-redis-1
     driver: local
 networks:
   default:
     name: dictate-default
-  # backend
