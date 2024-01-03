@@ -49,6 +49,7 @@ COPY . .
 # Remove unneeded react dir
 RUN rm -rf react
 
+# Copy react build files
 COPY --from=build /opt/build/dist frontend/static/frontend/react
 RUN mv frontend/static/frontend/react/index.html frontend/templates/frontend/react/index.html
 
