@@ -26,7 +26,7 @@ ALLOWED_HOSTS = []
 #   e.g.) debug_toolbar only shows if website accessed from INTERNAL_IPS
 INTERNAL_IPS = ["127.0.0.1"]
 
-if os.getenv("DOCKER") and DEBUG:
+if os.getenv("DOCKER_COMPOSE") and DEBUG:
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
     INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + [
         "127.0.0.1",
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -82,7 +83,7 @@ WSGI_APPLICATION = "core.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-if os.getenv("ENVIRONMENT") == "docker":
+if os.getenv("DOCKER_COMPOSE"):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -101,7 +102,7 @@ else:
         }
     }
 
-if os.getenv("ENVIRONMENT") == "docker":
+if os.getenv("DOCKER_COMPOSE"):
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
@@ -120,7 +121,7 @@ else:
     }
 
 
-if os.getenv("ENVIRONMENT") == "docker":
+if os.getenv("DOCKER_COMPOSE"):
     SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 

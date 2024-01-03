@@ -1,24 +1,26 @@
 version: "3.9"
 services:
-  app:
-    container_name: dictate-app
-    build:
-      context: .
-      args:
-        - DOCKER_COMPOSE=1
-    command: >
-      sh -c "python manage.py setup_db &&
-             python manage.py runserver 0.0.0.0:8000"
+  # nginx
+  app-server:
+    container_name: dictate-app-server
+    build: .
+    command: "gunicorn core.wsgi:application -b 0.0.0.0:8000 -w 2"
     environment:
-      - ENVIRONMENT=docker
+      - DOCKER_COMPOSE=true
     restart: unless-stopped
     ports:
       - "8000:8000"
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
       redis:
         condition: service_started
+      db-setup:
+        condition: service_completed_successfully
+  # websocket server
+  # celery worker
+  # coturn
+  # db-setup
   postgres:
     image: postgres:16-alpine3.18
     container_name: dictate-postgres
@@ -28,20 +30,24 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
     volumes:
-      - postgresql-1:/var/lib/postgresql/data
-    healthcheck:
-      test: pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER} || exit 1
-      interval: 5s
-      timeout: 5s
+      - postgres-master:/var/lib/postgresql/data
   redis:
     image: redis:7.2-alpine3.18
     container_name: dictate-redis
     restart: unless-stopped
     volumes:
       - redis-1:/data
+  db-setup:
+    container_name: dictate-db-setup
+    build: .
+    command: "python manage.py setup_db"
+    environment:
+      - DOCKER_COMPOSE=true
+    depends_on:
+      - postgres
 volumes:
-  postgresql-1:
-    name: dictate-postgresql-1
+  postgres-master:
+    name: dictate-postgres-master
     driver: local
   redis-1:
     name: dictate-redis-1
@@ -49,3 +55,4 @@ volumes:
 networks:
   default:
     name: dictate-default
+  # frontend & backend?
