@@ -35,6 +35,7 @@ if os.getenv("DOCKER_COMPOSE") and DEBUG:
 
 # Application definition
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -79,6 +80,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "core.wsgi.application"
+ASGI_APPLICATION = "core.asgi.application"
 
 
 # Database
@@ -102,6 +104,7 @@ else:
         }
     }
 
+# defaults cache to local memory
 if os.getenv("DOCKER_COMPOSE"):
     CACHES = {
         "default": {
@@ -112,17 +115,24 @@ if os.getenv("DOCKER_COMPOSE"):
             },
         }
     }
-else:
-    CACHES = {
-        "default": {
-            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-            "LOCATION": "unique-snowflake",
-        }
-    }
+
+
+# defaults session storage to db
+if os.getenv("DOCKER_COMPOSE"):
+    SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 
 if os.getenv("DOCKER_COMPOSE"):
-    SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [("redis", 6379)],
+            },
+        },
+    }
+else:
+    CHANNEL_LAYERS = {"default": {"BACKEND": "channels.layers.InMemoryChannelLayer"}}
 
 
 AUTH_USER_MODEL = "api.User"

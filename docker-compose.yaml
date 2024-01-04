@@ -9,14 +9,14 @@ services:
     networks:
       - frontend
     volumes:
-      - ./nginx/:/etc/nginx/conf.d/
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - app-server
+      - websocket-server
   app-server:
     build: .
     container_name: dictate-app-server
-    command: "gunicorn core.wsgi:application -b 0.0.0.0:8000 -w 2"
-    # workers = (2 x $num_cores) + 1
+    command: "gunicorn core.wsgi:application"
     environment:
       - DOCKER_COMPOSE=true
     restart: unless-stopped
@@ -30,7 +30,23 @@ services:
         condition: service_started
       db-setup:
         condition: service_completed_successfully
-  # websocket server
+  websocket-server:
+    build: .
+    container_name: dictate-websocket-server
+    command: "daphne -b 0.0.0.0 -p 8000 core.asgi:application"
+    environment:
+      - DOCKER_COMPOSE=true
+    restart: unless-stopped
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+      db-setup:
+        condition: service_completed_successfully
   # celery worker
   # coturn
   postgres:
