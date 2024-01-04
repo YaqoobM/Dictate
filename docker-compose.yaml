@@ -1,15 +1,28 @@
 version: "3.9"
 services:
-  # nginx
+  nginx:
+    image: nginx:1.25.3-alpine3.18
+    container_name: dictate-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    networks:
+      - frontend
+    volumes:
+      - ./nginx/:/etc/nginx/conf.d/
+    depends_on:
+      - app-server
   app-server:
-    container_name: dictate-app-server
     build: .
+    container_name: dictate-app-server
     command: "gunicorn core.wsgi:application -b 0.0.0.0:8000 -w 2"
+    # workers = (2 x $num_cores) + 1
     environment:
       - DOCKER_COMPOSE=true
     restart: unless-stopped
-    ports:
-      - "8000:8000"
+    networks:
+      - frontend
+      - backend
     depends_on:
       postgres:
         condition: service_started
@@ -20,7 +33,6 @@ services:
   # websocket server
   # celery worker
   # coturn
-  # db-setup
   postgres:
     image: postgres:16-alpine3.18
     container_name: dictate-postgres
@@ -31,18 +43,24 @@ services:
       - POSTGRES_PASSWORD
     volumes:
       - postgres-master:/var/lib/postgresql/data
+    networks:
+      - backend
   redis:
     image: redis:7.2-alpine3.18
     container_name: dictate-redis
     restart: unless-stopped
     volumes:
       - redis-1:/data
+    networks:
+      - backend
   db-setup:
     container_name: dictate-db-setup
     build: .
     command: "python manage.py setup_db"
     environment:
       - DOCKER_COMPOSE=true
+    networks:
+      - backend
     depends_on:
       - postgres
 volumes:
@@ -53,6 +71,9 @@ volumes:
     name: dictate-redis-1
     driver: local
 networks:
-  default:
-    name: dictate-default
-  # frontend & backend?
+  # default:
+  #   name: dictate-default
+  frontend:
+    name: dictate-frontend
+  backend:
+    name: dictate-backend

@@ -2,31 +2,26 @@
 
 ## Commands
 
-### Production
-
-Go to localhost:8000 or 127.0.0.1:8000
+#### Run app and go to http://localhost
 
 ```console
 $ docker compose up
 ```
 
-### Dev
-
-Go to localhost:8000 or 127.0.0.1:8000
-
-```console
-$ python manage.py build
-$ python manage.py runserver
-```
-
-To access live updates to frontend
-Go to localhost:(port specified by stdout)
+#### Local build for dev
 
 ```console
 $ python manage.py build
 $ python manage.py runserver
 $ npm run --prefix frontend/react dev
 ```
+
+## Config
+
+#### Update variables in .env
+
+- ENVIRONMENT = "development" | "production"
+- DEBUG = "true" | unset
 
 ### Endpoints
 
