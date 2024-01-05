@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "debug_toolbar",
     "rest_framework",
+    "django_celery_results",
     "core",
     "api",
     "frontend",
@@ -178,3 +179,15 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Celery Configuration Options
+if os.getenv("DOCKER_COMPOSE"):
+    CELERY_BROKER_URL = "redis://redis:6379/0"
+    CELERY_RESULT_BACKEND = "django-cache"
+else:
+    CELERY_BROKER_URL = "sqla+sqlite:///" + os.path.join(BASE_DIR, "db.sqlite3")
+    CELERY_RESULT_BACKEND = "django-db"
+
+# CELERY_TIMEZONE = "Australia/Tasmania"
+# CELERY_TASK_TRACK_STARTED = True
+# CELERY_TASK_TIME_LIMIT = 30 * 60

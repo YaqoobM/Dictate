@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  nginx:
+  proxy:
     image: nginx:1.25.3-alpine3.18
     container_name: dictate-nginx
     restart: unless-stopped
@@ -9,13 +9,14 @@ services:
     networks:
       - frontend
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./services/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - app-server
-      - websocket-server
-  app-server:
+      - app
+      - websocket
+      - relay
+  app:
     build: .
-    container_name: dictate-app-server
+    container_name: dictate-app
     command: "gunicorn core.wsgi:application"
     environment:
       - DOCKER_COMPOSE=true
@@ -24,15 +25,15 @@ services:
       - frontend
       - backend
     depends_on:
+      db-setup:
+        condition: service_completed_successfully
       postgres:
         condition: service_started
       redis:
         condition: service_started
-      db-setup:
-        condition: service_completed_successfully
-  websocket-server:
+  websocket:
     build: .
-    container_name: dictate-websocket-server
+    container_name: dictate-websocket
     command: "daphne -b 0.0.0.0 -p 8000 core.asgi:application"
     environment:
       - DOCKER_COMPOSE=true
@@ -41,14 +42,42 @@ services:
       - frontend
       - backend
     depends_on:
+      db-setup:
+        condition: service_completed_successfully
       postgres:
         condition: service_started
       redis:
         condition: service_started
+  worker:
+    build: .
+    container_name: dictate-worker
+    command: "celery -A core worker -l INFO --uid nobody --gid nogroup --concurrency 2"
+    environment:
+      - DOCKER_COMPOSE=true
+    restart: unless-stopped
+    networks:
+      - backend
+    depends_on:
+      - app
+      - websocket
+      - redis
+  relay:
+    image: coturn/coturn:alpine3.18
+    container_name: dictate-relay
+    restart: unless-stopped
+    volumes:
+      - ./services/coturn.conf:/etc/coturn/turnserver.conf:ro
+    networks:
+      - backend
+    ports:
+      - 3478:3478
+      - 3478:3478/udp
+      - 49160-49163:49160-49163/udp
+    depends_on:
       db-setup:
         condition: service_completed_successfully
-  # celery worker
-  # coturn
+      postgres:
+        condition: service_started
   postgres:
     image: postgres:16-alpine3.18
     container_name: dictate-postgres
@@ -59,6 +88,7 @@ services:
       - POSTGRES_PASSWORD
     volumes:
       - postgres-master:/var/lib/postgresql/data
+      - ./services/coturn_schema.sql:/docker-entrypoint-initdb.d/coturn_schema.sql:ro
     networks:
       - backend
   redis:
@@ -87,8 +117,6 @@ volumes:
     name: dictate-redis-1
     driver: local
 networks:
-  # default:
-  #   name: dictate-default
   frontend:
     name: dictate-frontend
   backend:
