@@ -2,10 +2,15 @@ version: "3.9"
 services:
   proxy:
     image: nginx:1.25.3-alpine3.18
-    container_name: dictate-nginx
+    container_name: dictate-proxy
     restart: unless-stopped
     ports:
-      - "80:80"
+      - 80:80
+      - 3478:3478
+      - 3478:3478/udp
+
+      # TURN Ports
+      # - 49160-49163:49160-49163/udp
     networks:
       - frontend
     volumes:
@@ -34,7 +39,7 @@ services:
   websocket:
     build: .
     container_name: dictate-websocket
-    command: "daphne -b 0.0.0.0 -p 8000 core.asgi:application"
+    command: "daphne -b 0.0.0.0 -p 80 core.asgi:application"
     environment:
       - DOCKER_COMPOSE=true
     restart: unless-stopped
@@ -68,11 +73,8 @@ services:
     volumes:
       - ./services/coturn.conf:/etc/coturn/turnserver.conf:ro
     networks:
+      - frontend
       - backend
-    ports:
-      - 3478:3478
-      - 3478:3478/udp
-      - 49160-49163:49160-49163/udp
     depends_on:
       db-setup:
         condition: service_completed_successfully

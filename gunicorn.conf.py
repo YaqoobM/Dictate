@@ -16,7 +16,7 @@ def get_workers(max_workers: int = 10) -> int:
     return workers
 
 
-bind = "0.0.0.0:8000"
+bind = "0.0.0.0:80"
 workers = get_workers(5)
 
 # setup logging
