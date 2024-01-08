@@ -89,7 +89,7 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
     volumes:
-      - postgres-master:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
       - ./services/coturn_schema.sql:/docker-entrypoint-initdb.d/coturn_schema.sql:ro
     networks:
       - backend
@@ -98,12 +98,12 @@ services:
     container_name: dictate-redis
     restart: unless-stopped
     volumes:
-      - redis-1:/data
+      - redis:/data
     networks:
       - backend
   db-setup:
-    container_name: dictate-db-setup
     build: .
+    container_name: dictate-db-setup
     command: "python manage.py setup_db"
     environment:
       - DOCKER_COMPOSE=true
@@ -112,11 +112,11 @@ services:
     depends_on:
       - postgres
 volumes:
-  postgres-master:
-    name: dictate-postgres-master
+  postgres:
+    name: dictate-postgres
     driver: local
-  redis-1:
-    name: dictate-redis-1
+  redis:
+    name: dictate-redis
     driver: local
 networks:
   frontend:
