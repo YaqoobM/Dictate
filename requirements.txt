@@ -44,6 +44,7 @@ pytz==2023.3.post1
 redis==5.0.1
 service-identity==23.1.0
 six==1.16.0
+sqids==0.4.1
 SQLAlchemy==1.4.51
 sqlparse==0.4.4
 Twisted==23.10.0

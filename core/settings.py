@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("SECRET_KEY", "secret_key_123")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG", default="false") == "true"
+DEBUG = os.getenv("DEBUG") == True
 
 # DEBUG = True && ALLOWED_HOSTS = [] -> ALLOWED_HOSTS = [".localhost","127.0.0.1","[::1]"]
 # DEBUG = False -> todo: set to domain name
@@ -32,6 +32,9 @@ if os.getenv("DOCKER_COMPOSE") and DEBUG:
         "127.0.0.1",
         "10.0.2.2",
     ]
+
+# see api/models
+PRODUCTION_URL = os.getenv("PRODUCTION_URL", "http://localhost")
 
 # Application definition
 INSTALLED_APPS = [
