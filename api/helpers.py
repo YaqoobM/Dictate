@@ -23,3 +23,7 @@ def get_hashed_alphabet(
         return string
 
     return _reorder(alphabet, hash)
+
+
+def idToUrl(resource_name: str, id: str) -> str:
+    return f"/api/{resource_name}/{id}"

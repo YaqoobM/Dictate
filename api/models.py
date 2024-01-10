@@ -1,7 +1,6 @@
-from collections.abc import Iterable
-
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.core.files.storage import storages
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from sqids import Sqids
@@ -74,10 +73,22 @@ class Recording(models.Model):
         default="My recording",
     )
 
-    link = models.URLField(
-        _("link to recording"),
-        max_length=2000,
-        default="My recording",
+    upload = models.FileField(
+        _("post-processed recording"),
+        upload_to="recordings/",
+        storage=storages["s3"],
+        blank=True,
+        null=True,
+    )
+
+    temp_upload = models.FileField(
+        _("pre-processed recording"),
+        upload_to="temp_recordings/",
+        storage=storages["default"],
+        # required externally
+        blank=False,
+        # allow setting null internally (after processing)
+        null=True,
     )
 
     @property
