@@ -1,10 +1,10 @@
 from django.contrib import admin
-from django.urls import include, re_path
+from django.urls import include, path
 
 urlpatterns = [
-    re_path(r"", include("frontend.urls")),
-    re_path(r"^api/?$", include("api.urls")),  # api end points
-    re_path(r"^admin/?$", admin.site.urls),  # admin panel
-    re_path(r"^__debug__/?$", include("debug_toolbar.urls")),  # browser debug toolbar
-    re_path(r"^api-auth/?$", include("rest_framework.urls")),  # for rest browsable api
+    path("", include("frontend.urls")),
+    path("api/", include("api.urls")),  # api end points
+    path("admin/", admin.site.urls),  # admin panel
+    path("__debug__/", include("debug_toolbar.urls")),  # browser debug toolbar
+    path("api-auth/", include("rest_framework.urls")),  # for rest browsable api
 ]
