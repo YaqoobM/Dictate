@@ -7,16 +7,21 @@ from .models import Meeting, Notes, Recording, Team, User
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ["hashed_id", "email", "username", "password", "teams", "meetings"]
-        read_only_fields = ["hashed_id", "meetings"]
+        fields = [
+            "url",
+            "hashed_id",
+            "email",
+            "username",
+            "password",
+            # "teams",
+            # "meetings",
+        ]
+        read_only_fields = ["meetings"]
         extra_kwargs = {
             "password": {"write_only": True},
-            "teams": {
-                # "many": True,
-                # "queryset": Team.objects.all(),
-                "lookup_field": "hashed_id",
-            },
-            "meetings": {"lookup_field": "hashed_id"},
+            # "teams": {"lookup_field": "hashed_id"},
+            # "meetings": {"lookup_field": "hashed_id"},
+            "url": {"lookup_field": "hashed_id"},
         }
 
     def create(self, validated_data):
@@ -45,11 +50,12 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class TeamSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Team
-        fields = ["hashed_id", "name", "members", "meetings"]
-        read_only_fields = ["hashed_id", "members", "meetings"]
+        fields = ["url", "hashed_id", "name", "members", "meetings"]
+        read_only_fields = ["members", "meetings"]
         extra_kwargs = {
             "members": {"lookup_field": "hashed_id"},
             "meetings": {"lookup_field": "hashed_id"},
+            "url": {"lookup_field": "hashed_id"},
         }
 
 
@@ -57,6 +63,7 @@ class MeetingSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Meeting
         fields = [
+            "url",
             "hashed_id",
             "websocket",
             "start_time",
@@ -66,12 +73,13 @@ class MeetingSerializer(serializers.HyperlinkedModelSerializer):
             "recordings",
             "notes",
         ]
-        read_only_fields = ["hashed_id", "websocket", "recordings", "notes"]
+        read_only_fields = ["users", "recordings", "notes"]
         extra_kwargs = {
             "team": {"lookup_field": "hashed_id"},
             "users": {"lookup_field": "hashed_id"},
             "recordings": {"lookup_field": "hashed_id"},
             "notes": {"lookup_field": "hashed_id"},
+            "url": {"lookup_field": "hashed_id"},
         }
 
     def create(self, validated_data):
@@ -104,8 +112,11 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Recording
-        fields = ["hashed_id", "title", "meeting", "upload", "recording"]
-        read_only_fields = ["hashed_id", "upload"]
+        fields = ["url", "hashed_id", "title", "meeting", "upload", "recording"]
+        read_only_fields = ["meeting", "upload"]
+        extra_kwargs = {
+            "url": {"lookup_field": "hashed_id"},
+        }
 
     def create(self, validated_data):
         validated_data["meeting"] = idToUrl("meetings", validated_data["meeting"])
@@ -120,8 +131,11 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
 class NotesSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Notes
-        fields = ["hashed_id", "title", "meeting", "content"]
-        read_only_fields = ["hashed_id"]
+        fields = ["url", "hashed_id", "title", "meeting", "content"]
+        read_only_fields = ["meeting"]
+        extra_kwargs = {
+            "url": {"lookup_field": "hashed_id"},
+        }
 
     def create(self, validated_data):
         validated_data["meeting"] = idToUrl("meetings", validated_data["meeting"])
