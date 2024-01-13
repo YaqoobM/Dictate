@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.files.storage import storages
 from django.db import models
+from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from sqids import Sqids
 
@@ -15,7 +16,12 @@ class HashedIdModel(models.Model):
 
     @classmethod
     def decode_hashed_id(cls, hash: str) -> int:
-        return cls._get_sqids().decode(hash)[0]
+        decoded_hash = cls._get_sqids().decode(hash)
+
+        if len(decoded_hash) != 1:
+            raise ValueError("Invalid hash")
+
+        return decoded_hash[0]
 
     @property
     def hashed_id(self) -> str:
@@ -44,8 +50,8 @@ class Meeting(HashedIdModel):
     team = models.ForeignKey(
         Team, models.CASCADE, related_name="meetings", blank=True, null=True
     )
-    users = models.ManyToManyField(User, related_name="meetings", blank=True)
-    start_time = models.DateTimeField(auto_now_add=True)
+    participants = models.ManyToManyField(User, related_name="meetings", blank=True)
+    start_time = models.DateTimeField(default=now)
     end_time = models.DateTimeField(blank=True, null=True)
 
     @property
@@ -73,7 +79,7 @@ class Recording(HashedIdModel):
         _("pre-processed recording"),
         upload_to="temp_recordings/",
         storage=storages["default"],
-        # required externally
+        # required externally (default)
         blank=False,
         # allow setting null internally (after processing)
         null=True,
