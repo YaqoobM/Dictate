@@ -17,3 +17,14 @@ class IsUserOrReadOnly(permissions.BasePermission):
             return obj == request.user
 
         return False
+
+
+class IsNotAuthenticated(permissions.BasePermission):
+    """
+    Allows access only to non-authenticated users.
+    """
+
+    def has_permission(self, request, view):
+        return bool(
+            not request.user or (request.user and not request.user.is_authenticated)
+        )

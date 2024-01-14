@@ -28,6 +28,20 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             "url": {"lookup_field": "hashed_id"},
         }
 
+    def create(self, validated_data):
+        ids = map(
+            lambda hash: Team.decode_hashed_id(hash),
+            validated_data.pop("teams"),
+        )
+
+        user = super().create(validated_data)
+        user.set_password(validated_data["password"])
+
+        user.teams.set(ids)
+        user.save()
+
+        return user
+
     def update(self, instance, validated_data):
         if "teams" in validated_data:
             ids = map(
@@ -45,18 +59,22 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     def to_internal_value(self, data):
         if "teams" in data:
             teams = data.pop("teams")
-
             # Validation
             if not isinstance(teams, list):
                 raise ValidationError(
                     {"teams": "Must be a valid array of hashed_id strings"}
                 )
 
-            for team in teams:
+            for i, team in enumerate(teams):
                 if not isinstance(team, str):
                     raise ValidationError(
                         {"teams": "Must be a valid array of hashed_id strings"}
                     )
+
+                if re.match(f".*\/api\/teams\/[{get_hashed_alphabet()}]+\/?$", team):
+                    temp = team.rstrip("/")
+                    team = temp[temp.rfind("/") + 1 :]
+                    teams[i] = temp[temp.rfind("/") + 1 :]
 
                 if not re.match(f"^[{get_hashed_alphabet()}]+$", team):
                     raise ValidationError(
@@ -68,7 +86,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                 ).exists():
                     raise ValidationError({"teams": f"Team: {team} does not exist"})
 
+            # temporarily assign teams so validation check for POST doesn't find missing key-value
+            data["teams"] = []
             validated_data: dict = super().to_internal_value(data)
+
             validated_data["teams"] = teams
             return validated_data
 
@@ -108,8 +129,14 @@ class MeetingSerializer(serializers.HyperlinkedModelSerializer):
             "recordings": {"lookup_field": "hashed_id"},
             "notes": {"lookup_field": "hashed_id"},
             "url": {"lookup_field": "hashed_id"},
-            # "start_time": {"format": ..., "input_format": [...]},
-            # "end_time": {"format": ..., "input_format": [...]},
+            "start_time": {
+                "format": "%d/%m/%y %H:%M:%S",
+                "input_formats": ["%d/%m/%y %H:%M:%S"],
+            },
+            "end_time": {
+                "format": "%d/%m/%y %H:%M:%S",
+                "input_formats": ["%d/%m/%y %H:%M:%S"],
+            },
         }
 
     def create(self, validated_data):
@@ -196,6 +223,10 @@ class MeetingSerializer(serializers.HyperlinkedModelSerializer):
             if not isinstance(team, str):
                 raise ValidationError({"team": "Must be a valid hashed_id string"})
 
+            if re.match(f"\/api\/teams\/[{get_hashed_alphabet()}]+\/?$", team):
+                temp = team.rstrip("/")
+                team = temp[temp.rfind("/") + 1 :]
+
             if not re.match(f"^[{get_hashed_alphabet()}]+$", team):
                 raise ValidationError(
                     {"teams": "Must be a valid array of hashed_id strings"}
@@ -226,6 +257,7 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         read_only_fields = ["meeting", "upload"]
         extra_kwargs = {
             "url": {"lookup_field": "hashed_id"},
+            "meeting": {"lookup_field": "hashed_id"},
         }
 
 
@@ -236,4 +268,5 @@ class NotesSerializer(serializers.HyperlinkedModelSerializer):
         read_only_fields = ["meeting"]
         extra_kwargs = {
             "url": {"lookup_field": "hashed_id"},
+            "meeting": {"lookup_field": "hashed_id"},
         }

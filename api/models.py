@@ -2,6 +2,8 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.files.storage import storages
 from django.db import models
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from sqids import Sqids
@@ -32,7 +34,7 @@ class HashedIdModel(models.Model):
 
 
 class User(AbstractUser, HashedIdModel):
-    email = models.EmailField(_("email address"), unique=True, blank=True, null=True)
+    email = models.EmailField(_("email address"), unique=True)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
@@ -60,9 +62,7 @@ class Meeting(HashedIdModel):
 
 
 class Recording(HashedIdModel):
-    meeting = models.ForeignKey(
-        Meeting, models.CASCADE, related_name="recordings", blank=True, null=True
-    )
+    meeting = models.ForeignKey(Meeting, models.CASCADE, related_name="recordings")
     title = models.CharField(
         _("recording title"),
         max_length=150,
@@ -87,10 +87,22 @@ class Recording(HashedIdModel):
 
 
 class Notes(HashedIdModel):
-    meeting = models.OneToOneField(Meeting, models.CASCADE, blank=True, null=True)
+    meeting = models.OneToOneField(Meeting, models.CASCADE)
     title = models.CharField(
         _("notes title"),
         max_length=150,
         default="My notes",
     )
     content = models.TextField()
+
+
+@receiver(m2m_changed, sender=User.teams.through)
+def m2m_change_order(sender, instance, *args, **kwargs):
+    """
+    Prune empty teams.
+    Todo: add logic for post_clear and post_remove for both instance: User | Team
+    """
+    if isinstance(instance, User) and kwargs["action"] == "post_remove":
+        for t in Team.objects.filter(id__in=kwargs["pk_set"]):
+            if not t.members.exists():
+                t.delete()
