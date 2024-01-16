@@ -202,10 +202,13 @@ def signup(request):
     else:
         raise ValidationError(serializer.errors)
 
+    login_user(request, user)
+
     return Response(
         {
             "user": request.build_absolute_uri(
                 reverse("user-detail", args=[user.hashed_id])
-            )
+            ),
+            "message": "successfully created account and logged in",
         }
     )
