@@ -22,6 +22,7 @@ $ npm run --prefix frontend/react dev
 
 - ENVIRONMENT = "development" | "production"
 - DEBUG = "true" | unset
+- PRODUCTION_URL = example.com | unset
 
 ### Endpoints
 
@@ -29,7 +30,7 @@ $ npm run --prefix frontend/react dev
   - main app
 - /api/
   - api endpoints
-- /api-auth/
+- /api/auth/
   - logging into api for accessing /api/ through browser
-    - /api-auth/login
-    - /api-auth/logout
+    - /api/auth/login
+    - /api/auth/logout
