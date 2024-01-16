@@ -59,11 +59,9 @@ class Meeting(HashedIdModel):
     @property
     def websocket(self) -> str:
         if settings.PRODUCTION_URL.find("https://") > -1:
-            prefix = "https"
-        else:
-            prefix = "http"
+            return f"{settings.PRODUCTION_URL.replace('https', 'wss', 1)}/ws/meetings/{self.hashed_id}"
 
-        return f"{settings.PRODUCTION_URL.replace(prefix, 'ws', 1)}/ws/meetings/{self.hashed_id}"
+        return f"{settings.PRODUCTION_URL.replace('http', 'ws', 1)}/ws/meetings/{self.hashed_id}"
 
 
 class Recording(HashedIdModel):
