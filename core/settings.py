@@ -1,5 +1,6 @@
 import os
 import socket
+from multiprocessing import cpu_count
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -17,6 +18,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "secret_key_123")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG") is not None
+
+ENVIRONMENT = os.getenv("ENVIRONMENT") or "production"
 
 # DEBUG = True && ALLOWED_HOSTS = [] -> ALLOWED_HOSTS = [".localhost","127.0.0.1","[::1]"]
 # DEBUG = False -> todo: set to domain name
@@ -186,6 +189,9 @@ STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
+    "local": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "s3": {
         "BACKEND": "storages.backends.s3.S3Storage",
         "OPTIONS": {
@@ -202,7 +208,6 @@ STORAGES = {
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Celery Configuration Options
@@ -216,3 +221,6 @@ else:
 # CELERY_TIMEZONE = "Australia/Tasmania"
 # CELERY_TASK_TRACK_STARTED = True
 # CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_WORKER_CONCURRENCY = (
+    2 if os.getenv("ENVIRONMENT") == "development" else cpu_count()
+)

@@ -1,14 +1,13 @@
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.files.storage import storages
+from django.core.validators import FileExtensionValidator
 from django.db import models
-from django.db.models.signals import m2m_changed
-from django.dispatch import receiver
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from sqids import Sqids
 
-from .helpers import get_hashed_alphabet
+from .helpers import get_hashed_alphabet, get_remote_storage
 
 
 class HashedIdModel(models.Model):
@@ -73,15 +72,17 @@ class Recording(HashedIdModel):
     )
     upload = models.FileField(
         _("post-processed recording"),
+        validators=[FileExtensionValidator(["mp4"])],
         upload_to="recordings/",
-        storage=storages["s3"],
+        storage=get_remote_storage,
         blank=True,
         null=True,
     )
     temp_upload = models.FileField(
         _("pre-processed recording"),
+        validators=[FileExtensionValidator(["webm"])],
         upload_to="temp_recordings/",
-        storage=storages["default"],
+        storage=storages["local"],
         # required externally (default)
         blank=False,
         # allow setting null internally (after processing)
@@ -97,15 +98,3 @@ class Notes(HashedIdModel):
         default="My notes",
     )
     content = models.TextField()
-
-
-@receiver(m2m_changed, sender=User.teams.through)
-def m2m_change_order(sender, instance, *args, **kwargs):
-    """
-    Prune empty teams.
-    Todo: add logic for post_clear and post_remove for both instance: User | Team
-    """
-    if isinstance(instance, User) and kwargs["action"] == "post_remove":
-        for t in Team.objects.filter(id__in=kwargs["pk_set"]):
-            if not t.members.exists():
-                t.delete()

@@ -25,6 +25,8 @@ services:
     command: "gunicorn core.wsgi:application"
     environment:
       - DOCKER_COMPOSE=true
+    volumes:
+      - recording-temp-storage:/opt/dictate/media
     restart: unless-stopped
     networks:
       - frontend
@@ -56,9 +58,11 @@ services:
   worker:
     build: .
     container_name: dictate-worker
-    command: "celery -A core worker -l INFO --uid nobody --gid nogroup --concurrency 2"
+    command: "celery -A core worker -l INFO --concurrency 2"
     environment:
       - DOCKER_COMPOSE=true
+    volumes:
+      - recording-temp-storage:/opt/dictate/media
     restart: unless-stopped
     networks:
       - backend
@@ -117,6 +121,9 @@ volumes:
     driver: local
   redis:
     name: dictate-redis
+    driver: local
+  recording-temp-storage:
+    name: dictate-recording-temp-storage
     driver: local
 networks:
   frontend:

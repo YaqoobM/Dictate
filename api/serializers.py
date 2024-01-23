@@ -1,8 +1,11 @@
 import re
+from collections import OrderedDict
 
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.timezone import now
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import get_error_detail, set_value
 
 from .helpers import get_hashed_alphabet
 from .models import Meeting, Notes, Recording, Team, User
@@ -80,6 +83,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                     raise ValidationError(
                         {"teams": "Must be a valid array of hashed_id strings"}
                     )
+
+                try:
+                    Team.decode_hashed_id(team)
+                except ValueError:
+                    raise ValidationError({"teams": "Invalid hashed_id string"})
 
                 if not Team.objects.filter(
                     id=Team.decode_hashed_id(team),
@@ -232,6 +240,11 @@ class MeetingSerializer(serializers.HyperlinkedModelSerializer):
                     {"teams": "Must be a valid array of hashed_id strings"}
                 )
 
+            try:
+                Team.decode_hashed_id(team)
+            except ValueError:
+                raise ValidationError({"team": "Invalid hashed_id string"})
+
             if not Team.objects.filter(
                 id=Team.decode_hashed_id(team),
             ).exists():
@@ -254,11 +267,102 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Recording
         fields = ["url", "hashed_id", "title", "meeting", "upload", "recording"]
-        read_only_fields = ["meeting", "upload"]
+        read_only_fields = ["upload"]
         extra_kwargs = {
             "url": {"lookup_field": "hashed_id"},
             "meeting": {"lookup_field": "hashed_id"},
         }
+
+    def create(self, validated_data):
+        meeting = Meeting.objects.get(
+            id=Meeting.decode_hashed_id(validated_data.pop("meeting"))
+        )
+
+        try:
+            recording = Recording.objects.create(meeting=meeting, **validated_data)
+        except:
+            raise ValidationError({"error": "Error in add recording to db"})
+
+        return recording
+
+    def update(self, instance, validated_data):
+        if "meeting" in validated_data:
+            raise ValidationError(
+                {"meeting": "Meeting cannot be edited in PATCH requests"}
+            )
+
+        if "recording" in validated_data:
+            raise ValidationError(
+                {"recording": "Recording cannot be edited in PATCH requests"}
+            )
+
+        return super().update(instance, validated_data)
+
+    def to_internal_value(self, data):
+        if "meeting" in data:
+            meeting = data.pop("meeting")
+
+            # Validation
+            try:
+                # form type = form-data not json
+                meeting = meeting[0]
+            except:
+                raise ValidationError({"meeting": "Invalid input"})
+
+            if not isinstance(meeting, str):
+                raise ValidationError({"meeting": "Must be a valid hashed_id string"})
+
+            if re.match(f".*\/api\/meetings\/[{get_hashed_alphabet()}]+\/?$", meeting):
+                temp = meeting.rstrip("/")
+                meeting = temp[temp.rfind("/") + 1 :]
+
+            if not re.match(f"^[{get_hashed_alphabet()}]+$", meeting):
+                raise ValidationError({"meeting": "Must be a valid hashed_id string"})
+
+            try:
+                Meeting.decode_hashed_id(meeting)
+            except ValueError:
+                raise ValidationError({"meeting": "Invalid hashed_id string"})
+
+            if not Meeting.objects.filter(
+                id=Meeting.decode_hashed_id(meeting),
+            ).exists():
+                raise ValidationError({"meeting": f"Meeting: {meeting} does not exist"})
+
+            # copied from super(), manually removing "meeting" from validation
+            validated_data = OrderedDict()
+            errors = OrderedDict()
+            fields = self._writable_fields
+            fields = (
+                instance
+                for name, instance in self.fields.items()
+                if not instance.read_only and name != "meeting"
+            )
+
+            for field in fields:
+                validate_method = getattr(self, "validate_" + field.field_name, None)
+                primitive_value = field.get_value(data)
+                try:
+                    validated_value = field.run_validation(primitive_value)
+                    if validate_method is not None:
+                        validated_value = validate_method(validated_value)
+                except ValidationError as exc:
+                    errors[field.field_name] = exc.detail
+                except DjangoValidationError as exc:
+                    errors[field.field_name] = get_error_detail(exc)
+                except serializers.SkipField:
+                    pass
+                else:
+                    set_value(validated_data, field.source_attrs, validated_value)
+
+            if errors:
+                raise ValidationError(errors)
+
+            validated_data["meeting"] = meeting
+
+            return validated_data
+
+        return super().to_internal_value(data)
 
 
 class NotesSerializer(serializers.HyperlinkedModelSerializer):
