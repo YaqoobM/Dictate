@@ -6,9 +6,5 @@ export default defineConfig(({ command }) => {
   return {
     plugins: [react()],
     base: command == "build" ? "/static/frontend/react/" : "/",
-    // build: {
-    //   emptyOutDir: true,
-    //   outDir: "../static/frontend/react",
-    // },
   };
 });

@@ -9,7 +9,13 @@ module.exports = {
     "plugin:react/recommended",
     "plugin:react/jsx-runtime",
   ],
-  ignorePatterns: ["dist", ".eslintrc.cjs"],
+  ignorePatterns: [
+    "dist",
+    ".eslintrc.cjs",
+    "tailwind.config.js",
+    "postcss.config.js",
+    "prettier.config.cjs",
+  ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaVersion: "latest",
@@ -25,6 +31,9 @@ module.exports = {
     ],
   },
   settings: {
+    tailwindcss: {
+      config: "./tailwind-config.js",
+    },
     formComponents: [
       // Components used as alternatives to <form> for forms, eg. <Form endpoint={ url } />
       "CustomForm",
