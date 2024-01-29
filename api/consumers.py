@@ -61,7 +61,7 @@ class MeetingConsumer(JsonWebsocketConsumer):
         else:
             current_participants = [self.channel_name]
 
-        #                                                             1 week expiry
+        #                                                               1 week expiry
         cache.set(
             f"meeting_{self.meeting_id}_members", current_participants, 60 * 60 * 24 * 7
         )
