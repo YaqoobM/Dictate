@@ -1,4 +1,11 @@
-module.exports = {
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// module.exports = {
+export default {
   root: true,
   env: { browser: true, es2020: true },
   extends: [
@@ -11,10 +18,12 @@ module.exports = {
   ],
   ignorePatterns: [
     "dist",
-    ".eslintrc.cjs",
+    "node_modules",
+    ".eslintrc.js",
     "tailwind.config.js",
     "postcss.config.js",
     "prettier.config.cjs",
+    "vite.config.ts",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
