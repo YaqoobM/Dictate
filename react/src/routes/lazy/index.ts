@@ -1,7 +1,9 @@
 import { FC, lazy } from "react";
 
-// importing user module not each module individually to group lazy bundle
-// - i.e. import("../user") instead of import("../user/calendars")
+/*
+Importing entire module instead of individual components to group lazy bundle
+- i.e. import("../user") instead of import("../user/calendars")
+*/
 const Calendars: FC = lazy(() => {
   return import("../user").then((module) => {
     return { default: module.Calendars };
