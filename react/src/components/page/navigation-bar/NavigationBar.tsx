@@ -33,7 +33,7 @@ const NavigationBar: FC = () => {
       <Link to="/home" className="text-3xl font-medium">
         Dictate
       </Link>
-      <span className="flex flex-row items-center justify-between gap-x-4">
+      <span className="flex flex-row justify-between gap-x-4">
         <MenuButton
           width="24"
           className={`peer stroke-gray-950 hover:cursor-pointer dark:stroke-gray-200 lg:hidden ${toggleMenu ? "clicked" : ""}`}
@@ -55,10 +55,11 @@ const NavigationBar: FC = () => {
             Sign Up
           </Link>
         </span>
+        <div className="ml-px w-px rounded-full bg-gray-400 dark:w-px dark:bg-gray-400/20" />
         {currentTheme === "dark" ? (
           <DarkModeIcon
-            height="23"
-            className="cursor-pointer stroke-amber-400 dark:stroke-amber-300"
+            width="15"
+            className="mx-2 my-1 cursor-pointer stroke-amber-400 dark:stroke-amber-300"
             onClick={toggleTheme}
           />
         ) : (
