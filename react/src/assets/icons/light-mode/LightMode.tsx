@@ -12,8 +12,8 @@ const LightMode = forwardRef<SVGSVGElement, Props>((props, ref) => {
       {...props}
       // default
       stroke="#222222"
-      stroke-width="2"
-      stroke-linecap="round"
+      strokeWidth="2"
+      strokeLinecap="round"
     >
       <circle cx="17.5" cy="17.5" r="4.83333" />
       <path d="M17.5 7.29167V4.375" />

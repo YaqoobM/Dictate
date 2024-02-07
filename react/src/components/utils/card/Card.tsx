@@ -1,28 +1,19 @@
-import { FC, ReactNode } from "react";
+import { HTMLAttributes, forwardRef } from "react";
 
-type Props = {
-  title?: ReactNode;
-  className?: string;
-  children: ReactNode;
-};
+interface Props extends HTMLAttributes<HTMLElement> {}
 
-const Card: FC<Props> = ({ title, className, children }) => {
-  return (
-    <article className={className}>
-      <div className="mx-auto flex flex-col items-center justify-center py-8">
-        {title ? (
-          <h1 className="mb-6 flex items-center text-3xl font-semibold text-amber-400 dark:text-amber-300">
-            {title}
-          </h1>
-        ) : (
-          ""
-        )}
-        <div className="w-full max-w-md rounded-lg bg-white shadow-xl">
-          {children}
-        </div>
-      </div>
-    </article>
-  );
-};
+const Card = forwardRef<HTMLElement, Props>(
+  ({ className, children, ...props }, ref) => {
+    return (
+      <article
+        className={`w-full max-w-md rounded-lg border border-gray-200 bg-gray-100 shadow-lg dark:border-gray-800 dark:bg-gray-900/40 dark:shadow-xl ${className}`}
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </article>
+    );
+  },
+);
 
 export default Card;

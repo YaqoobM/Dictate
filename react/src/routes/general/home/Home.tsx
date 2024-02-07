@@ -5,7 +5,7 @@ const Home: FC = () => {
   return (
     <div className="container mx-auto grid grid-cols-1 gap-x-10 gap-y-20 px-5 pt-10 text-center lg:grid-cols-2 lg:pt-20">
       <hgroup>
-        <h1 className="mb-6 text-3xl font-semibold tracking-tight text-amber-400 dark:text-amber-300 lg:mb-4">
+        <h1 className="mb-6 text-3xl font-semibold tracking-tight text-amber-500 dark:text-amber-300 lg:mb-4">
           My Title Here
         </h1>
         <p className="mb-8 lg:mb-6">
