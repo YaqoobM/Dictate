@@ -31,6 +31,9 @@ FROM python:3.10-alpine3.18 AS main
 #   process crashes
 ENV PYTHONUNBUFFERED 1
 
+# Set env variable for django settings
+ENV DOCKER_CONTAINER true
+
 # Add video-processing dependancy for worker
 RUN apk add --no-cache ffmpeg
 

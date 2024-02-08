@@ -21,15 +21,30 @@ DEBUG = os.getenv("DEBUG") is not None
 
 ENVIRONMENT = os.getenv("ENVIRONMENT") or "production"
 
-# DEBUG = True && ALLOWED_HOSTS = [] -> ALLOWED_HOSTS = [".localhost","127.0.0.1","[::1]"]
-# DEBUG = False -> todo: set to domain name
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = [".localhost", "127.0.0.1", "[::1]"]
 
 # Enable functionality with specific IPs
 #   e.g.) debug_toolbar only shows if website accessed from INTERNAL_IPS
 INTERNAL_IPS = ["127.0.0.1"]
 
-if os.getenv("DOCKER_COMPOSE") and DEBUG:
+if ENVIRONMENT == "development":
+    CORS_ALLOWED_ORIGIN_REGEXES = [
+        r"^http:\/\/localhost:*([0-9]+)?$",
+        r"^https:\/\/localhost:*([0-9]+)?$",
+        r"^http:\/\/127.0.0.1:*([0-9]+)?$",
+        r"^https:\/\/127.0.0.1:*([0-9]+)?$",
+    ]
+
+    CORS_ALLOW_CREDENTIALS = True
+
+    # wildcard for ports?
+    CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
+    
+    # SESSION_COOKIE_SAMESITE = "None"
+
+
+if os.getenv("DOCKER_CONTAINER") and DEBUG:
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
     INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + [
         "127.0.0.1",
@@ -37,7 +52,7 @@ if os.getenv("DOCKER_COMPOSE") and DEBUG:
     ]
 
 # see api/models
-PRODUCTION_URL = os.getenv("PRODUCTION_URL", "http://localhost")
+PRODUCTION_URL = os.getenv("PRODUCTION_URL") if ENVIRONMENT == "production" else "http://localhost"
 
 # Application definition
 INSTALLED_APPS = [
@@ -52,12 +67,14 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "rest_framework",
     "django_celery_results",
+    "corsheaders",
     "core",
     "api",
     "frontend",
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -222,5 +239,5 @@ else:
 # CELERY_TASK_TRACK_STARTED = True
 # CELERY_TASK_TIME_LIMIT = 30 * 60
 CELERY_WORKER_CONCURRENCY = (
-    2 if os.getenv("ENVIRONMENT") == "development" else cpu_count()
+    2 if ENVIRONMENT == "development" else cpu_count()
 )
