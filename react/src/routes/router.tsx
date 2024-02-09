@@ -8,7 +8,7 @@ import { Login, SignUp } from "./auth";
 import { Home, Meeting } from "./general";
 import { LoginRequired, LogoutRequired, Main, Root, Suspense } from "./layouts";
 import { Calendars, Profile, Resources, Teams } from "./lazy";
-import { Error } from "./utils";
+import { Error, NotFound } from "./utils";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,6 +33,10 @@ export const router = createBrowserRouter(
       </Route>
 
       <Route path="meeting/:meetingId" element={<Meeting />} />
+
+      <Route element={<Main />}>
+        <Route path="*" element={<NotFound />} />
+      </Route>
     </Route>,
   ),
 );

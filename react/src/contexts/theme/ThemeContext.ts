@@ -1,8 +1,10 @@
 import { createContext } from "react";
 
 const defaultValue = {
-  currentTheme: "light",
-  changeCurrentTheme: (newTheme: "light" | "dark") => {},
+  theme: "light",
+  toggleTheme: (newTheme: "light" | "dark") => {
+    console.log("changing theme to " + newTheme);
+  },
 };
 
 const ThemeContext = createContext(defaultValue);

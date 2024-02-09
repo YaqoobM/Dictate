@@ -19,7 +19,7 @@ const InputGroup: FC<Props> = ({ label, error, className, ...props }) => {
       <Label>
         {label}
         {error ? (
-          <span className="float-right leading-tight tracking-tight text-red-500 dark:font-semibold">
+          <span className="float-right font-medium capitalize leading-tight tracking-tight text-red-500">
             {error}
           </span>
         ) : (

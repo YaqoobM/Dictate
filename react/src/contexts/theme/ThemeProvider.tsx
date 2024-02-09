@@ -9,7 +9,7 @@ const ThemeContextWrapper: FC<Props> = ({ children }) => {
   const persistedTheme: string | null = localStorage.getItem("theme");
   const [theme, setTheme] = useState(persistedTheme || "light");
 
-  const changeCurrentTheme = (newTheme: "light" | "dark") => {
+  const toggleTheme = (newTheme: "light" | "dark") => {
     setTheme(newTheme);
     localStorage.setItem("theme", newTheme);
   };
@@ -23,7 +23,7 @@ const ThemeContextWrapper: FC<Props> = ({ children }) => {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ currentTheme: theme, changeCurrentTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

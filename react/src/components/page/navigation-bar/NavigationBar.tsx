@@ -1,19 +1,19 @@
-import { FC, MouseEvent, useContext, useEffect, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   DarkMode as DarkModeIcon,
   LightMode as LightModeIcon,
-  Menu as MenuButton,
-} from "../../../assets/icons";
-import { ThemeContext } from "../../../utils/contexts";
+} from "../../../assets/icons/theme";
+import { Menu as MenuButton } from "../../../assets/icons/utils";
+import { ThemeContext } from "../../../contexts";
 
 const NavigationBar: FC = () => {
-  const { currentTheme, changeCurrentTheme } = useContext(ThemeContext);
+  const { theme, toggleTheme } = useContext(ThemeContext);
   const [toggleMenu, setToggleMenu] = useState<boolean>(false);
   const location = useLocation();
 
-  const toggleTheme = () => {
-    changeCurrentTheme(currentTheme === "dark" ? "light" : "dark");
+  const updateTheme = () => {
+    toggleTheme(theme === "dark" ? "light" : "dark");
     setToggleMenu(false);
   };
 
@@ -60,17 +60,17 @@ const NavigationBar: FC = () => {
             </Link>
           </span>
           <div className="ml-px w-px rounded-full bg-gray-400 dark:w-px dark:bg-gray-400/20" />
-          {currentTheme === "dark" ? (
+          {theme === "dark" ? (
             <DarkModeIcon
               width="15"
               className="mx-2 my-1 cursor-pointer stroke-amber-500 dark:stroke-amber-300"
-              onClick={toggleTheme}
+              onClick={updateTheme}
             />
           ) : (
             <LightModeIcon
               width="30"
               className="cursor-pointer stroke-amber-500 dark:stroke-amber-300"
-              onClick={toggleTheme}
+              onClick={updateTheme}
             />
           )}
         </span>

@@ -15,6 +15,7 @@ export default {
     "plugin:react-hooks/recommended",
     "plugin:react/recommended",
     "plugin:react/jsx-runtime",
+    "plugin:@tanstack/eslint-plugin-query/recommended",
   ],
   ignorePatterns: [
     "dist",

@@ -1,13 +1,11 @@
 import { FC } from "react";
 import { Navigate, Outlet } from "react-router-dom";
-// import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../../../hooks/auth";
 
 const LogoutRequired: FC = () => {
-  // const { user } = useAuth();
-  // if (!user) {
+  const { loggedIn } = useAuth();
 
-  if (false) {
-    // user is not authenticated
+  if (loggedIn) {
     return <Navigate to="/home" />;
   }
 
