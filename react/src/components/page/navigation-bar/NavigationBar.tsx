@@ -1,4 +1,4 @@
-import { FC, useContext, useEffect, useState } from "react";
+import { FC, MouseEvent, useContext, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   DarkMode as DarkModeIcon,
@@ -6,16 +6,21 @@ import {
 } from "../../../assets/icons/theme";
 import { Menu as MenuButton } from "../../../assets/icons/utils";
 import { ThemeContext } from "../../../contexts";
+import { useAuth } from "../../../hooks/auth";
 
 const NavigationBar: FC = () => {
-  const { theme, toggleTheme } = useContext(ThemeContext);
   const [toggleMenu, setToggleMenu] = useState<boolean>(false);
+
+  const { theme, toggleTheme } = useContext(ThemeContext);
+  const { loggedIn, logout } = useAuth();
   const location = useLocation();
 
   const updateTheme = () => {
     toggleTheme(theme === "dark" ? "light" : "dark");
     setToggleMenu(false);
   };
+
+  const handleLogout = () => logout();
 
   useEffect(() => {
     if (toggleMenu === true) {
@@ -46,18 +51,49 @@ const NavigationBar: FC = () => {
           <span
             className={`hidden items-center gap-x-8 gap-y-2 peer-[.clicked]:absolute peer-[.clicked]:left-0 peer-[.clicked]:top-full peer-[.clicked]:z-10 peer-[.clicked]:flex peer-[.clicked]:w-screen peer-[.clicked]:flex-col peer-[.clicked]:pb-4 peer-[.clicked]:shadow-xl lg:!static lg:flex lg:!w-fit lg:!flex-row lg:!bg-transparent lg:!bg-none lg:!pb-0 lg:!shadow-none ${toggleMenu ? backgroundColor : ""}`}
           >
-            <Link
-              className="border-b-2 border-transparent font-medium hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"
-              to="/login"
-            >
-              Login
-            </Link>
-            <Link
-              className="border-b-2 border-transparent font-medium hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"
-              to="/signup"
-            >
-              Sign Up
-            </Link>
+            {loggedIn ? (
+              <>
+                <Link
+                  className="border-b-2 border-transparent font-medium hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"
+                  to="/calendars"
+                >
+                  Meetings
+                </Link>
+                <Link
+                  className="border-b-2 border-transparent font-medium hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"
+                  to="/teams"
+                >
+                  Teams
+                </Link>
+                <Link
+                  className="border-b-2 border-transparent font-medium hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"
+                  to="/profile"
+                >
+                  Profile
+                </Link>
+                <button
+                  className="border-b-2 border-transparent font-medium hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"
+                  onClick={handleLogout}
+                >
+                  Log Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  className="border-b-2 border-transparent font-medium hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"
+                  to="/login"
+                >
+                  Login
+                </Link>
+                <Link
+                  className="border-b-2 border-transparent font-medium hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"
+                  to="/signup"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </span>
           <div className="ml-px w-px rounded-full bg-gray-400 dark:w-px dark:bg-gray-400/20" />
           {theme === "dark" ? (

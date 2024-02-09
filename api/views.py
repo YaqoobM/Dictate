@@ -172,7 +172,7 @@ def logout(request):
     try:
         logout_user(request)
     except:
-        return Response({"status": "error", "message": "something went wrong"})
+        return Response({"status": "error", "message": "something went wrong"}, 400)
     return Response({"status": "success"})
 
 
@@ -205,7 +205,7 @@ def signup(request):
 @api_view(["GET"])
 def profile(request):
     if not request.user.is_authenticated:
-        raise ValidationError(
+        return Response(
             {"credentials": "sign in or create an account to access your profile"}, 401
         )
 

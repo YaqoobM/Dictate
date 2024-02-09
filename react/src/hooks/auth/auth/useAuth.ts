@@ -1,13 +1,12 @@
-import { useLogin } from "..";
+import { useLogin, useLogout } from "..";
 import { useProfile } from "../../user";
 
 const useAuth = () => {
   const { isSuccess } = useProfile();
   const { login } = useLogin();
+  const { logout } = useLogout();
 
-  // todo: logout
-
-  return { loggedIn: isSuccess, login };
+  return { loggedIn: isSuccess, login, logout };
 };
 
 export default useAuth;

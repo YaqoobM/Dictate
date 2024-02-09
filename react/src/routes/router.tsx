@@ -25,9 +25,9 @@ export const router = createBrowserRouter(
         <Route element={<LoginRequired />}>
           <Route element={<Suspense />}>
             <Route path="calendars" element={<Calendars />} />
-            <Route path="profile" element={<Profile />} />
             <Route path="resources" element={<Resources />} />
             <Route path="teams" element={<Teams />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Route>
       </Route>

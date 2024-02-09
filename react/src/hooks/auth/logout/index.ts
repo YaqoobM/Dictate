@@ -1,1 +1,1 @@
-// onSuccess: () => queryClient.invalidateQueries(),
+export { default as useLogout } from "./useLogout.ts";
