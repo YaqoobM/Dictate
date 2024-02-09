@@ -7,20 +7,27 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0004_rename_users_meeting_participants'),
+        ("api", "0004_rename_users_meeting_participants"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='notes',
-            name='meeting',
-            field=models.OneToOneField(default=1, on_delete=django.db.models.deletion.CASCADE, to='api.meeting'),
+            model_name="notes",
+            name="meeting",
+            field=models.OneToOneField(
+                default=1, on_delete=django.db.models.deletion.CASCADE, to="api.meeting"
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='recording',
-            name='meeting',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='recordings', to='api.meeting'),
+            model_name="recording",
+            name="meeting",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="recordings",
+                to="api.meeting",
+            ),
             preserve_default=False,
         ),
     ]

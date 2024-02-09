@@ -10,58 +10,155 @@ import storages.backends.s3
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0001_initial'),
+        ("api", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Meeting',
+            name="Meeting",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start_time', models.DateTimeField(auto_now_add=True)),
-                ('end_time', models.DateTimeField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("start_time", models.DateTimeField(auto_now_add=True)),
+                ("end_time", models.DateTimeField(blank=True, null=True)),
             ],
         ),
         migrations.AlterField(
-            model_name='user',
-            name='email',
-            field=models.EmailField(blank=True, max_length=254, null=True, unique=True, verbose_name='email address'),
+            model_name="user",
+            name="email",
+            field=models.EmailField(
+                blank=True,
+                max_length=254,
+                null=True,
+                unique=True,
+                verbose_name="email address",
+            ),
         ),
         migrations.CreateModel(
-            name='Team',
+            name="Team",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=150, verbose_name='team name')),
-                ('members', models.ManyToManyField(related_name='teams', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=150, verbose_name="team name")),
+                (
+                    "members",
+                    models.ManyToManyField(
+                        related_name="teams", to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Recording',
+            name="Recording",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(default='My recording', max_length=150, verbose_name='recording title')),
-                ('upload', models.FileField(blank=True, null=True, storage=storages.backends.s3.S3Storage(), upload_to='recordings/', verbose_name='post-processed recording')),
-                ('temp_upload', models.FileField(null=True, storage=django.core.files.storage.FileSystemStorage(), upload_to='temp_recordings/', verbose_name='pre-processed recording')),
-                ('meeting', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='recordings', to='api.meeting')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        default="My recording",
+                        max_length=150,
+                        verbose_name="recording title",
+                    ),
+                ),
+                (
+                    "upload",
+                    models.FileField(
+                        blank=True,
+                        null=True,
+                        storage=storages.backends.s3.S3Storage(),
+                        upload_to="recordings/",
+                        verbose_name="post-processed recording",
+                    ),
+                ),
+                (
+                    "temp_upload",
+                    models.FileField(
+                        null=True,
+                        storage=django.core.files.storage.FileSystemStorage(),
+                        upload_to="temp_recordings/",
+                        verbose_name="pre-processed recording",
+                    ),
+                ),
+                (
+                    "meeting",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="recordings",
+                        to="api.meeting",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Notes',
+            name="Notes",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(default='My notes', max_length=150, verbose_name='notes title')),
-                ('content', models.TextField()),
-                ('meeting', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='api.meeting')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        default="My notes", max_length=150, verbose_name="notes title"
+                    ),
+                ),
+                ("content", models.TextField()),
+                (
+                    "meeting",
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="api.meeting",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='meeting',
-            name='team',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='meetings', to='api.team'),
+            model_name="meeting",
+            name="team",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="meetings",
+                to="api.team",
+            ),
         ),
         migrations.AddField(
-            model_name='meeting',
-            name='users',
-            field=models.ManyToManyField(blank=True, related_name='meetings', to=settings.AUTH_USER_MODEL),
+            model_name="meeting",
+            name="users",
+            field=models.ManyToManyField(
+                blank=True, related_name="meetings", to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]
