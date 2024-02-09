@@ -26,18 +26,6 @@ from .serializers import (
 )
 
 
-def test(request: HttpRequest) -> HttpResponse:
-    cache.set("bananas", "monkey", 100)
-    print(cache.get("bananas"))
-
-    user = authenticate(request, username="admin", password="1234")
-    print(user)
-    login(request, user)
-    request.session["food"] = "pasta"
-
-    return JsonResponse({"test": 123})
-
-
 class HashedIdModelViewSet(ModelViewSet):
     lookup_field = "hashed_id"
 
@@ -210,5 +198,21 @@ def signup(request):
                 reverse("user-detail", args=[user.hashed_id])
             ),
             "message": "successfully created account and logged in",
+        }
+    )
+
+
+@api_view(["GET"])
+def profile(request):
+    if not request.user.is_authenticated:
+        raise ValidationError(
+            {"credentials": "sign in or create an account to access your profile"}, 401
+        )
+
+    return Response(
+        {
+            "user": request.build_absolute_uri(
+                reverse("user-detail", args=[request.user.hashed_id])
+            )
         }
     )
