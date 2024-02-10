@@ -33,9 +33,10 @@ const useMeeting = (
 
   return {
     refetch: query.refetch,
-    meeting: query.data?.meeting,
+    meeting: query.data,
     isPending: query.isPending,
     isFetching: query.isFetching,
+    isFetched: query.isFetched,
     isSuccess: query.isSuccess,
     isError: query.isError,
     error,

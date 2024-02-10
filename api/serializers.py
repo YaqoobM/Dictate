@@ -150,7 +150,7 @@ class MeetingSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         team = None
 
-        if "team" in validated_data:
+        if "team" in validated_data and validated_data["team"] is not None:
             team = Team.objects.get(
                 id=Team.decode_hashed_id(validated_data.pop("team"))
             )
@@ -164,8 +164,14 @@ class MeetingSerializer(serializers.HyperlinkedModelSerializer):
         return meeting
 
     def update(self, instance, validated_data):
-        if "team" in validated_data:
-            raise ValidationError({"team": "Team cannot be changed"})
+        if "team" in validated_data and validated_data["team"]:
+            team = Team.objects.get(
+                id=Team.decode_hashed_id(validated_data.pop("team"))
+            )
+            instance.team = team
+        elif "team" in validated_data:
+            del validated_data["team"]
+            instance.team = None
 
         return super().update(instance, validated_data)
 
@@ -229,7 +235,9 @@ class MeetingSerializer(serializers.HyperlinkedModelSerializer):
 
             # Validation
             if not isinstance(team, str):
-                raise ValidationError({"team": "Must be a valid hashed_id string"})
+                raise ValidationError(
+                    {"team": "Must be a valid hashed_id string or null"}
+                )
 
             if re.match(f"\/api\/teams\/[{get_hashed_alphabet()}]+\/?$", team):
                 temp = team.rstrip("/")
@@ -237,7 +245,7 @@ class MeetingSerializer(serializers.HyperlinkedModelSerializer):
 
             if not re.match(f"^[{get_hashed_alphabet()}]+$", team):
                 raise ValidationError(
-                    {"teams": "Must be a valid array of hashed_id strings"}
+                    {"team": "Must be a valid hashed_id string or null"}
                 )
 
             try:
@@ -253,8 +261,6 @@ class MeetingSerializer(serializers.HyperlinkedModelSerializer):
             validated_data: dict = super().to_internal_value(data)
             validated_data["team"] = team
             return validated_data
-        elif "team" in data:
-            del data["team"]
 
         return super().to_internal_value(data)
 

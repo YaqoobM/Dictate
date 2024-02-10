@@ -1,6 +1,9 @@
 import { FC, FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
-import { Error as ErrorIcon } from "../../../assets/icons/symbols";
+import {
+  Error as ErrorIcon,
+  Success as SuccessIcon,
+} from "../../../assets/icons/symbols";
 import { Loader as LoadingIcon } from "../../../assets/icons/utils";
 import { InputGroup } from "../../../components/forms";
 import { Button, Card } from "../../../components/utils";
@@ -13,7 +16,7 @@ const SignUp: FC = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [confirmPasswordError, setConfirmPasswordError] = useState<string>("");
 
-  const { signUp, isPending, isError, error } = useSignUp();
+  const { signUp, isPending, isSuccess, isError, error } = useSignUp();
 
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,6 +69,8 @@ const SignUp: FC = () => {
             />
           ) : isError ? (
             <ErrorIcon className="stroke-red-600" height="26" />
+          ) : isSuccess ? (
+            <SuccessIcon className="stroke-green-600" height="26" />
           ) : (
             ""
           )}

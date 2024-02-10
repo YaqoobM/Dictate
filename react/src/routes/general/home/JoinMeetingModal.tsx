@@ -1,5 +1,8 @@
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
-import { Error as ErrorIcon } from "../../../assets/icons/symbols";
+import {
+  Error as ErrorIcon,
+  Success as SuccessIcon,
+} from "../../../assets/icons/symbols";
 import { Loader as LoadingIcon } from "../../../assets/icons/utils";
 import { InputGroup } from "../../../components/forms";
 import { Button } from "../../../components/utils";
@@ -15,14 +18,20 @@ const JoinMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
   const [meetingId, setMeetingId] = useState<string>("");
   const [meetingIdError, setMeetingIdError] = useState<string>("");
 
-  const { refetch, meeting, isFetching, isSuccess, isError, error } =
-    useMeeting(meetingId, false, false);
+  // using hide result to prevent showing cached data
+  const [hideResult, setHideResult] = useState<boolean>(true);
 
   const { Modal } = useModal();
 
-  console.log(error);
+  const { refetch, isFetching, isSuccess, isError, error } = useMeeting(
+    meetingId,
+    false,
+    false,
+  );
 
   const handleJoinMeeting = () => {
+    setHideResult(false);
+
     if (!meetingId) {
       return setMeetingIdError("please enter a meeting id");
     } else {
@@ -33,11 +42,26 @@ const JoinMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
   };
 
   useEffect(() => {
-    if (hidden === true && (meetingIdError || isError)) {
-      setMeetingId("");
-      setMeetingIdError("");
+    if (hidden === true) {
+      if (meetingId) {
+        setMeetingId("");
+      }
+
+      if (meetingIdError) {
+        setMeetingIdError("");
+      }
+
+      if (!hideResult) {
+        setHideResult(true);
+      }
     }
   }, [hidden]);
+
+  useEffect(() => {
+    if (!hideResult) {
+      setHideResult(true);
+    }
+  }, [meetingId]);
 
   return (
     <Modal
@@ -50,20 +74,28 @@ const JoinMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
           <span className="text-3xl font-semibold tracking-tight text-amber-500 dark:text-amber-300">
             Meeting Id
           </span>
-          {isFetching ? (
+          {hideResult ? (
+            ""
+          ) : isFetching ? (
             <LoadingIcon
               className="animate-spin stroke-amber-500 dark:stroke-amber-300"
               height="26"
             />
           ) : isError || meetingIdError ? (
             <ErrorIcon className="stroke-red-600" height="26" />
+          ) : isSuccess ? (
+            <SuccessIcon className="stroke-green-600" height="26" />
           ) : (
             ""
           )}
         </h1>
-        {meetingIdError ? (
+        {hideResult ? (
+          ""
+        ) : meetingIdError || error ? (
           <p className="text-sm font-medium capitalize text-red-500 lg:col-span-3 lg:text-right">
-            {meetingIdError}
+            {meetingIdError ||
+              (error?.data && Object.values(error.data)[0]) ||
+              "Something went wrong"}
           </p>
         ) : (
           ""

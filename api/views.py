@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as login_user
 from django.contrib.auth import logout as logout_user
@@ -15,8 +17,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from .helpers import get_hashed_alphabet
 from .models import HashedIdModel, Meeting, Notes, Recording, User
-from .permissions import IsNotAuthenticated, IsUserOrReadOnly
+from .permissions import AllowPOST, IsNotAuthenticated, IsUserOrReadOnly, ReadOnly
 from .serializers import (
     MeetingSerializer,
     NotesSerializer,
@@ -31,6 +34,12 @@ class HashedIdModelViewSet(ModelViewSet):
 
     def get_object(self):
         """Transform hashed_id lookup field -> id"""
+
+        if len(self.kwargs["hashed_id"]) < 6:
+            raise ValidationError({"hashed_id": "Invalid id."})
+
+        if not re.match(f"^[{get_hashed_alphabet()}]+$", self.kwargs["hashed_id"]):
+            raise ValidationError({"hashed_id": "Invalid id."})
 
         obj = get_object_or_404(
             self.get_queryset(),
@@ -66,21 +75,38 @@ class TeamViewSet(HashedIdModelViewSet):
         return self.request.user.teams.all()
 
     def perform_create(self, serializer):
-        serializer.save(members=[self.request.user])
+        return serializer.save(members=[self.request.user])
 
 
 class MeetingViewSet(HashedIdModelViewSet):
     serializer_class = MeetingSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated | ReadOnly | AllowPOST]
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_queryset(self):
-        """Get all team meetings and private meetings, sorted by most recent"""
+        """
+        Get all team meetings and private meetings if signed in, sorted by most recent.
+        If searching for a specific meeting include all public meetings that haven't
+        ended regardless of request authentication.
+        """
 
-        return Meeting.objects.filter(
-            Q(participants__email=self.request.user.email)
-            | Q(team__in=self.request.user.teams.all())
-        ).order_by("-start_time")
+        if self.action != "retrieve" and not self.request.user.is_authenticated:
+            # prevent listing all public meetings w/o searching by id
+            return Meeting.objects.none()
+
+        query = Q()
+
+        if self.action == "retrieve":
+            # append "OR"
+            query |= Q(team__isnull=True) & Q(end_time__isnull=True)
+
+        if self.request.user.is_authenticated:
+            # append "OR"
+            query |= Q(participants__email=self.request.user.email) | Q(
+                team__in=self.request.user.teams.all()
+            )
+
+        return Meeting.objects.filter(query).order_by("-start_time")
 
     def perform_create(self, serializer):
         # Validate user has access to team
@@ -93,10 +119,16 @@ class MeetingViewSet(HashedIdModelViewSet):
                 raise ValidationError(
                     {"teams": f"You do not have access to team: {team}"}
                 )
-        else:
+        elif self.request.user.is_authenticated:
             # Attach as private meeting
-            serializer.save(participants=[self.request.user])
-        return super().perform_create(serializer)
+            return serializer.save(participants=[self.request.user])
+
+        return serializer.save()
+
+    def perform_update(self, serializer):
+        if "team" in self.request.data:
+            raise ValidationError({"team": "'team' is read-only after creation"})
+        return super().perform_update(serializer)
 
 
 class RecordingViewSet(HashedIdModelViewSet):
@@ -209,10 +241,6 @@ def profile(request):
             {"credentials": "sign in or create an account to access your profile"}, 401
         )
 
-    return Response(
-        {
-            "user": request.build_absolute_uri(
-                reverse("user-detail", args=[request.user.hashed_id])
-            )
-        }
-    )
+    serializer = UserSerializer(request.user, context={"request": request})
+
+    return Response({"user": serializer.data})
