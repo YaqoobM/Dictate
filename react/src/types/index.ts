@@ -1,1 +1,2 @@
-export { User } from "./User.ts";
+export type { Meeting } from "./Meeting.ts";
+export type { User } from "./User.ts";

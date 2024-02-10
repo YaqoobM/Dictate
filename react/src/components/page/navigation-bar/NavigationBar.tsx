@@ -1,10 +1,10 @@
-import { FC, MouseEvent, useContext, useEffect, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Menu as MenuButton } from "../../../assets/icons/buttons";
 import {
   DarkMode as DarkModeIcon,
   LightMode as LightModeIcon,
 } from "../../../assets/icons/theme";
-import { Menu as MenuButton } from "../../../assets/icons/utils";
 import { ThemeContext } from "../../../contexts";
 import { useAuth } from "../../../hooks/auth";
 

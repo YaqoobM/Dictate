@@ -7,7 +7,10 @@ const Footer: FC = () => {
     <footer className="border-t-2 border-gray-200 bg-gray-800 bg-gradient-to-r from-gray-100 to-gray-200/95 dark:border-gray-800 dark:bg-gray-500 dark:from-gray-800 dark:to-gray-900">
       <div className="container mx-auto p-4 md:py-8">
         <div className="sm:flex sm:items-center sm:justify-between">
-          <Link to="/home" className="mb-4 flex items-center space-x-3 sm:mb-0">
+          <Link
+            to="/home"
+            className="mb-4 flex items-center space-x-3 border-b border-transparent focus:outline-none focus-visible:border-amber-500 dark:focus-visible:border-amber-300 sm:mb-0"
+          >
             <span className="self-center whitespace-nowrap text-3xl font-medium dark:text-white">
               Dictate
             </span>
@@ -20,7 +23,7 @@ const Footer: FC = () => {
             <li>
               <Link
                 to="#"
-                className="hover:text-amber-500 dark:hover:text-amber-300"
+                className="border-b border-transparent hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"
               >
                 About
               </Link>
@@ -28,7 +31,7 @@ const Footer: FC = () => {
             <li>
               <Link
                 to="#"
-                className="hover:text-amber-500 dark:hover:text-amber-300"
+                className="border-b border-transparent hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"
               >
                 Privacy Policy
               </Link>
@@ -36,7 +39,7 @@ const Footer: FC = () => {
             <li>
               <Link
                 to="#"
-                className="hover:text-amber-500 dark:hover:text-amber-300"
+                className="border-b border-transparent hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"
               >
                 Licensing
               </Link>
@@ -44,7 +47,7 @@ const Footer: FC = () => {
             <li>
               <Link
                 to="#"
-                className="hover:text-amber-500 dark:hover:text-amber-300"
+                className="border-b border-transparent hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"
               >
                 Contact
               </Link>
@@ -56,7 +59,7 @@ const Footer: FC = () => {
           © 2023{" "}
           <Link
             to="/home"
-            className="hover:text-amber-500 dark:hover:text-amber-300"
+            className="border-b border-transparent hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"
           >
             Dictate
           </Link>

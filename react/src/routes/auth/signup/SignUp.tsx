@@ -1,9 +1,7 @@
 import { FC, FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  Close as ErrorIcon,
-  Loader as LoadingIcon,
-} from "../../../assets/icons/utils";
+import { Error as ErrorIcon } from "../../../assets/icons/symbols";
+import { Loader as LoadingIcon } from "../../../assets/icons/utils";
 import { InputGroup } from "../../../components/forms";
 import { Button, Card } from "../../../components/utils";
 import { useSignUp } from "../../../hooks/auth";
@@ -85,7 +83,7 @@ const SignUp: FC = () => {
             ) : (
               ""
             )}
-            <form className="space-y-6" onSubmit={(e) => submit(e)}>
+            <form className="space-y-6" onSubmit={submit}>
               <InputGroup
                 id="email"
                 name="email"

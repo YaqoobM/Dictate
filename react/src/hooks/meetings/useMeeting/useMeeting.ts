@@ -1,28 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { User } from "../../../types";
+import { Meeting } from "../../../types";
 import { useAxios } from "../../utils";
 
 type Response = {
-  user: User;
+  meeting: Meeting;
 };
 
-const useProfile = () => {
+const useMeeting = (
+  id: string,
+  retryOnMount: boolean = true,
+  enabled: boolean = true,
+) => {
   const axios = useAxios();
 
   const query = useQuery({
-    queryKey: ["profile"],
-    queryFn: () => axios.get<Response>("/api/profile/").then((res) => res.data),
-    retry: (count, err) => {
-      if (err instanceof AxiosError && err.response?.status === 401) {
-        return false;
-      }
-      if (count >= 3) return false;
-      return true;
-    },
+    queryKey: ["meeting", id],
+    queryFn: () =>
+      axios.get<Response>(`/api/meetings/${id}/`).then((res) => res.data),
+    retry: false,
     //         1 min
     staleTime: 1 * 60 * 1000,
-    retryOnMount: false,
+    retryOnMount,
+    enabled,
   });
 
   let error = null;
@@ -33,12 +33,13 @@ const useProfile = () => {
 
   return {
     refetch: query.refetch,
-    user: query.data?.user,
+    meeting: query.data?.meeting,
     isPending: query.isPending,
+    isFetching: query.isFetching,
     isSuccess: query.isSuccess,
     isError: query.isError,
     error,
   };
 };
 
-export default useProfile;
+export default useMeeting;

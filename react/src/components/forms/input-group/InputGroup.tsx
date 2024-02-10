@@ -8,7 +8,7 @@ type Props = {
   value: string;
   setValue: Dispatch<SetStateAction<string>>;
   placeholder?: string;
-  label: string;
+  label?: string;
   error?: string;
   className?: string;
 };
@@ -16,16 +16,20 @@ type Props = {
 const InputGroup: FC<Props> = ({ label, error, className, ...props }) => {
   return (
     <div className={className}>
-      <Label>
-        {label}
-        {error ? (
-          <span className="float-right font-medium capitalize leading-tight tracking-tight text-red-500">
-            {error}
-          </span>
-        ) : (
-          ""
-        )}
-      </Label>
+      {label ? (
+        <Label>
+          {label}
+          {error ? (
+            <span className="float-right font-medium capitalize leading-tight tracking-tight text-red-500">
+              {error}
+            </span>
+          ) : (
+            ""
+          )}
+        </Label>
+      ) : (
+        ""
+      )}
       <Input {...props} />
     </div>
   );
