@@ -11,12 +11,16 @@ from .helpers import get_hashed_alphabet
 from .models import Meeting, Notes, Recording, Team, User
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class HashedIdModelSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField(source="hashed_id")
+
+
+class UserSerializer(HashedIdModelSerializer):
     class Meta:
         model = User
         fields = [
+            "id",
             "url",
-            "hashed_id",
             "email",
             "username",
             "password",
@@ -104,10 +108,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         return super().to_internal_value(data)
 
 
-class TeamSerializer(serializers.HyperlinkedModelSerializer):
+class TeamSerializer(HashedIdModelSerializer):
     class Meta:
         model = Team
-        fields = ["url", "hashed_id", "name", "members", "meetings"]
+        fields = ["id", "url", "name", "members", "meetings"]
         read_only_fields = ["members", "meetings"]
         extra_kwargs = {
             "members": {"lookup_field": "hashed_id"},
@@ -116,12 +120,12 @@ class TeamSerializer(serializers.HyperlinkedModelSerializer):
         }
 
 
-class MeetingSerializer(serializers.HyperlinkedModelSerializer):
+class MeetingSerializer(HashedIdModelSerializer):
     class Meta:
         model = Meeting
         fields = [
+            "id",
             "url",
-            "hashed_id",
             "websocket",
             "start_time",
             "end_time",
@@ -265,14 +269,14 @@ class MeetingSerializer(serializers.HyperlinkedModelSerializer):
         return super().to_internal_value(data)
 
 
-class RecordingSerializer(serializers.HyperlinkedModelSerializer):
+class RecordingSerializer(HashedIdModelSerializer):
     recording = serializers.FileField(
         source="temp_upload", write_only=True, required=True
     )
 
     class Meta:
         model = Recording
-        fields = ["url", "hashed_id", "title", "meeting", "upload", "recording"]
+        fields = ["id", "url", "title", "meeting", "upload", "recording"]
         read_only_fields = ["upload"]
         extra_kwargs = {
             "url": {"lookup_field": "hashed_id"},
@@ -371,10 +375,10 @@ class RecordingSerializer(serializers.HyperlinkedModelSerializer):
         return super().to_internal_value(data)
 
 
-class NotesSerializer(serializers.HyperlinkedModelSerializer):
+class NotesSerializer(HashedIdModelSerializer):
     class Meta:
         model = Notes
-        fields = ["url", "hashed_id", "title", "meeting", "content"]
+        fields = ["id", "url", "title", "meeting", "content"]
         read_only_fields = ["meeting"]
         extra_kwargs = {
             "url": {"lookup_field": "hashed_id"},
