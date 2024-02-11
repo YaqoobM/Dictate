@@ -69,13 +69,13 @@ class UserSerializer(HashedIdModelSerializer):
             # Validation
             if not isinstance(teams, list):
                 raise ValidationError(
-                    {"teams": "Must be a valid array of hashed_id strings"}
+                    {"teams": "Must be a valid array of hashed_id strings."}
                 )
 
             for i, team in enumerate(teams):
                 if not isinstance(team, str):
                     raise ValidationError(
-                        {"teams": "Must be a valid array of hashed_id strings"}
+                        {"teams": "Must be a valid array of hashed_id strings."}
                     )
 
                 if re.match(f".*\/api\/teams\/[{get_hashed_alphabet()}]+\/?$", team):
@@ -85,18 +85,18 @@ class UserSerializer(HashedIdModelSerializer):
 
                 if not re.match(f"^[{get_hashed_alphabet()}]+$", team):
                     raise ValidationError(
-                        {"teams": "Must be a valid array of hashed_id strings"}
+                        {"teams": "Must be a valid array of hashed_id strings."}
                     )
 
                 try:
                     Team.decode_hashed_id(team)
                 except ValueError:
-                    raise ValidationError({"teams": "Invalid hashed_id string"})
+                    raise ValidationError({"teams": "Invalid hashed_id string."})
 
                 if not Team.objects.filter(
                     id=Team.decode_hashed_id(team),
                 ).exists():
-                    raise ValidationError({"teams": f"Team: {team} does not exist"})
+                    raise ValidationError({"teams": f"Team: {team} does not exist."})
 
             # temporarily assign teams so validation check for POST doesn't find missing key-value
             data["teams"] = []
@@ -186,17 +186,17 @@ class MeetingSerializer(HashedIdModelSerializer):
         """
 
         if "start_time" in data and data["start_time"] is None:
-            raise ValidationError({"start_time": "Cannot be set to null"})
+            raise ValidationError({"start_time": "Cannot be set to null."})
 
         if "start_time" in data and data["start_time"] < now():
-            raise ValidationError({"start_time": "Cannot be set to the past"})
+            raise ValidationError({"start_time": "Cannot be set to the past."})
 
         if (
             "end_time" in data
             and data["end_time"] is not None
             and data["end_time"] < now()
         ):
-            raise ValidationError({"end_time": "Cannot be set to the past"})
+            raise ValidationError({"end_time": "Cannot be set to the past."})
 
         if (
             "start_time" in data
@@ -205,7 +205,7 @@ class MeetingSerializer(HashedIdModelSerializer):
             and data["end_time"] is not None
         ):
             if data["start_time"] >= data["end_time"]:
-                raise ValidationError({"time": "end_time must occur after start_time"})
+                raise ValidationError({"time": "end_time must occur after start_time."})
 
         if self.instance:
             if (
@@ -213,7 +213,7 @@ class MeetingSerializer(HashedIdModelSerializer):
                 and data["end_time"] is None
                 and self.instance.end_time
             ):
-                raise ValidationError({"end_time": "Cannot be reset to null"})
+                raise ValidationError({"end_time": "Cannot be reset to null."})
 
             if (
                 "start_time" not in data
@@ -221,7 +221,7 @@ class MeetingSerializer(HashedIdModelSerializer):
                 and data["end_time"] is not None
                 and self.instance.start_time >= data["end_time"]
             ):
-                raise ValidationError({"time": "end_time must occur after start_time"})
+                raise ValidationError({"time": "end_time must occur after start_time."})
 
             if (
                 "start_time" in data
@@ -229,7 +229,7 @@ class MeetingSerializer(HashedIdModelSerializer):
                 and data["start_time"] is not None
                 and data["start_time"] >= self.instance.end_time
             ):
-                raise ValidationError({"time": "end_time must occur after start_time"})
+                raise ValidationError({"time": "end_time must occur after start_time."})
 
         return data
 
@@ -240,7 +240,7 @@ class MeetingSerializer(HashedIdModelSerializer):
             # Validation
             if not isinstance(team, str):
                 raise ValidationError(
-                    {"team": "Must be a valid hashed_id string or null"}
+                    {"team": "Must be a valid hashed_id string or null."}
                 )
 
             if re.match(f"\/api\/teams\/[{get_hashed_alphabet()}]+\/?$", team):
@@ -249,18 +249,18 @@ class MeetingSerializer(HashedIdModelSerializer):
 
             if not re.match(f"^[{get_hashed_alphabet()}]+$", team):
                 raise ValidationError(
-                    {"team": "Must be a valid hashed_id string or null"}
+                    {"team": "Must be a valid hashed_id string or null."}
                 )
 
             try:
                 Team.decode_hashed_id(team)
             except ValueError:
-                raise ValidationError({"team": "Invalid hashed_id string"})
+                raise ValidationError({"team": "Invalid hashed_id string."})
 
             if not Team.objects.filter(
                 id=Team.decode_hashed_id(team),
             ).exists():
-                raise ValidationError({"team": f"Team: {team} does not exist"})
+                raise ValidationError({"team": f"Team: {team} does not exist."})
 
             validated_data: dict = super().to_internal_value(data)
             validated_data["team"] = team
@@ -291,19 +291,19 @@ class RecordingSerializer(HashedIdModelSerializer):
         try:
             recording = Recording.objects.create(meeting=meeting, **validated_data)
         except:
-            raise ValidationError({"error": "Error in add recording to db"})
+            raise ValidationError({"error": "Error in add recording to db."})
 
         return recording
 
     def update(self, instance, validated_data):
         if "meeting" in validated_data:
             raise ValidationError(
-                {"meeting": "Meeting cannot be edited in PATCH requests"}
+                {"meeting": "Meeting cannot be edited in PATCH requests."}
             )
 
         if "recording" in validated_data:
             raise ValidationError(
-                {"recording": "Recording cannot be edited in PATCH requests"}
+                {"recording": "Recording cannot be edited in PATCH requests."}
             )
 
         return super().update(instance, validated_data)
@@ -317,27 +317,27 @@ class RecordingSerializer(HashedIdModelSerializer):
                 # form type = form-data not json
                 meeting = meeting[0]
             except:
-                raise ValidationError({"meeting": "Invalid input"})
+                raise ValidationError({"meeting": "Invalid input."})
 
             if not isinstance(meeting, str):
-                raise ValidationError({"meeting": "Must be a valid hashed_id string"})
+                raise ValidationError({"meeting": "Must be a valid hashed_id string."})
 
             if re.match(f".*\/api\/meetings\/[{get_hashed_alphabet()}]+\/?$", meeting):
                 temp = meeting.rstrip("/")
                 meeting = temp[temp.rfind("/") + 1 :]
 
             if not re.match(f"^[{get_hashed_alphabet()}]+$", meeting):
-                raise ValidationError({"meeting": "Must be a valid hashed_id string"})
+                raise ValidationError({"meeting": "Must be a valid hashed_id string."})
 
             try:
                 Meeting.decode_hashed_id(meeting)
             except ValueError:
-                raise ValidationError({"meeting": "Invalid hashed_id string"})
+                raise ValidationError({"meeting": "Invalid hashed_id string."})
 
             if not Meeting.objects.filter(
                 id=Meeting.decode_hashed_id(meeting),
             ).exists():
-                raise ValidationError({"meeting": f"Meeting: {meeting} does not exist"})
+                raise ValidationError({"meeting": f"Meeting: {meeting} does not exist."})
 
             # copied from super(), manually removing "meeting" from validation
             validated_data = OrderedDict()

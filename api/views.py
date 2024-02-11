@@ -113,11 +113,16 @@ class MeetingViewSet(HashedIdModelViewSet):
         if "team" in self.request.data and self.request.data["team"]:
             team = self.request.data["team"]
 
+            if not self.request.user.is_authenticated:
+                raise ValidationError(
+                    {"teams": f"You do not have access to team: {team}."}
+                )
+
             if not self.request.user.teams.filter(
                 id=User.decode_hashed_id(team)
             ).exists():
                 raise ValidationError(
-                    {"teams": f"You do not have access to team: {team}"}
+                    {"teams": f"You do not have access to team: {team}."}
                 )
         elif self.request.user.is_authenticated:
             # Attach as private meeting
@@ -127,7 +132,7 @@ class MeetingViewSet(HashedIdModelViewSet):
 
     def perform_update(self, serializer):
         if "team" in self.request.data:
-            raise ValidationError({"team": "'team' is read-only after creation"})
+            raise ValidationError({"team": "'team' is read-only after creation."})
         return super().perform_update(serializer)
 
 
@@ -164,9 +169,9 @@ class NotesViewSet(HashedIdModelViewSet):
 @csrf_protect
 def login(request):
     if "email" not in request.data:
-        raise ValidationError({"email": "Missing required field"})
+        raise ValidationError({"email": "Missing required field."})
     elif not isinstance(request.data["email"], str):
-        raise ValidationError({"email": "Must be string data type"})
+        raise ValidationError({"email": "Must be string data type."})
 
     try:
         validate_email(request.data["email"])
@@ -174,9 +179,9 @@ def login(request):
         raise ValidationError({"email": e.message})
 
     if "password" not in request.data:
-        raise ValidationError({"password": "Missing required field"})
+        raise ValidationError({"password": "Missing required field."})
     elif not isinstance(request.data["password"], str):
-        raise ValidationError({"password": "Must be string data type"})
+        raise ValidationError({"password": "Must be string data type."})
 
     user = authenticate(
         request,
@@ -185,7 +190,7 @@ def login(request):
     )
 
     if user is None:
-        raise ValidationError({"credentials": "Invalid username or password"})
+        raise ValidationError({"credentials": "Invalid username or password."})
 
     login_user(request, user)
 
@@ -204,7 +209,7 @@ def logout(request):
     try:
         logout_user(request)
     except:
-        return Response({"status": "error", "message": "something went wrong"}, 400)
+        return Response({"status": "error", "message": "something went wrong."}, 400)
     return Response({"status": "success"})
 
 
@@ -229,7 +234,7 @@ def signup(request):
             "user": request.build_absolute_uri(
                 reverse("user-detail", args=[user.hashed_id])
             ),
-            "message": "successfully created account and logged in",
+            "message": "successfully created account and logged in.",
         }
     )
 
@@ -238,7 +243,7 @@ def signup(request):
 def profile(request):
     if not request.user.is_authenticated:
         return Response(
-            {"credentials": "sign in or create an account to access your profile"}, 401
+            {"credentials": "sign in or create an account to access your profile."}, 401
         )
 
     serializer = UserSerializer(request.user, context={"request": request})
