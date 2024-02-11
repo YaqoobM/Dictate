@@ -10,11 +10,11 @@ const Modal = forwardRef<HTMLDivElement, Props>(
   ({ hidden, setHidden, className, children, ...props }, ref) => {
     return (
       <div
-        className={`fixed inset-0 z-50 transition-colors duration-200 ${hidden ? "invisible" : "visible bg-gray-900/70"}`}
+        className={`fixed inset-0 z-50 transition-colors duration-300 ${hidden ? "invisible" : "visible bg-gray-900/70"}`}
         onClick={() => setHidden(true)}
       >
         <div
-          className={`relative left-1/2 top-1/4 inline-block min-h-12 min-w-40 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-gray-200 bg-gray-100 shadow-lg transition-all duration-200 dark:border-gray-800 dark:bg-gray-900 dark:shadow-xl ${hidden ? "scale-[1.01] opacity-0" : "scale-100 opacity-100"} ${className}`}
+          className={`relative left-1/2 top-1/4 inline-block min-h-12 min-w-40 -translate-x-1/2 -translate-y-1/2 rounded-lg border border-gray-200 bg-gray-100 shadow-lg transition-all duration-300 dark:border-gray-800 dark:bg-gray-900 dark:shadow-xl ${hidden ? "scale-[1.03] opacity-0" : "scale-100 opacity-100"} ${className}`}
           onClick={(e) => e.stopPropagation()}
           ref={ref}
           {...props}

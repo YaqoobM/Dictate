@@ -13,9 +13,11 @@ const NavigationBar: FC = () => {
   const {
     isAuthenticated,
     loginIsError,
+    logoutIsError,
     signUpIsError,
     logout,
     loginReset,
+    logoutReset,
     signUpReset,
   } = useContext(AuthContext);
 
@@ -42,6 +44,10 @@ const NavigationBar: FC = () => {
 
     if (loginIsError) {
       loginReset();
+    }
+
+    if (logoutIsError) {
+      logoutReset();
     }
 
     if (signUpIsError) {

@@ -1,10 +1,13 @@
 import { FC } from "react";
-import { JoinMeetingModal } from ".";
+import { CreateMeetingModal, JoinMeetingModal } from ".";
 import { Button } from "../../../components/utils";
 import { useModal } from "../../../hooks/components";
 
 const Home: FC = () => {
-  const { hidden: modalState, setHidden: setModalState } = useModal();
+  const { hidden: joinMeetingModal, setHidden: setJoinMeetingModal } =
+    useModal();
+  const { hidden: createMeetingModal, setHidden: setCreateMeetingModal } =
+    useModal();
 
   return (
     <>
@@ -20,14 +23,26 @@ const Home: FC = () => {
             fugiat rem ea.
           </p>
           <span className="flex flex-row items-center justify-center gap-x-14">
-            <Button>Start a Meeting</Button>
-            <Button onClick={() => setModalState(false)}>Join a Meeting</Button>
+            <Button onClick={() => setCreateMeetingModal(false)}>
+              Start a Meeting
+            </Button>
+            <Button onClick={() => setJoinMeetingModal(false)}>
+              Join a Meeting
+            </Button>
           </span>
         </hgroup>
         <h1>image</h1>
       </div>
 
-      <JoinMeetingModal hidden={modalState} setHidden={setModalState} />
+      <JoinMeetingModal
+        hidden={joinMeetingModal}
+        setHidden={setJoinMeetingModal}
+      />
+
+      <CreateMeetingModal
+        hidden={createMeetingModal}
+        setHidden={setCreateMeetingModal}
+      />
     </>
   );
 };

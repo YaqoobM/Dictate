@@ -3,9 +3,7 @@ import { AxiosError } from "axios";
 import { Meeting } from "../../../types";
 import { useAxios } from "../../utils";
 
-type Response = {
-  meeting: Meeting;
-};
+type Response = Meeting;
 
 const useMeeting = (
   id: string,
@@ -27,7 +25,11 @@ const useMeeting = (
 
   let error = null;
 
-  if (query.error && query.error instanceof AxiosError) {
+  if (
+    query.error &&
+    query.error instanceof AxiosError &&
+    query.error.response
+  ) {
     error = query.error.response;
   }
 

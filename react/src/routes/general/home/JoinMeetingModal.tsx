@@ -34,7 +34,7 @@ const JoinMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
     setHideResult(false);
 
     if (!meetingId) {
-      return setMeetingIdError("please enter a meeting id");
+      return setMeetingIdError("please enter a meeting id.");
     } else {
       setMeetingIdError("");
     }

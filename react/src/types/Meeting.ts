@@ -1,7 +1,7 @@
 export interface Meeting {
   id: string;
   url: string;
-  socket: string;
+  websocket: string;
   start_time: string;
   end_time: string | null;
   team: string | null;

@@ -27,7 +27,11 @@ const useProfile = () => {
 
   let error = null;
 
-  if (query.error && query.error instanceof AxiosError) {
+  if (
+    query.error &&
+    query.error instanceof AxiosError &&
+    query.error.response
+  ) {
     error = query.error.response;
   }
 
