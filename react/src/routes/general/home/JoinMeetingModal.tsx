@@ -1,4 +1,5 @@
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Error as ErrorIcon,
   Success as SuccessIcon,
@@ -17,11 +18,11 @@ type Props = {
 const JoinMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
   const [meetingId, setMeetingId] = useState<string>("");
   const [meetingIdError, setMeetingIdError] = useState<string>("");
-
   // using hide result to prevent showing cached data
   const [hideResult, setHideResult] = useState<boolean>(true);
 
   const { Modal } = useModal();
+  const navigate = useNavigate();
 
   const { refetch, isFetching, isSuccess, isError, error } = useMeeting(
     meetingId,
@@ -62,6 +63,12 @@ const JoinMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
       setHideResult(true);
     }
   }, [meetingId]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      navigate(`/meeting/${meetingId}`);
+    }
+  }, [isSuccess]);
 
   return (
     <Modal

@@ -1,5 +1,5 @@
-import { FC, FormEvent, useState } from "react";
-import { Link } from "react-router-dom";
+import { FC, FormEvent, useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Error as ErrorIcon,
   Success as SuccessIcon,
@@ -7,7 +7,7 @@ import {
 import { Loader as LoadingIcon } from "../../../assets/icons/utils";
 import { InputGroup } from "../../../components/forms";
 import { Button, Card } from "../../../components/utils";
-import { useSignUp } from "../../../hooks/auth";
+import { AuthContext } from "../../../contexts";
 
 const SignUp: FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -15,14 +15,21 @@ const SignUp: FC = () => {
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [confirmPasswordError, setConfirmPasswordError] = useState<string>("");
+  const navigate = useNavigate();
 
-  const { signUp, isPending, isSuccess, isError, error } = useSignUp();
+  const {
+    signUp,
+    signUpIsPending: isPending,
+    signUpIsSuccess: isSuccess,
+    signUpIsError: isError,
+    signUpError: error,
+  } = useContext(AuthContext);
 
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // custom 'confirm password' validation
-    let confirmPasswordValidation: string = "";
+    let confirmPasswordValidation = "";
 
     if (!confirmPassword) {
       confirmPasswordValidation = "this field may not be blank.";
@@ -32,29 +39,19 @@ const SignUp: FC = () => {
       confirmPasswordValidation = "passwords must match.";
     }
 
-    // refresh validation errors
+    if (confirmPasswordValidation) {
+      return setConfirmPasswordError(confirmPasswordValidation);
+    }
+
     if (confirmPasswordError) {
       setConfirmPasswordError("");
     }
 
-    signUp(
-      { email, username, password },
-      {
-        onSuccess: () => {
-          if (confirmPasswordValidation) {
-            return setConfirmPasswordError(confirmPasswordValidation);
-          }
-
-          console.log("navigate to home page");
-        },
-
-        onError: () => {
-          if (confirmPasswordValidation) {
-            return setConfirmPasswordError(confirmPasswordValidation);
-          }
-        },
+    signUp(email, username, password, {
+      onSuccess: () => {
+        navigate("/calendars");
       },
-    );
+    });
   };
 
   return (
@@ -67,7 +64,7 @@ const SignUp: FC = () => {
               className="animate-spin stroke-amber-500 dark:stroke-amber-300"
               height="26"
             />
-          ) : isError ? (
+          ) : isError || confirmPasswordError ? (
             <ErrorIcon className="stroke-red-600" height="26" />
           ) : isSuccess ? (
             <SuccessIcon className="stroke-green-600" height="26" />

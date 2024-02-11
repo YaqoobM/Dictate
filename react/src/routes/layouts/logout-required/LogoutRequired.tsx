@@ -1,11 +1,11 @@
-import { FC } from "react";
+import { FC, useContext } from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../../../hooks/auth";
+import { AuthContext } from "../../../contexts";
 
 const LogoutRequired: FC = () => {
-  const { loggedIn } = useAuth();
+  const { isAuthenticated } = useContext(AuthContext);
 
-  if (loggedIn) {
+  if (isAuthenticated) {
     return <Navigate to="/home" />;
   }
 

@@ -9,6 +9,7 @@ type signUpParams = {
   password: string;
 };
 
+/** For internal use only, use AuthContext instead */
 const useSignUp = () => {
   const queryClient = useQueryClient();
   const axios = useAxios();
@@ -27,7 +28,11 @@ const useSignUp = () => {
 
   let error = null;
 
-  if (mutate.error && mutate.error instanceof AxiosError) {
+  if (
+    mutate.error &&
+    mutate.error instanceof AxiosError &&
+    mutate.error.response
+  ) {
     error = mutate.error.response;
   }
 
@@ -37,7 +42,7 @@ const useSignUp = () => {
     isPending: mutate.isPending,
     isSuccess: mutate.isSuccess,
     isError: mutate.isError,
-    error: error,
+    error,
   };
 };
 

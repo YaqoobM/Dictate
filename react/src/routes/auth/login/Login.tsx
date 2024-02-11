@@ -1,5 +1,5 @@
-import { FC, FormEvent, useState } from "react";
-import { Link } from "react-router-dom";
+import { FC, FormEvent, useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Error as ErrorIcon,
   Success as SuccessIcon,
@@ -7,24 +7,28 @@ import {
 import { Loader as LoadingIcon } from "../../../assets/icons/utils";
 import { InputGroup } from "../../../components/forms";
 import { Button, Card } from "../../../components/utils";
-import { useLogin } from "../../../hooks/auth";
+import { AuthContext } from "../../../contexts";
 
 const Login: FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const navigate = useNavigate();
 
-  const { login, isPending, isSuccess, isError, error } = useLogin();
+  const {
+    login,
+    loginIsPending: isPending,
+    loginIsSuccess: isSuccess,
+    loginIsError: isError,
+    loginError: error,
+  } = useContext(AuthContext);
 
   const submit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    login(
-      { email, password },
-      {
-        onSuccess: () => {
-          console.log("navigate to home page");
-        },
+    login(email, password, {
+      onSuccess: () => {
+        navigate("/calendars");
       },
-    );
+    });
   };
 
   return (

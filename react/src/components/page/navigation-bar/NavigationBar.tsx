@@ -1,30 +1,51 @@
 import { FC, useContext, useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu as MenuButton } from "../../../assets/icons/buttons";
 import {
   DarkMode as DarkModeIcon,
   LightMode as LightModeIcon,
 } from "../../../assets/icons/theme";
-import { ThemeContext } from "../../../contexts";
-import { useAuth } from "../../../hooks/auth";
+import { AuthContext, ThemeContext } from "../../../contexts";
 
 const NavigationBar: FC = () => {
   const [toggleMenu, setToggleMenu] = useState<boolean>(false);
-
   const { theme, toggleTheme } = useContext(ThemeContext);
-  const { loggedIn, logout } = useAuth();
+  const {
+    isAuthenticated,
+    loginIsError,
+    signUpIsError,
+    logout,
+    loginReset,
+    signUpReset,
+  } = useContext(AuthContext);
+
   const location = useLocation();
+  const navigate = useNavigate();
 
   const updateTheme = () => {
     toggleTheme(theme === "dark" ? "light" : "dark");
     setToggleMenu(false);
   };
 
-  const handleLogout = () => logout();
+  const handleLogout = () => {
+    logout({
+      onSuccess: () => {
+        navigate("/");
+      },
+    });
+  };
 
   useEffect(() => {
     if (toggleMenu === true) {
       setToggleMenu(false);
+    }
+
+    if (loginIsError) {
+      loginReset();
+    }
+
+    if (signUpIsError) {
+      signUpReset();
     }
   }, [location]);
 
@@ -51,7 +72,7 @@ const NavigationBar: FC = () => {
           <span
             className={`hidden items-center gap-x-8 gap-y-2 peer-[.clicked]:absolute peer-[.clicked]:left-0 peer-[.clicked]:top-full peer-[.clicked]:z-10 peer-[.clicked]:flex peer-[.clicked]:w-screen peer-[.clicked]:flex-col peer-[.clicked]:pb-4 peer-[.clicked]:shadow-xl lg:!static lg:flex lg:!w-fit lg:!flex-row lg:!bg-transparent lg:!bg-none lg:!pb-0 lg:!shadow-none ${toggleMenu ? backgroundColor : ""}`}
           >
-            {loggedIn ? (
+            {isAuthenticated ? (
               <>
                 <Link
                   className="border-b-2 border-transparent font-medium hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 hover:dark:text-amber-300 dark:focus-visible:border-amber-300"

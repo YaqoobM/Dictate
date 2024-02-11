@@ -5,7 +5,7 @@ type Props = {
   children: ReactNode;
 };
 
-const ThemeContextWrapper: FC<Props> = ({ children }) => {
+const ThemeProvider: FC<Props> = ({ children }) => {
   const persistedTheme: string | null = localStorage.getItem("theme");
   const [theme, setTheme] = useState(persistedTheme || "light");
 
@@ -29,4 +29,4 @@ const ThemeContextWrapper: FC<Props> = ({ children }) => {
   );
 };
 
-export default ThemeContextWrapper;
+export default ThemeProvider;
