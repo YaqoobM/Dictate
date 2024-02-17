@@ -25,13 +25,11 @@ class UserSerializer(HashedIdModelSerializer):
             "username",
             "password",
             "teams",
-            "meetings",
         ]
         read_only_fields = ["meetings"]
         extra_kwargs = {
             "password": {"write_only": True},
             "teams": {"lookup_field": "hashed_id"},
-            "meetings": {"lookup_field": "hashed_id"},
             "url": {"lookup_field": "hashed_id"},
         }
 
@@ -337,7 +335,9 @@ class RecordingSerializer(HashedIdModelSerializer):
             if not Meeting.objects.filter(
                 id=Meeting.decode_hashed_id(meeting),
             ).exists():
-                raise ValidationError({"meeting": f"Meeting: {meeting} does not exist."})
+                raise ValidationError(
+                    {"meeting": f"Meeting: {meeting} does not exist."}
+                )
 
             # copied from super(), manually removing "meeting" from validation
             validated_data = OrderedDict()

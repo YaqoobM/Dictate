@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Link } from "react-router-dom";
-import { Recorder as RecorderIcon } from "../../../assets/icons";
+import { Logo } from "../../../assets/icons/symbols";
 
 const Footer: FC = () => {
   return (
@@ -14,7 +14,7 @@ const Footer: FC = () => {
             <span className="self-center whitespace-nowrap text-3xl font-medium dark:text-white">
               Dictate
             </span>
-            <RecorderIcon
+            <Logo
               className="mt-1 fill-amber-500 dark:fill-amber-300"
               height="23"
             />

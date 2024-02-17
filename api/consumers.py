@@ -1,11 +1,17 @@
-import json
+from typing import TypedDict
 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import JsonWebsocketConsumer
-from channels.layers import get_channel_layer
 from django.core.cache import cache
 
 from .models import Meeting, Notes
+
+
+class User(TypedDict):
+    channel: str
+    id: str | None
+    username: str | None
+    email: str | None
 
 
 class MeetingConsumer(JsonWebsocketConsumer):
@@ -19,7 +25,6 @@ class MeetingConsumer(JsonWebsocketConsumer):
         - send individual message back to new user with list of current participants.
         """
 
-        self.user = self.scope["user"]
         self.meeting_id = self.scope["url_route"]["kwargs"]["meeting_id"]
 
         # meeting exists?
@@ -29,6 +34,19 @@ class MeetingConsumer(JsonWebsocketConsumer):
             )
         except Meeting.DoesNotExist:
             self.close(code=4404)
+
+        # initialise user repr
+        self.user: User = {
+            "channel": self.channel_name,
+            "id": None,
+            "email": None,
+            "username": None,
+        }
+
+        if self.scope["user"].is_authenticated:
+            self.user["id"] = self.scope["user"].hashed_id
+            self.user["email"] = self.scope["user"].email
+            self.user["username"] = self.scope["user"].username
 
         # team meeting?
         if self.meeting.team and self.user not in self.meeting.team.members.all():
@@ -42,7 +60,7 @@ class MeetingConsumer(JsonWebsocketConsumer):
             self.meeting_id,
             {
                 "type": "user.new",
-                "user_id": self.channel_name,
+                "user": self.user,
             },
         )
 
@@ -50,30 +68,45 @@ class MeetingConsumer(JsonWebsocketConsumer):
         async_to_sync(self.channel_layer.group_add)(self.meeting_id, self.channel_name)
 
         # add user to db if private meeting
-        if not self.meeting.team and self.user.is_authenticated:
-            self.meeting.participants.add(self.user)
+        if not self.meeting.team and self.scope["user"].is_authenticated:
+            self.meeting.participants.add(self.scope["user"])
 
         # add user to current meeting participants in cache
-        current_participants = cache.get(f"meeting_{self.meeting_id}_members")
+        current_participants: list[User] | None = cache.get(
+            f"meeting_{self.meeting_id}_members"
+        )
 
         if current_participants:
-            current_participants.append(self.channel_name)
+            current_participants.append(self.user)
         else:
-            current_participants = [self.channel_name]
+            current_participants = [self.user]
 
         #                                                               1 week expiry
         cache.set(
             f"meeting_{self.meeting_id}_members", current_participants, 60 * 60 * 24 * 7
         )
 
-        # send user current meeting member ids
+        # send new connection current members
         self.send_json(
             content={
-                "type": "list_users",
-                "users": [p for p in current_participants if p != self.channel_name]
-                or [],
+                "type": "all_users",
+                "users": [
+                    p for p in current_participants if p["channel"] != self.channel_name
+                ],
             }
         )
+
+        # send new connection group notes if available
+        notes = cache.get(f"meeting_{self.meeting_id}_notes")
+
+        if notes:
+            self.send_json(
+                content={
+                    "type": "group_notes",
+                    "content": notes,
+                    "from": None,
+                }
+            )
 
     def disconnect(self, close_code):
         """
@@ -89,10 +122,12 @@ class MeetingConsumer(JsonWebsocketConsumer):
         )
 
         # remove user from current meeting participants in cache
-        current_participants = cache.get(f"meeting_{self.meeting_id}_members")
+        current_participants: list[User] = cache.get(
+            f"meeting_{self.meeting_id}_members"
+        )
         cache.set(
             f"meeting_{self.meeting_id}_members",
-            [p for p in current_participants if p != self.channel_name],
+            [p for p in current_participants if p["channel"] != self.channel_name],
             60 * 60 * 24 * 7,
         )
 
@@ -101,7 +136,7 @@ class MeetingConsumer(JsonWebsocketConsumer):
             self.meeting_id,
             {
                 "type": "user.left",
-                "user_id": self.channel_name,
+                "user": self.user,
             },
         )
 
@@ -130,7 +165,9 @@ class MeetingConsumer(JsonWebsocketConsumer):
                 }
             )
 
-        active_participants = cache.get(f"meeting_{self.meeting_id}_members")
+        active_participants: list[User] = cache.get(
+            f"meeting_{self.meeting_id}_members"
+        )
 
         # meeting exists in cache?
         if not active_participants:
@@ -149,9 +186,9 @@ class MeetingConsumer(JsonWebsocketConsumer):
                         "message": "missing key-value pair: {'to': <peer-id>}",
                     }
                 )
-            elif content["to"] not in active_participants:
+            elif content["to"] not in [p["channel"] for p in active_participants]:
                 return self.send_json(
-                    content={"status": "error", "message": "invalid peer id"}
+                    content={"status": "error", "message": "invalid user channel"}
                 )
 
             if "signal" not in content:
@@ -159,6 +196,14 @@ class MeetingConsumer(JsonWebsocketConsumer):
                     content={
                         "status": "error",
                         "message": "missing key-value pair: {'signal': <webrtc-signal>}",
+                    }
+                )
+
+            if not isinstance(content["signal"], str):
+                return self.send_json(
+                    content={
+                        "status": "error",
+                        "message": "'signal' must be a string",
                     }
                 )
 
@@ -177,13 +222,12 @@ class MeetingConsumer(JsonWebsocketConsumer):
                 content["to"],
                 {
                     "type": "user.signal",
-                    "from": self.channel_name,
+                    "from": self.user,
                     "signal": content["signal"],
                     "message_type": content["message_type"],
                 },
             )
-
-        if content["type"] == "group_notes":
+        elif content["type"] == "group_notes":
             if "content" not in content:
                 return self.send_json(
                     content={
@@ -191,6 +235,7 @@ class MeetingConsumer(JsonWebsocketConsumer):
                         "message": "missing key: 'content'",
                     }
                 )
+
             elif not isinstance(content["content"], str):
                 return self.send_json(
                     content={
@@ -209,29 +254,65 @@ class MeetingConsumer(JsonWebsocketConsumer):
                 {
                     "type": "notes.new",
                     "content": content["content"],
-                    "from": self.channel_name,
+                    "from": self.user,
                 },
+            )
+        elif content["type"] == "set_username":
+            if "username" not in content:
+                return self.send_json(
+                    content={
+                        "status": "error",
+                        "message": "missing key: 'username'",
+                    }
+                )
+
+            elif not isinstance(content["username"], str):
+                return self.send_json(
+                    content={
+                        "status": "error",
+                        "message": "'username' must be a string.",
+                    }
+                )
+
+            self.user["username"] = content["username"]
+
+            cache.set(
+                f"meeting_{self.meeting_id}_members",
+                [p for p in active_participants if p["channel"] != self.channel_name]
+                + [self.user],
+                60 * 60 * 24 * 7,
+            )
+
+            async_to_sync(self.channel_layer.group_send)(
+                self.meeting_id,
+                {
+                    "type": "username.new",
+                    "user": self.user,
+                },
+            )
+        else:
+            self.send_json(
+                content={
+                    "status": "error",
+                    "message": "unknown message type",
+                }
             )
 
     def user_new(self, event):
         """Send new connection alert to individual peer"""
 
-        self.send_json(
-            content={
-                "type": "new_user",
-                "user_id": event["user_id"],
-            }
-        )
+        self.send_json(content={"type": "user_joined", "user": event["user"]})
 
     def user_left(self, event):
         """Send dropped connection alert to individual peer"""
 
-        self.send_json(
-            content={
-                "type": "user_left",
-                "user_id": event["user_id"],
-            }
-        )
+        if self.channel_name != event["user"]["channel"]:
+            self.send_json(
+                content={
+                    "type": "user_left",
+                    "user": event["user"],
+                }
+            )
 
     def user_signal(self, event):
         """Send webrtc signal to individual peer"""
@@ -248,10 +329,22 @@ class MeetingConsumer(JsonWebsocketConsumer):
     def notes_new(self, event):
         """Send updated group notes to individual peer"""
 
-        if self.channel_name != event["from"]:
+        if self.channel_name != event["from"]["channel"]:
             self.send_json(
                 content={
                     "type": "group_notes",
                     "content": event["content"],
+                    "from": event["from"],
+                }
+            )
+
+    def username_new(self, event):
+        """Send updated user to individual peer"""
+
+        if self.channel_name != event["user"]["channel"]:
+            self.send_json(
+                content={
+                    "type": "new_username",
+                    "user": event["user"],
                 }
             )

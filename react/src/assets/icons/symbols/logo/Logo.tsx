@@ -2,7 +2,7 @@ import { forwardRef, SVGProps } from "react";
 
 interface Props extends SVGProps<SVGSVGElement> {}
 
-const Recorder = forwardRef<SVGSVGElement, Props>((props, ref) => {
+const Logo = forwardRef<SVGSVGElement, Props>((props, ref) => {
   // !Font Awesome Free 6.5.1 by @fontawesome
   // https://fontawesome.com License
   // https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.
@@ -20,4 +20,4 @@ const Recorder = forwardRef<SVGSVGElement, Props>((props, ref) => {
   );
 });
 
-export default Recorder;
+export default Logo;

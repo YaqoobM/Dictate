@@ -9,12 +9,12 @@ from django.core.validators import validate_email
 from django.db.models import Q
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.reverse import reverse as rest_reverse
 from rest_framework.viewsets import ModelViewSet
 
 from .helpers import get_hashed_alphabet
@@ -52,17 +52,10 @@ class HashedIdModelViewSet(ModelViewSet):
 
 
 class UserViewSet(HashedIdModelViewSet):
+    queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, IsUserOrReadOnly]
     http_method_names = ["get", "patch", "delete", "head", "options"]
-
-    def get_queryset(self):
-        """Get self and all team members"""
-
-        return User.objects.filter(
-            Q(email=self.request.user.email)
-            | Q(teams__in=self.request.user.teams.all())
-        ).distinct()
 
 
 class TeamViewSet(HashedIdModelViewSet):
@@ -195,11 +188,7 @@ def login(request):
     login_user(request, user)
 
     return Response(
-        {
-            "user": request.build_absolute_uri(
-                reverse("user-detail", args=[user.hashed_id])
-            )
-        }
+        {"user": rest_reverse("user-detail", args=[user.hashed_id], request=request)}
     )
 
 
@@ -231,9 +220,7 @@ def signup(request):
 
     return Response(
         {
-            "user": request.build_absolute_uri(
-                reverse("user-detail", args=[user.hashed_id])
-            ),
+            "user": rest_reverse("user-detail", args=[user.hashed_id], request=request),
             "message": "successfully created account and logged in.",
         }
     )

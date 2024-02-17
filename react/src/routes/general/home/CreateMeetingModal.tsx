@@ -5,7 +5,6 @@ import {
   Success as SuccessIcon,
 } from "../../../assets/icons/symbols";
 import { Loader as LoadingIcon } from "../../../assets/icons/utils";
-import { InputGroup } from "../../../components/forms";
 import { Button } from "../../../components/utils";
 import { useModal } from "../../../hooks/components";
 import { useCreateMeeting } from "../../../hooks/meetings";
