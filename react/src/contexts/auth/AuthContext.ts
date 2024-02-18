@@ -3,6 +3,7 @@ import { createContext } from "react";
 
 type ContextValue = {
   isAuthenticated: boolean;
+  checkingAuth: boolean;
 
   login: (
     email: string,
@@ -37,6 +38,7 @@ type ContextValue = {
 
 const defaultValue: ContextValue = {
   isAuthenticated: false,
+  checkingAuth: false,
 
   login: () => {
     console.log("logging in user");

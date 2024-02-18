@@ -27,6 +27,8 @@ type Props = {
 
 const AuthProvider: FC<Props> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  // flag when first useEffect is finished
+  const [checkingAuth, setCheckingAuth] = useState<boolean>(true);
   const queryClient = useQueryClient();
   const axios = useAxios();
 
@@ -118,15 +120,17 @@ const AuthProvider: FC<Props> = ({ children }) => {
       .then((res) => {
         if (res.status === 200) {
           setIsAuthenticated(true);
+          setCheckingAuth(false);
         }
       })
-      .catch(() => {});
+      .catch(() => setCheckingAuth(false));
   }, []);
 
   return (
     <AuthContext.Provider
       value={{
         isAuthenticated,
+        checkingAuth,
         login,
         loginReset: loginMutation.reset,
         loginIsPending: loginMutation.isPending,

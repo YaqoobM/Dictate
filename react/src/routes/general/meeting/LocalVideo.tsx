@@ -4,9 +4,10 @@ import { Video } from ".";
 interface Props extends HTMLAttributes<HTMLElement> {
   stream: MutableRefObject<MediaStream | null>;
   gotStream: boolean;
+  username: string;
 }
 
-const LocalVideo: FC<Props> = ({ stream, gotStream, ...props }) => {
+const LocalVideo: FC<Props> = ({ username, stream, gotStream, ...props }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   useEffect(() => {
@@ -15,7 +16,14 @@ const LocalVideo: FC<Props> = ({ stream, gotStream, ...props }) => {
     }
   }, [gotStream]);
 
-  return <Video ref={videoRef} {...props} />;
+  return (
+    <Video
+      username={username}
+      usernameClassName="!text-sm !font-normal !mt-0.5"
+      ref={videoRef}
+      {...props}
+    />
+  );
 };
 
 export default LocalVideo;

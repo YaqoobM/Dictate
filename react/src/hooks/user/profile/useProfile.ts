@@ -7,7 +7,7 @@ type Response = {
   user: User;
 };
 
-const useProfile = () => {
+const useProfile = (retryOnMount: boolean = true, enabled: boolean = true) => {
   const axios = useAxios();
 
   const query = useQuery({
@@ -22,7 +22,8 @@ const useProfile = () => {
     },
     //         1 min
     staleTime: 1 * 60 * 1000,
-    retryOnMount: false,
+    retryOnMount,
+    enabled,
   });
 
   let error = null;

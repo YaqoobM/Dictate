@@ -86,13 +86,14 @@ class MeetingConsumer(JsonWebsocketConsumer):
             f"meeting_{self.meeting_id}_members", current_participants, 60 * 60 * 24 * 7
         )
 
+        # send new connection their meeting details
+        self.send_json(content={"type": "your_connection", "user": self.user})
+
         # send new connection current members
         self.send_json(
             content={
                 "type": "all_users",
-                "users": [
-                    p for p in current_participants if p["channel"] != self.channel_name
-                ],
+                "users": current_participants,
             }
         )
 
@@ -341,10 +342,9 @@ class MeetingConsumer(JsonWebsocketConsumer):
     def username_new(self, event):
         """Send updated user to individual peer"""
 
-        if self.channel_name != event["user"]["channel"]:
-            self.send_json(
-                content={
-                    "type": "new_username",
-                    "user": event["user"],
-                }
-            )
+        self.send_json(
+            content={
+                "type": "new_username",
+                "user": event["user"],
+            }
+        )

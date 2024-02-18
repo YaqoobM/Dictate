@@ -36,6 +36,19 @@ const getUrl = (id: string) => {
   return url;
 };
 
+const getRelayServers = () => {
+  let iceServers = [];
+  if (import.meta.env.MODE === "production") {
+    // todo: add public domain name
+    iceServers.push({ urls: "stun:stun.localhost:3478" });
+  }
+  iceServers.push(
+    { urls: "stun:stun.l.google.com:19302" },
+    { urls: "stun:global.stun.twilio.com:3478?transport=udp" },
+  );
+  return iceServers;
+};
+
 const useMeetingWebsocket = (id: string) => {
   const [connectionStates, setConnectionStates] = useState<ConnectionStates>({
     isConnected: false,
@@ -44,6 +57,9 @@ const useMeetingWebsocket = (id: string) => {
   });
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [gotLocalStream, setGotLocalStream] = useState<boolean>(false);
+  // force re-render
+  const [toggleLocalParticipant, setToggleLocalParticipant] =
+    useState<boolean>(true);
   const [groupNotes, setGroupNotes] = useState<string>("");
   const [error, setError] = useState<string>("");
 
@@ -60,6 +76,7 @@ const useMeetingWebsocket = (id: string) => {
   //   - when we access the value in our event listeners we need the current value not old values
   const participantStreams = useRef<ParticipantStream[]>([]);
   const localStream = useRef<MediaStream | null>(null);
+  const localParticipant = useRef<Participant | null>(null);
 
   // todo: STUN/TURN SERVER
 
@@ -110,10 +127,21 @@ const useMeetingWebsocket = (id: string) => {
       if (message.type === "all_users") {
         // Initialize participants and their streams and send webrtc offers to all peers
         for (const user of message.users) {
+          if (!localParticipant.current) {
+            setConnectionStates((prev) => ({ ...prev, isError: true }));
+            setError("Didn't receive message from server, try refreshing page");
+            break;
+          }
+
+          if (user.channel === localParticipant.current.channel) {
+            continue;
+          }
+
           const peer: PeerInstance = new Peer({
             initiator: true,
             trickle: false,
             stream: localStream.current || undefined,
+            config: { iceServers: getRelayServers() },
           });
 
           participantStreams.current.push({
@@ -131,14 +159,20 @@ const useMeetingWebsocket = (id: string) => {
               }),
             );
           });
-
-          setParticipants(message.users);
         }
+
+        setParticipants(
+          message.users.filter((user: Participant) => {
+            if (!localParticipant.current) return true;
+            return user.channel !== localParticipant.current.channel;
+          }),
+        );
       } else if (message.type === "user_joined") {
         // Initialize peer and its stream to receive offer and append to array
         const peer: PeerInstance = new Peer({
           trickle: false,
           stream: localStream.current || undefined,
+          config: { iceServers: getRelayServers() },
         });
 
         participantStreams.current.push({
@@ -168,11 +202,19 @@ const useMeetingWebsocket = (id: string) => {
           prev.filter((p) => p.channel != message.user.channel),
         );
       } else if (message.type === "new_username") {
-        setParticipants((prev) =>
-          prev.map((p) =>
-            p.channel === message.user.channel ? message.user : p,
-          ),
-        );
+        if (localParticipant.current) {
+          if (message.user.channel === localParticipant.current.channel) {
+            localParticipant.current = message.user;
+            // force re-render
+            setToggleLocalParticipant((prev) => !prev);
+          } else {
+            setParticipants((prev) =>
+              prev.map((p) =>
+                p.channel === message.user.channel ? message.user : p,
+              ),
+            );
+          }
+        }
       } else if (message.type === "webrtc_signal") {
         let p = participantStreams.current.find(
           (p) => p.channel === message.from.channel,
@@ -187,9 +229,10 @@ const useMeetingWebsocket = (id: string) => {
       } else if (message.type === "error") {
         setConnectionStates((prev) => ({ ...prev, isError: true }));
         setError(message.message);
-      } else {
-        setConnectionStates((prev) => ({ ...prev, isError: true }));
-        setError("Something went wrong");
+      } else if (message.type === "your_connection") {
+        localParticipant.current = message.user;
+        // force re-render
+        setToggleLocalParticipant((prev) => !prev);
       }
     };
 
@@ -198,6 +241,10 @@ const useMeetingWebsocket = (id: string) => {
 
     return () => {
       console.log("cleanup");
+      for (const participantStream of participantStreams.current) {
+        participantStream.peer.removeAllListeners("signal");
+        participantStream.peer.removeAllListeners("stream");
+      }
       ws.close();
     };
   }, []);
@@ -205,11 +252,13 @@ const useMeetingWebsocket = (id: string) => {
   return {
     setGotLocalStream,
     setGroupNotes,
+    websocket,
     isConnected: connectionStates.isConnected,
     isPending: connectionStates.isPending,
     isError: connectionStates.isError,
     participants,
     participantStreams,
+    localParticipant,
     gotLocalStream,
     localStream,
     groupNotes,

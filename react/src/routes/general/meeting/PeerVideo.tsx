@@ -18,7 +18,9 @@ const PeerVideo: FC<Props> = ({ peer, username, ...props }) => {
     });
   }, []);
 
-  return <Video username={username} ref={videoRef} {...props} />;
+  return (
+    <Video username={username} rounded={false} ref={videoRef} {...props} />
+  );
 };
 
 export default PeerVideo;

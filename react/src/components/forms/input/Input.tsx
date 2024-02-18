@@ -20,7 +20,7 @@ const Input = forwardRef<HTMLInputElement, Props>(
 
     return (
       <input
-        className={`block w-full rounded-lg border-2 border-gray-300 bg-transparent p-2.5 text-sm text-amber-500 caret-gray-300 focus:border-amber-500 focus:outline-none dark:border-gray-600 dark:text-amber-300 dark:focus:border-amber-300 ${className}`}
+        className={`block w-full rounded-lg border-[1.5px] border-gray-300 bg-transparent p-2.5 text-sm text-amber-500 caret-gray-300 focus:border-amber-500 focus:outline-none dark:border-gray-600 dark:text-amber-300 dark:focus:border-amber-300 ${className}`}
         onChange={handleChange}
         ref={ref}
         {...props}

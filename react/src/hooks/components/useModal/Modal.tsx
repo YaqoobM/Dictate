@@ -20,7 +20,7 @@ const Modal = forwardRef<HTMLDivElement, Props>(
           {...props}
         >
           <Close
-            className="absolute right-3 top-2 cursor-pointer hover:stroke-amber-500 dark:hover:stroke-amber-300"
+            className="absolute right-3 top-2 cursor-pointer stroke-gray-950 hover:stroke-amber-500 dark:stroke-gray-100 dark:hover:stroke-amber-300"
             height="30"
             onClick={() => setHidden(true)}
           />
