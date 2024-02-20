@@ -1,6 +1,7 @@
 from typing import TypedDict
 
 from asgiref.sync import async_to_sync
+from autobahn.exception import Disconnected
 from channels.generic.websocket import JsonWebsocketConsumer
 from django.core.cache import cache
 
@@ -17,6 +18,21 @@ class User(TypedDict):
 
 
 class MeetingConsumer(JsonWebsocketConsumer):
+    def receive(self, text_data=None, bytes_data=None, **kwargs):
+        try:
+            return super().receive(text_data, bytes_data, **kwargs)
+        except Exception:
+            self.disconnect({"code": 4011})
+            self.close()
+            raise
+
+    def send_json(self, content, close=False):
+        try:
+            return super().send_json(content, close)
+        except Disconnected:
+            self.disconnect({"code": 4011})
+            self.close()
+
     def connect(self):
         """
         Handle new connection to meeting including validation and auth. If connection is
@@ -120,7 +136,6 @@ class MeetingConsumer(JsonWebsocketConsumer):
         - send group broadcast announcing dropped user to current participants
         - save group notes (if available) to db
         """
-
         # remove user from group broadcast
         async_to_sync(self.channel_layer.group_discard)(
             self.meeting_id, self.channel_name
