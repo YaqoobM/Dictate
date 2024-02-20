@@ -1,25 +1,50 @@
-import { FC, HTMLAttributes, useEffect, useRef } from "react";
-import { Instance as PeerInstance } from "simple-peer";
+import { FC, HTMLAttributes, useEffect, useRef, useState } from "react";
 import { Video } from ".";
+import { Participant } from "./types.ts";
 
 interface Props extends HTMLAttributes<HTMLElement> {
-  peer: PeerInstance;
-  username: string;
+  participant: Participant | null;
+  stream: MediaStream | null;
 }
 
-const PeerVideo: FC<Props> = ({ peer, username, ...props }) => {
+const PeerVideo: FC<Props> = ({ stream, participant, ...props }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [, setVideoAvailability] = useState<boolean>(false);
 
   useEffect(() => {
-    peer.on("stream", (stream) => {
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+    let tracks: MediaStreamTrack[] = [];
+
+    const handleTrackEnded = () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject = null;
+        setVideoAvailability(false);
       }
-    });
-  }, []);
+    };
+
+    if (videoRef.current && stream) {
+      videoRef.current.srcObject = stream;
+      setVideoAvailability(true);
+
+      tracks = stream.getVideoTracks();
+      for (const track of tracks) {
+        track.addEventListener("mute", handleTrackEnded);
+      }
+    }
+
+    return () => {
+      for (const track of tracks) {
+        track.removeEventListener("mute", handleTrackEnded);
+      }
+    };
+  }, [stream]);
 
   return (
-    <Video username={username} rounded={false} ref={videoRef} {...props} />
+    <Video
+      videoMuted={participant ? participant.videoMuted : true}
+      username={participant?.username || "Guest"}
+      videoRef={videoRef}
+      {...props}
+    />
   );
 };
 

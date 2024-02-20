@@ -20,7 +20,7 @@ const Home: FC = () => {
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Unde qui
             provident porro cum autem quo id eveniet blanditiis perferendis.
             Assumenda ab deleniti maiores facere laboriosam cupiditate atque
-            fugiat rem ea.
+            fugiat rem ea. <span>Login to access calendars.</span>
           </p>
           <span className="flex flex-row items-center justify-center gap-x-14">
             <Button onClick={() => setCreateMeetingModal(false)}>

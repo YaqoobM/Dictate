@@ -1,26 +1,60 @@
-import { FC, HTMLAttributes, MutableRefObject, useEffect, useRef } from "react";
+import {
+  FC,
+  HTMLAttributes,
+  MutableRefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Video } from ".";
+import { Participant } from "./types.ts";
 
 interface Props extends HTMLAttributes<HTMLElement> {
+  participant: MutableRefObject<Participant | null>;
   stream: MutableRefObject<MediaStream | null>;
   gotStream: boolean;
-  username: string;
 }
 
-const LocalVideo: FC<Props> = ({ username, stream, gotStream, ...props }) => {
+const LocalVideo: FC<Props> = ({
+  participant,
+  stream,
+  gotStream,
+  ...props
+}) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [, setVideoAvailability] = useState<boolean>(false);
 
   useEffect(() => {
-    if (gotStream && videoRef.current) {
+    let tracks: MediaStreamTrack[] = [];
+
+    const handleTrackEnded = () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject = null;
+        setVideoAvailability(false);
+      }
+    };
+
+    if (videoRef.current && stream.current) {
       videoRef.current.srcObject = stream.current;
+      setVideoAvailability(true);
+
+      tracks = stream.current.getVideoTracks();
+      for (const track of tracks) {
+        track.addEventListener("ended", handleTrackEnded);
+      }
     }
+
+    return () => {
+      for (const track of tracks) {
+        track.removeEventListener("ended", handleTrackEnded);
+      }
+    };
   }, [gotStream]);
 
   return (
     <Video
-      username={username}
-      usernameClassName="!text-sm !font-normal !mt-0.5"
-      ref={videoRef}
+      videoMuted={participant.current ? participant.current.videoMuted : true}
+      videoRef={videoRef}
       {...props}
     />
   );

@@ -9,18 +9,32 @@ type Participant = {
   id: string | null;
   email: string | null;
   username: string | null;
+
+  // meeting details
+  audioMuted: boolean;
+  videoMuted: boolean;
 };
 
 type ParticipantStream = {
   // uid
   channel: string;
   peer: PeerInstance;
+  stream: MediaStream | null;
 };
 
 type ConnectionStates = {
   isConnected: boolean;
   isPending: boolean;
   isError: boolean;
+};
+
+type WebsocketUser = {
+  channel: string;
+  id: string | null;
+  email: string | null;
+  username: string | null;
+  audio_muted: boolean;
+  video_muted: boolean;
 };
 
 const getUrl = (id: string) => {
@@ -49,6 +63,17 @@ const getRelayServers = () => {
   return iceServers;
 };
 
+const loadParticipant: (data: WebsocketUser) => Participant = (data) => {
+  return {
+    channel: data.channel,
+    id: data.id,
+    email: data.email,
+    username: data.username,
+    audioMuted: data.audio_muted,
+    videoMuted: data.video_muted,
+  };
+};
+
 const useMeetingWebsocket = (id: string) => {
   const [connectionStates, setConnectionStates] = useState<ConnectionStates>({
     isConnected: false,
@@ -56,29 +81,65 @@ const useMeetingWebsocket = (id: string) => {
     isError: false,
   });
   const [participants, setParticipants] = useState<Participant[]>([]);
-  const [gotLocalStream, setGotLocalStream] = useState<boolean>(false);
+  // const [gotLocalStream, setGotLocalStream] = useState<boolean>(false);
   // force re-render
-  const [toggleLocalParticipant, setToggleLocalParticipant] =
-    useState<boolean>(true);
+  const [, setLocalParticipant] = useState<string>("");
   const [groupNotes, setGroupNotes] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   // why ref instead of state?
   // - preserved on re-render (both)
-  // - changing value doesn't cause re-render (for that we are using isPending, etc.)
+  // - changing value doesn't cause re-render (for that we are using setConnectionStates())
   // - set once and not changed (like DOM elements)
   const websocket = useRef<WebSocket | null>(null);
 
   // why ref instead of state?
   // - preserved on re-render (both)
-  // - doesn't trigger re-render (we use participants/gotLocalStream for that)
+  // - doesn't trigger re-render (for that we are using setParticipants(), setLocalParticipant())
   // - able to access freshest value for logic in useEffect without adding to dependency array
   //   - when we access the value in our event listeners we need the current value not old values
   const participantStreams = useRef<ParticipantStream[]>([]);
-  const localStream = useRef<MediaStream | null>(null);
+  const localParticipantStream = useRef<MediaStream | null>(null);
   const localParticipant = useRef<Participant | null>(null);
 
-  // todo: STUN/TURN SERVER
+  const appendParticipantStreams = (
+    channel: string,
+    initiator: boolean = false,
+  ) => {
+    const peer = new Peer({
+      initiator: initiator || undefined,
+      trickle: false,
+      stream: localParticipantStream.current || undefined,
+      config: { iceServers: getRelayServers() },
+    });
+
+    peer.on("signal", (data) => {
+      websocket.current!.send(
+        JSON.stringify({
+          type: "webrtc_signal",
+          to: channel,
+          signal: JSON.stringify(data),
+          message_type: initiator ? "offer" : "answer",
+        }),
+      );
+    });
+
+    peer.on("stream", (stream) => {
+      for (const s of participantStreams.current) {
+        if (s.channel === channel) {
+          s.stream = stream;
+          // force re-render
+          setParticipants((prev) => [...prev]);
+        }
+      }
+    });
+
+    participantStreams.current.push({
+      channel,
+      peer,
+      stream: null,
+    });
+  };
 
   // handle websocket connection
   useEffect(() => {
@@ -137,61 +198,21 @@ const useMeetingWebsocket = (id: string) => {
             continue;
           }
 
-          const peer: PeerInstance = new Peer({
-            initiator: true,
-            trickle: false,
-            stream: localStream.current || undefined,
-            config: { iceServers: getRelayServers() },
-          });
-
-          participantStreams.current.push({
-            channel: user.channel,
-            peer,
-          });
-
-          peer.on("signal", (data) => {
-            websocket.current!.send(
-              JSON.stringify({
-                type: "webrtc_signal",
-                to: user.channel,
-                signal: JSON.stringify(data),
-                message_type: "offer",
-              }),
-            );
-          });
+          appendParticipantStreams(user.channel, true);
         }
 
         setParticipants(
-          message.users.filter((user: Participant) => {
-            if (!localParticipant.current) return true;
-            return user.channel !== localParticipant.current.channel;
-          }),
+          message.users
+            .filter((user: WebsocketUser) => {
+              if (!localParticipant.current) return true;
+              return user.channel !== localParticipant.current.channel;
+            })
+            .map((user: WebsocketUser) => loadParticipant(user)),
         );
       } else if (message.type === "user_joined") {
         // Initialize peer and its stream to receive offer and append to array
-        const peer: PeerInstance = new Peer({
-          trickle: false,
-          stream: localStream.current || undefined,
-          config: { iceServers: getRelayServers() },
-        });
-
-        participantStreams.current.push({
-          channel: message.user.channel,
-          peer,
-        });
-
-        peer.on("signal", (data) => {
-          websocket.current!.send(
-            JSON.stringify({
-              type: "webrtc_signal",
-              to: message.user.channel,
-              signal: JSON.stringify(data),
-              message_type: "answer",
-            }),
-          );
-        });
-
-        setParticipants((prev) => [...prev, { ...message.user }]);
+        appendParticipantStreams(message.user.channel);
+        setParticipants((prev) => [...prev, loadParticipant(message.user)]);
       } else if (message.type === "user_left") {
         // Remove peer from array
         participantStreams.current = participantStreams.current.filter(
@@ -201,16 +222,17 @@ const useMeetingWebsocket = (id: string) => {
         setParticipants((prev) =>
           prev.filter((p) => p.channel != message.user.channel),
         );
-      } else if (message.type === "new_username") {
+      } else if (message.type === "user_update") {
         if (localParticipant.current) {
+          let localP = loadParticipant(message.user);
+
           if (message.user.channel === localParticipant.current.channel) {
-            localParticipant.current = message.user;
-            // force re-render
-            setToggleLocalParticipant((prev) => !prev);
+            localParticipant.current = localP;
+            setLocalParticipant(JSON.stringify(localP));
           } else {
             setParticipants((prev) =>
               prev.map((p) =>
-                p.channel === message.user.channel ? message.user : p,
+                p.channel === message.user.channel ? localP : p,
               ),
             );
           }
@@ -230,9 +252,9 @@ const useMeetingWebsocket = (id: string) => {
         setConnectionStates((prev) => ({ ...prev, isError: true }));
         setError(message.message);
       } else if (message.type === "your_connection") {
-        localParticipant.current = message.user;
-        // force re-render
-        setToggleLocalParticipant((prev) => !prev);
+        let p = loadParticipant(message.user);
+        localParticipant.current = p;
+        setLocalParticipant(JSON.stringify(p));
       }
     };
 
@@ -240,29 +262,25 @@ const useMeetingWebsocket = (id: string) => {
     const ws = websocket.current;
 
     return () => {
-      console.log("cleanup");
       for (const participantStream of participantStreams.current) {
-        participantStream.peer.removeAllListeners("signal");
-        participantStream.peer.removeAllListeners("stream");
+        participantStream.peer.removeAllListeners();
       }
       ws.close();
     };
   }, []);
 
   return {
-    setGotLocalStream,
-    setGroupNotes,
     websocket,
-    isConnected: connectionStates.isConnected,
-    isPending: connectionStates.isPending,
-    isError: connectionStates.isError,
     participants,
     participantStreams,
     localParticipant,
-    gotLocalStream,
-    localStream,
+    localParticipantStream,
     groupNotes,
     error,
+    isConnected: connectionStates.isConnected,
+    isPending: connectionStates.isPending,
+    isError: connectionStates.isError,
+    setGroupNotes,
   };
 };
 

@@ -12,6 +12,8 @@ class User(TypedDict):
     id: str | None
     username: str | None
     email: str | None
+    audio_muted: bool
+    video_muted: bool
 
 
 class MeetingConsumer(JsonWebsocketConsumer):
@@ -41,6 +43,8 @@ class MeetingConsumer(JsonWebsocketConsumer):
             "id": None,
             "email": None,
             "username": None,
+            "audio_muted": True,
+            "video_muted": True,
         }
 
         if self.scope["user"].is_authenticated:
@@ -287,7 +291,56 @@ class MeetingConsumer(JsonWebsocketConsumer):
             async_to_sync(self.channel_layer.group_send)(
                 self.meeting_id,
                 {
-                    "type": "username.new",
+                    "type": "user.update",
+                    "user": self.user,
+                },
+            )
+        elif content["type"] == "user_media":
+            if "audio_muted" not in content and "video_muted" not in content:
+                return self.send_json(
+                    content={
+                        "status": "error",
+                        "message": "missing key(s): 'audio_muted', 'video_muted'",
+                    }
+                )
+
+            if "audio_muted" in content and not isinstance(
+                content["audio_muted"], bool
+            ):
+                return self.send_json(
+                    content={
+                        "status": "error",
+                        "message": "'audio_muted' must be a boolean.",
+                    }
+                )
+
+            if "video_muted" in content and not isinstance(
+                content["video_muted"], bool
+            ):
+                return self.send_json(
+                    content={
+                        "status": "error",
+                        "message": "'video' must be a boolean.",
+                    }
+                )
+
+            if "audio_muted" in content:
+                self.user["audio_muted"] = content["audio_muted"]
+
+            if "video_muted" in content:
+                self.user["video_muted"] = content["video_muted"]
+
+            cache.set(
+                f"meeting_{self.meeting_id}_members",
+                [p for p in active_participants if p["channel"] != self.channel_name]
+                + [self.user],
+                60 * 60 * 24 * 7,
+            )
+
+            async_to_sync(self.channel_layer.group_send)(
+                self.meeting_id,
+                {
+                    "type": "user.update",
                     "user": self.user,
                 },
             )
@@ -315,6 +368,16 @@ class MeetingConsumer(JsonWebsocketConsumer):
                 }
             )
 
+    def user_update(self, event):
+        """Send updated user to individual peer"""
+
+        self.send_json(
+            content={
+                "type": "user_update",
+                "user": event["user"],
+            }
+        )
+
     def user_signal(self, event):
         """Send webrtc signal to individual peer"""
 
@@ -338,13 +401,3 @@ class MeetingConsumer(JsonWebsocketConsumer):
                     "from": event["from"],
                 }
             )
-
-    def username_new(self, event):
-        """Send updated user to individual peer"""
-
-        self.send_json(
-            content={
-                "type": "new_username",
-                "user": event["user"],
-            }
-        )

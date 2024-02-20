@@ -1,8 +1,12 @@
-import { FC, useContext, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { FC, useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Controls, SetUsernameModal, VideoGrid } from ".";
-import { Error as ErrorIcon } from "../../../assets/icons/symbols";
+import {
+  Error as ErrorIcon,
+  Warning as WarningIcon,
+} from "../../../assets/icons/symbols";
 import { Loader as LoadingIcon } from "../../../assets/icons/utils";
+import { Button } from "../../../components/utils";
 import { AuthContext } from "../../../contexts";
 import { useModal } from "../../../hooks/components";
 import { useMeetingWebsocket } from "../../../hooks/meetings";
@@ -12,69 +16,151 @@ type RouteParams = {
 };
 
 const Meeting: FC = () => {
+  const [gotLocalStream, setGotLocalStream] = useState<boolean>(false);
+
   const { meetingId } = useParams<keyof RouteParams>() as RouteParams;
   const { isAuthenticated, checkingAuth } = useContext(AuthContext);
 
-  const { hidden: hideModal, setHidden: setHideModal } = useModal();
+  const { hidden: hideSetUsernameModal, setHidden: setHideSetUsernameModal } =
+    useModal();
+
+  const navigate = useNavigate();
 
   const {
-    isPending,
+    websocket,
     isConnected,
     isError,
     localParticipant,
-    localStream,
-    gotLocalStream,
-    setGotLocalStream,
+    localParticipantStream,
     participants,
     participantStreams,
     groupNotes,
     setGroupNotes,
     error,
-    websocket,
   } = useMeetingWebsocket(meetingId);
 
   useEffect(() => {
-    navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
-        localStream.current = stream;
-        for (const p of participantStreams.current) {
-          p.peer?.addStream(stream);
+    let mounted: boolean = true;
+    let tracks: MediaStreamTrack[] = [];
+
+    const handleTrackEnded = (e: Event) => {
+      if (
+        e.target instanceof MediaStreamTrack &&
+        localParticipantStream.current
+      ) {
+        if (isConnected) {
+          if (e.target.kind === "video") {
+            websocket.current?.send(
+              JSON.stringify({
+                type: "user_media",
+                video_muted: true,
+              }),
+            );
+          } else if (e.target.kind === "audio") {
+            websocket.current?.send(
+              JSON.stringify({
+                type: "user_media",
+                audio_muted: true,
+              }),
+            );
+          }
         }
-        setGotLocalStream(true);
-        return stream;
-      });
+        for (const p of participantStreams.current) {
+          p.peer?.removeTrack(e.target, localParticipantStream.current);
+        }
+      }
+    };
+
+    if (isConnected) {
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: true })
+        .then((stream) => {
+          if (!mounted) return null;
+
+          websocket.current?.send(
+            JSON.stringify({
+              type: "user_media",
+              audio_muted: false,
+              video_muted: false,
+            }),
+          );
+
+          localParticipantStream.current = stream;
+          for (const p of participantStreams.current) {
+            p.peer?.addStream(stream);
+          }
+          setGotLocalStream(true);
+
+          tracks = stream.getTracks();
+          for (const track of tracks) {
+            track.addEventListener("ended", handleTrackEnded);
+          }
+        });
+    }
 
     return () => {
-      if (localStream.current) {
-        localStream.current.getTracks().forEach((track) => {
+      mounted = false;
+
+      if (localParticipantStream.current) {
+        localParticipantStream.current.getTracks().forEach((track) => {
           track.stop();
         });
       }
+
+      for (const track of tracks) {
+        track.removeEventListener("ended", handleTrackEnded);
+      }
     };
-  }, []);
+  }, [isConnected]);
 
   useEffect(() => {
     if (!checkingAuth && !isAuthenticated) {
-      setHideModal(false);
+      setHideSetUsernameModal(false);
     }
   }, [checkingAuth]);
 
+  // triggered on first load only (not if they disable camera after joining)
+  if (!gotLocalStream) {
+    return (
+      <main className="flex h-screen w-screen items-center justify-center bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-gray-100">
+        <section className="flex flex-col items-center justify-center gap-y-5 lg:gap-y-7">
+          <div className="flex flex-row items-center gap-x-3">
+            <WarningIcon className="h-8 stroke-amber-500 dark:stroke-amber-300 lg:h-10" />
+            <hgroup className="flex flex-col">
+              <h1 className="text-lg capitalize tracking-wide text-amber-500 dark:text-amber-300 lg:text-xl">
+                please allow camera and audio
+              </h1>
+              <h2 className="text-sm capitalize italic tracking-wide lg:text-base">
+                try refreshing the page
+              </h2>
+            </hgroup>
+          </div>
+          <Button
+            className="w-3/5 text-sm lg:text-base"
+            onClick={() => navigate("/home")}
+          >
+            Go Home
+          </Button>
+        </section>
+      </main>
+    );
+  }
+
   return (
-    <main className="min-h-screen w-screen bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-gray-100">
+    <main className="h-screen min-h-screen w-screen overflow-y-scroll bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-gray-100">
       {isConnected ? (
         <>
           <VideoGrid
-            gotLocalStream={gotLocalStream}
-            localStream={localStream}
             participants={participants}
             participantStreams={participantStreams}
+            gotLocalStream={gotLocalStream}
             localParticipant={localParticipant}
+            localParticipantStream={localParticipantStream}
           />
           <Controls
             participants={participants}
             localParticipant={localParticipant}
-            setHideUsernameModal={setHideModal}
+            setHideUsernameModal={setHideSetUsernameModal}
           />
         </>
       ) : (
@@ -98,8 +184,8 @@ const Meeting: FC = () => {
       )}
 
       <SetUsernameModal
-        hidden={hideModal}
-        setHidden={setHideModal}
+        hidden={hideSetUsernameModal}
+        setHidden={setHideSetUsernameModal}
         websocket={websocket}
       />
     </main>

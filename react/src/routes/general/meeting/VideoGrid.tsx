@@ -1,77 +1,59 @@
-import { FC, MutableRefObject, useEffect, useState } from "react";
+import { FC, MutableRefObject } from "react";
 import { LocalVideo, PeerVideo } from ".";
 import { Participant, ParticipantStream } from "./types.ts";
 
 type Props = {
-  gotLocalStream: boolean;
-  localStream: MutableRefObject<MediaStream | null>;
   participants: Participant[];
   participantStreams: MutableRefObject<ParticipantStream[]>;
+  gotLocalStream: boolean;
   localParticipant: MutableRefObject<Participant | null>;
+  localParticipantStream: MutableRefObject<MediaStream | null>;
 };
 
 const VideoGrid: FC<Props> = ({
-  gotLocalStream,
-  localStream,
   participants,
   participantStreams,
+  gotLocalStream,
   localParticipant,
+  localParticipantStream,
 }) => {
-  const getPeerStyles = (stream: ParticipantStream) => {
+  const getPeerStyles = () => {
+    // add max values
     if (participants.length === 1) {
-      // stream.peer
+      return { height: "99%", width: "99%" };
     }
-    return {};
-  };
 
-  const getGridCols = () => {
-    let numberOfParticipants = participants.length;
+    if (participants.length === 2) {
+      return { width: "calc(50% - 12px)" };
+    }
 
-    if (numberOfParticipants % 4 === 0 && numberOfParticipants > 4) {
-      return 4;
+    if (participants.length === 3) {
+      return { width: "calc(33% - 24px)" };
     }
-    if (numberOfParticipants % 3 === 0 && numberOfParticipants > 3) {
-      return 3;
-    }
-    if (numberOfParticipants % 2 === 0 || numberOfParticipants === 3) {
-      return 2;
-    }
-    if (numberOfParticipants === 1) {
-      return 1;
-    }
-    if (numberOfParticipants < 6) {
-      return 2;
-    }
-    return 3;
-  };
 
-  const getVideoWidth = () => {
-    if (participants.length > 2) {
-      return "max-w-xl";
+    if (participants.length === 4) {
+      return { height: "50%" };
     }
-    if (participants.length > 1) {
-      return "max-w-2xl";
-    }
-    return "max-w-3xl";
+
+    return { width: "calc(33% - 24px)" };
   };
 
   return (
     <div className="relative">
       <LocalVideo
-        className="absolute left-1 top-1 max-w-32 sm:max-w-40"
+        className="absolute left-1 top-1 z-10 max-w-32 sm:max-w-40"
         gotStream={gotLocalStream}
-        stream={localStream}
-        username={localParticipant.current?.username || "Unknown"}
+        stream={localParticipantStream}
+        participant={localParticipant}
       />
-      <section className="flex min-h-screen w-full flex-row flex-wrap items-center justify-center gap-3">
+      <section className="flex h-screen min-h-screen w-full flex-row flex-wrap items-center justify-center gap-3">
         {participantStreams.current.map((stream, i) => (
           <PeerVideo
-            className={`mx-auto h-screen max-h-screen`}
-            style={getPeerStyles(stream)}
-            peer={stream.peer}
-            username={
-              participants.find((p) => stream.channel === p.channel)
-                ?.username || "Unknown"
+            className={`mx-auto`}
+            style={getPeerStyles()}
+            stream={stream.stream}
+            participant={
+              participants.find((p) => p.channel === stream.channel) || null
             }
             key={i}
           />

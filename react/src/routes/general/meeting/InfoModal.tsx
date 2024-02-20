@@ -7,6 +7,10 @@ import {
 } from "react";
 import { useParams } from "react-router-dom";
 import {
+  Audio as AudioIcon,
+  AudioMuted as AudioMutedIcon,
+} from "../../../assets/icons/meeting-controls";
+import {
   DarkMode as DarkModeIcon,
   LightMode as LightModeIcon,
 } from "../../../assets/icons/theme";
@@ -81,12 +85,15 @@ const InfoModal: FC<Props> = ({
               <div className="flex flex-row items-center justify-between gap-x-4 sm:w-full sm:justify-normal lg:gap-x-8">
                 {localParticipant.current ? (
                   <>
-                    <p>
-                      {localParticipant.current.username || "Unknown"} (You)
-                    </p>
+                    <p>{localParticipant.current.username || "Guest"} (You)</p>
                     <p className="italic">
                       {localParticipant.current.email || "Not Signed In"}
                     </p>
+                    {localParticipant.current.audioMuted ? (
+                      <AudioMutedIcon className="h-6 stroke-red-600 dark:stroke-red-500" />
+                    ) : (
+                      <AudioIcon className="h-10 stroke-gray-950 dark:stroke-gray-100" />
+                    )}
                   </>
                 ) : (
                   <>
@@ -112,10 +119,15 @@ const InfoModal: FC<Props> = ({
                   className="flex flex-row items-center justify-between gap-x-4 sm:w-full sm:justify-normal lg:gap-x-8"
                   key={i}
                 >
-                  <p>{participant.username || "Unknown"}</p>
+                  <p>{participant.username || "Guest"}</p>
                   <p className="italic">
                     {participant.email || "Not Signed In"}
                   </p>
+                  {participant.audioMuted ? (
+                    <AudioMutedIcon className="h-6 stroke-red-600 dark:stroke-red-500" />
+                  ) : (
+                    <AudioIcon className="h-10 stroke-gray-950 dark:stroke-gray-100" />
+                  )}
                 </div>
               ))}
           </div>
