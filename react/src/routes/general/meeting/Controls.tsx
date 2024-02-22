@@ -1,5 +1,14 @@
-import { Dispatch, FC, MutableRefObject, SetStateAction } from "react";
-import { ExitModal, InfoModal, RecordingModal } from ".";
+import {
+  Dispatch,
+  FC,
+  MutableRefObject,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { useParams } from "react-router-dom";
+import { ExitModal, InfoModal, RecordingModal, SaveRecordingModal } from ".";
 import { Exit as ExitIcon } from "../../../assets/icons/buttons";
 import {
   Chat as ChatIcon,
@@ -7,6 +16,7 @@ import {
 } from "../../../assets/icons/meeting-controls";
 import { Info as InfoIcon } from "../../../assets/icons/symbols";
 import { useModal } from "../../../hooks/components";
+import { useSaveRecording } from "../../../hooks/meetings/useSaveRecording";
 import { Participant } from "./types";
 
 type Props = {
@@ -15,17 +25,122 @@ type Props = {
   localParticipant: MutableRefObject<Participant | null>;
 };
 
+type States = {
+  isPending: boolean;
+  isSuccess: boolean;
+  isError: boolean;
+};
+
+type RouteParams = {
+  meetingId: string;
+};
+
 const Controls: FC<Props> = ({
   participants,
   localParticipant,
   setHideUsernameModal,
 }) => {
+  const [recording, setRecording] = useState<boolean>(false);
+  const [recordingStates, setRecordingStates] = useState<States>({
+    isPending: false,
+    isSuccess: false,
+    isError: false,
+  });
+
+  const recorder = useRef<{
+    stream: MediaStream | null;
+    recorder: MediaRecorder | null;
+    chunks: Blob[];
+  }>({ stream: null, recorder: null, chunks: [] });
+
+  const { meetingId } = useParams<keyof RouteParams>() as RouteParams;
+
   const { hidden: hideInfoModal, setHidden: setHideInfoModal } = useModal();
   const { hidden: hideRecordingModal, setHidden: setHideRecordingModal } =
     useModal();
+  const {
+    hidden: hideRecordingSuccessModal,
+    setHidden: setHideRecordingSuccessModal,
+  } = useModal();
   const { hidden: hideExitModal, setHidden: setHideExitModal } = useModal();
 
-  // recording states and useEffect
+  const { create, reset, isPending, isSuccess, isError } = useSaveRecording();
+
+  useEffect(() => {
+    if (recording) {
+      setRecordingStates({ isPending: true, isSuccess: false, isError: false });
+      let opts = {
+        audio: true,
+        video: { displaySurface: "browser" },
+        preferCurrentTab: true,
+      };
+      navigator.mediaDevices
+        .getDisplayMedia(opts)
+        .then((stream) => {
+          recorder.current.stream = stream;
+          recorder.current.recorder = new MediaRecorder(stream);
+
+          recorder.current.stream.getTracks().forEach((track) => {
+            track.onended = () => setRecording(false);
+          });
+
+          recorder.current.recorder.ondataavailable = (e) => {
+            if (e.data.size > 0) {
+              recorder.current.chunks.push(e.data);
+            }
+          };
+          recorder.current.recorder.onstop = () => {
+            setRecording(false);
+          };
+          setRecordingStates({
+            isPending: false,
+            isSuccess: true,
+            isError: false,
+          });
+          return recorder.current.recorder.start(200);
+        })
+        .catch(() => {
+          setRecordingStates({
+            isPending: false,
+            isSuccess: false,
+            isError: true,
+          });
+          setRecording(false);
+        });
+    }
+
+    if (!recording && recorder.current.recorder) {
+      recorder.current.recorder.stop();
+    }
+
+    return () => {
+      if (recording && recorder.current.chunks.length > 0) {
+        console.log("saving");
+        // save file
+        const file = new File(recorder.current.chunks, "my_recording.webm", {
+          type: "video/webm",
+        });
+        create({ meeting: meetingId, file });
+        setHideRecordingSuccessModal(false);
+
+        // clean-up
+        recorder.current.chunks = [];
+        recorder.current.recorder = null;
+        recorder.current.stream?.getTracks().forEach((track) => track.stop());
+        recorder.current.stream = null;
+      }
+    };
+  }, [recording]);
+
+  useEffect(() => {
+    if (hideRecordingModal) {
+      setRecordingStates({
+        isPending: false,
+        isSuccess: false,
+        isError: false,
+      });
+    }
+  }, [hideRecordingModal]);
 
   return (
     <>
@@ -37,7 +152,7 @@ const Controls: FC<Props> = ({
         <ChatIcon className="h-[50px] cursor-pointer stroke-gray-500 hover:stroke-amber-500 dark:stroke-gray-400 dark:hover:stroke-amber-300" />
         <RecordIcon
           height="35"
-          className="mx-[7px] cursor-pointer stroke-gray-500 hover:stroke-amber-500 dark:stroke-gray-400 dark:hover:stroke-amber-300"
+          className={`mx-[7px] cursor-pointer stroke-gray-500 hover:stroke-amber-500 dark:stroke-gray-400 dark:hover:stroke-amber-300 ${recording ? "animate-pulse !stroke-amber-500 dark:!stroke-amber-300" : ""}`}
           onClick={() => setHideRecordingModal((prev) => !prev)}
         />
         <ExitIcon
@@ -57,6 +172,17 @@ const Controls: FC<Props> = ({
       <RecordingModal
         hidden={hideRecordingModal}
         setHidden={setHideRecordingModal}
+        recording={recording}
+        setRecording={setRecording}
+        recordingStates={recordingStates}
+      />
+      <SaveRecordingModal
+        isPending={isPending}
+        isSuccess={isSuccess}
+        isError={isError}
+        reset={reset}
+        hidden={hideRecordingSuccessModal}
+        setHidden={setHideRecordingSuccessModal}
       />
       <ExitModal hidden={hideExitModal} setHidden={setHideExitModal} />
     </>
