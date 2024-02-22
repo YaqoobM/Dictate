@@ -78,26 +78,36 @@ const Controls: FC<Props> = ({
         .getDisplayMedia(opts)
         .then((stream) => {
           recorder.current.stream = stream;
-          recorder.current.recorder = new MediaRecorder(stream);
-
-          recorder.current.stream.getTracks().forEach((track) => {
-            track.onended = () => setRecording(false);
+          recorder.current.recorder = new MediaRecorder(stream, {
+            audioBitsPerSecond: 128000,
+            videoBitsPerSecond: 2500000,
+            mimeType: "video/webm;codecs=vp8",
           });
 
+          // store stream data
           recorder.current.recorder.ondataavailable = (e) => {
             if (e.data.size > 0) {
               recorder.current.chunks.push(e.data);
             }
           };
+
+          // handle stop event (force clean-up)
           recorder.current.recorder.onstop = () => {
             setRecording(false);
           };
+
+          recorder.current.stream.getTracks().forEach((track) => {
+            track.onended = () => recorder.current.recorder?.stop();
+          });
+
           setRecordingStates({
             isPending: false,
             isSuccess: true,
             isError: false,
           });
-          return recorder.current.recorder.start(200);
+
+          recorder.current.recorder.start(200);
+          return;
         })
         .catch(() => {
           setRecordingStates({
@@ -106,6 +116,7 @@ const Controls: FC<Props> = ({
             isError: true,
           });
           setRecording(false);
+          return;
         });
     }
 
@@ -115,7 +126,6 @@ const Controls: FC<Props> = ({
 
     return () => {
       if (recording && recorder.current.chunks.length > 0) {
-        console.log("saving");
         // save file
         const file = new File(recorder.current.chunks, "my_recording.webm", {
           type: "video/webm",
@@ -175,6 +185,7 @@ const Controls: FC<Props> = ({
         recording={recording}
         setRecording={setRecording}
         recordingStates={recordingStates}
+        recorder={recorder.current.recorder}
       />
       <SaveRecordingModal
         isPending={isPending}

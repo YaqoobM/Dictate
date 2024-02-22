@@ -18,6 +18,7 @@ type Props = {
     isSuccess: boolean;
     isError: boolean;
   };
+  recorder: MediaRecorder | null;
   hidden: boolean;
   setHidden: Dispatch<SetStateAction<boolean>>;
 };
@@ -26,11 +27,20 @@ const RecordingModal: FC<Props> = ({
   recording,
   setRecording,
   recordingStates,
+  recorder,
   hidden,
   setHidden,
 }) => {
   const { isAuthenticated } = useContext(AuthContext);
   const { Modal } = useModal();
+
+  const handleSubmit = () => {
+    if (recording) {
+      recorder?.stop();
+    } else {
+      setRecording(true);
+    }
+  };
 
   useEffect(() => {
     if (recordingStates.isSuccess || (!recording && !recordingStates.isError)) {
@@ -68,7 +78,7 @@ const RecordingModal: FC<Props> = ({
           </h1>
           <Button
             className="w-full"
-            onClick={() => setRecording((prev) => !prev)}
+            onClick={handleSubmit}
             disabled={recordingStates.isPending}
           >
             {recordingStates.isError ? "Try Again" : "Yes"}
