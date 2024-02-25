@@ -4,9 +4,9 @@ import {
   Error as ErrorIcon,
   Success as SuccessIcon,
   Warning as WarningIcon,
-} from "../../../assets/icons/symbols";
-import { Loader as LoaderIcon } from "../../../assets/icons/utils";
-import { useModal } from "../../../hooks/components";
+} from "../../../../assets/icons/symbols";
+import { Loader as LoaderIcon } from "../../../../assets/icons/utils";
+import { useModal } from "../../../../hooks/components";
 
 type Props = {
   isPending: boolean;

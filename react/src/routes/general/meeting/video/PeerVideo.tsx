@@ -1,6 +1,6 @@
 import { FC, HTMLAttributes, useEffect, useRef, useState } from "react";
 import { Video } from ".";
-import { Participant } from "./types.ts";
+import { Participant } from "../types.ts";
 
 interface Props extends HTMLAttributes<HTMLElement> {
   participant: Participant | null;

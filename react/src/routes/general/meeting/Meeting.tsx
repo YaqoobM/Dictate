@@ -1,6 +1,6 @@
 import { FC, useContext, useEffect, useState } from "react";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useNavigate, useParams } from "react-router-dom";
-import { Controls, SetUsernameModal, VideoGrid } from ".";
 import {
   Error as ErrorIcon,
   Warning as WarningIcon,
@@ -10,6 +10,10 @@ import { Button } from "../../../components/utils";
 import { AuthContext } from "../../../contexts";
 import { useModal } from "../../../hooks/components";
 import { useMeetingWebsocket } from "../../../hooks/meetings";
+import { SetUsernameModal } from "./modals";
+import { Notes } from "./notes";
+import { Controls } from "./other";
+import { VideoGrid } from "./video";
 
 type RouteParams = {
   meetingId: string;
@@ -17,6 +21,7 @@ type RouteParams = {
 
 const Meeting: FC = () => {
   const [gotLocalStream, setGotLocalStream] = useState<boolean>(false);
+  const [showNotes, setShowNotes] = useState<boolean>(false);
 
   const { meetingId } = useParams<keyof RouteParams>() as RouteParams;
   const { isAuthenticated, checkingAuth } = useContext(AuthContext);
@@ -35,7 +40,7 @@ const Meeting: FC = () => {
     participants,
     participantStreams,
     groupNotes,
-    setGroupNotes,
+    groupNotesState,
     error,
   } = useMeetingWebsocket(meetingId);
 
@@ -150,17 +155,40 @@ const Meeting: FC = () => {
     <main className="h-screen min-h-screen w-screen overflow-y-scroll bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-gray-100">
       {isConnected ? (
         <>
-          <VideoGrid
-            participants={participants}
-            participantStreams={participantStreams}
-            gotLocalStream={gotLocalStream}
-            localParticipant={localParticipant}
-            localParticipantStream={localParticipantStream}
-          />
+          {showNotes ? (
+            <PanelGroup direction="horizontal">
+              <Panel defaultSize={50}>
+                <Notes
+                  groupNotes={groupNotes}
+                  groupNotesState={groupNotesState}
+                  websocket={websocket}
+                />
+              </Panel>
+              <PanelResizeHandle className="mr-3 w-0.5 bg-amber-500 dark:bg-amber-300" />
+              <Panel>
+                <VideoGrid
+                  participants={participants}
+                  participantStreams={participantStreams}
+                  gotLocalStream={gotLocalStream}
+                  localParticipant={localParticipant}
+                  localParticipantStream={localParticipantStream}
+                />
+              </Panel>
+            </PanelGroup>
+          ) : (
+            <VideoGrid
+              participants={participants}
+              participantStreams={participantStreams}
+              gotLocalStream={gotLocalStream}
+              localParticipant={localParticipant}
+              localParticipantStream={localParticipantStream}
+            />
+          )}
           <Controls
             participants={participants}
             localParticipant={localParticipant}
             setHideUsernameModal={setHideSetUsernameModal}
+            setShowNotes={setShowNotes}
           />
         </>
       ) : (

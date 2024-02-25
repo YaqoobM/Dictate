@@ -78,10 +78,9 @@ const useMeetingWebsocket = (id: string) => {
     isError: false,
   });
   const [participants, setParticipants] = useState<Participant[]>([]);
-  // const [gotLocalStream, setGotLocalStream] = useState<boolean>(false);
   // force re-render
   const [, setLocalParticipant] = useState<string>("");
-  const [groupNotes, setGroupNotes] = useState<string>("");
+  const [groupNotesState, setGroupNotesState] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   // why ref instead of state?
@@ -98,6 +97,11 @@ const useMeetingWebsocket = (id: string) => {
   const participantStreams = useRef<ParticipantStream[]>([]);
   const localParticipantStream = useRef<MediaStream | null>(null);
   const localParticipant = useRef<Participant | null>(null);
+
+  // why ref instead of state?
+  // - we need freshest value when accessed in async calls in useEffect
+  // - triggering re-render with setGroupNotesState()
+  const groupNotes = useRef<string>("{}");
 
   const appendParticipantStreams = (
     channel: string,
@@ -244,7 +248,9 @@ const useMeetingWebsocket = (id: string) => {
         }
       } else if (message.type === "group_notes") {
         // make this better?
-        setGroupNotes(message.content);
+        groupNotes.current = message.content;
+        // force re-render (caught by useEffect)
+        setGroupNotesState(message.content);
       } else if (message.type === "error") {
         setConnectionStates((prev) => ({ ...prev, isError: true }));
         setError(message.message);
@@ -273,11 +279,11 @@ const useMeetingWebsocket = (id: string) => {
     localParticipant,
     localParticipantStream,
     groupNotes,
+    groupNotesState,
     error,
     isConnected: connectionStates.isConnected,
     isPending: connectionStates.isPending,
     isError: connectionStates.isError,
-    setGroupNotes,
   };
 };
 

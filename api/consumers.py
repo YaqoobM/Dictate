@@ -117,8 +117,13 @@ class MeetingConsumer(JsonWebsocketConsumer):
             }
         )
 
-        # send new connection group notes if available
-        notes = cache.get(f"meeting_{self.meeting_id}_notes")
+        # send new connection group notes if available or if saved
+        notes = None
+
+        if hasattr(self.meeting, "notes"):
+            notes = self.meeting.notes.content
+
+        notes = cache.get(f"meeting_{self.meeting_id}_notes", notes)
 
         if notes:
             self.send_json(
@@ -163,7 +168,7 @@ class MeetingConsumer(JsonWebsocketConsumer):
         # save group notes if available
         notes = cache.get(f"meeting_{self.meeting_id}_notes")
         if notes:
-            if self.meeting.notes:
+            if hasattr(self.meeting, "notes"):
                 self.meeting.notes.content = notes
                 self.meeting.save()
             else:
@@ -408,11 +413,10 @@ class MeetingConsumer(JsonWebsocketConsumer):
     def notes_new(self, event):
         """Send updated group notes to individual peer"""
 
-        if self.channel_name != event["from"]["channel"]:
-            self.send_json(
-                content={
-                    "type": "group_notes",
-                    "content": event["content"],
-                    "from": event["from"],
-                }
-            )
+        self.send_json(
+            content={
+                "type": "group_notes",
+                "content": event["content"],
+                "from": event["from"],
+            }
+        )

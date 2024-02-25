@@ -1,7 +1,7 @@
 import { Dispatch, FC, SetStateAction } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../../../components/utils";
-import { useModal } from "../../../hooks/components";
+import { Button } from "../../../../components/utils";
+import { useModal } from "../../../../hooks/components";
 
 type Props = {
   hidden: boolean;

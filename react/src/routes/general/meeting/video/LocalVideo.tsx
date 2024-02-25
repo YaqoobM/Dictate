@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import { Video } from ".";
-import { Participant } from "./types.ts";
+import { Participant } from "../types.ts";
 
 interface Props extends HTMLAttributes<HTMLElement> {
   participant: MutableRefObject<Participant | null>;

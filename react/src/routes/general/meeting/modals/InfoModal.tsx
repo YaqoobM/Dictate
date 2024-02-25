@@ -9,16 +9,16 @@ import { useParams } from "react-router-dom";
 import {
   Audio as AudioIcon,
   AudioMuted as AudioMutedIcon,
-} from "../../../assets/icons/meeting-controls";
+} from "../../../../assets/icons/meeting-controls";
 import {
   DarkMode as DarkModeIcon,
   LightMode as LightModeIcon,
-} from "../../../assets/icons/theme";
-import { Loader as LoadingIcon } from "../../../assets/icons/utils";
-import { Button } from "../../../components/utils";
-import { ThemeContext } from "../../../contexts";
-import { useModal } from "../../../hooks/components";
-import { Participant } from "./types.ts";
+} from "../../../../assets/icons/theme";
+import { Loader as LoadingIcon } from "../../../../assets/icons/utils";
+import { Button } from "../../../../components/utils";
+import { ThemeContext } from "../../../../contexts";
+import { useModal } from "../../../../hooks/components";
+import { Participant } from "../types.ts";
 
 type RouteParams = {
   meetingId: string;

@@ -10,6 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@editorjs/checklist": "^1.6.0",
+    "@editorjs/delimiter": "^1.4.0",
+    "@editorjs/editorjs": "^2.29.0",
+    "@editorjs/header": "^2.8.1",
+    "@editorjs/marker": "^1.4.0",
+    "@editorjs/nested-list": "^1.4.2",
+    "@editorjs/paragraph": "^2.11.3",
+    "@editorjs/table": "^2.3.0",
     "@tanstack/react-query": "^5.18.1",
     "@tanstack/react-query-devtools": "^5.20.1",
     "@types/js-cookie": "^3.0.6",
@@ -17,6 +25,7 @@
     "js-cookie": "^3.0.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-resizable-panels": "^2.0.9",
     "react-router-dom": "^6.21.3",
     "simple-peer": "^9.11.1"
   },

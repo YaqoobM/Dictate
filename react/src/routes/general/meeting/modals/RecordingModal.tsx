@@ -4,11 +4,11 @@ import {
   Error as ErrorIcon,
   Success as SuccessIcon,
   Warning as WarningIcon,
-} from "../../../assets/icons/symbols";
-import { Loader as LoaderIcon } from "../../../assets/icons/utils";
-import { Button } from "../../../components/utils";
-import { AuthContext } from "../../../contexts";
-import { useModal } from "../../../hooks/components";
+} from "../../../../assets/icons/symbols";
+import { Loader as LoaderIcon } from "../../../../assets/icons/utils";
+import { Button } from "../../../../components/utils";
+import { AuthContext } from "../../../../contexts";
+import { useModal } from "../../../../hooks/components";
 
 type Props = {
   recording: boolean;

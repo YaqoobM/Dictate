@@ -1,6 +1,6 @@
-import { FC, MutableRefObject } from "react";
+import { FC, MutableRefObject, useRef } from "react";
 import { LocalVideo, PeerVideo } from ".";
-import { Participant, ParticipantStream } from "./types.ts";
+import { Participant, ParticipantStream } from "../types.ts";
 
 type Props = {
   participants: Participant[];
@@ -17,7 +17,13 @@ const VideoGrid: FC<Props> = ({
   localParticipant,
   localParticipantStream,
 }) => {
+  const grid = useRef<HTMLElement | null>(null);
+
   const getPeerStyles = () => {
+    // if (grid.current && grid.current.offsetWidth <= 640) {
+    //   return { width: "99%" };
+    // }
+
     // add max values
     if (participants.length === 1) {
       return { height: "99%", width: "99%" };
@@ -46,10 +52,14 @@ const VideoGrid: FC<Props> = ({
         stream={localParticipantStream}
         participant={localParticipant}
       />
-      <section className="flex h-screen min-h-screen w-full flex-row flex-wrap items-center justify-center gap-3">
+      <section
+        // !mr-3
+        className="flex h-screen min-h-screen w-full flex-row flex-wrap items-center justify-center gap-3"
+        ref={grid}
+      >
         {participantStreams.current.map((stream, i) => (
           <PeerVideo
-            className={`mx-auto`}
+            className={`peer-video mx-auto max-w-screen-xl`}
             style={getPeerStyles()}
             stream={stream.stream}
             participant={

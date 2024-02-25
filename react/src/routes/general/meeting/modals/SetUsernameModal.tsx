@@ -6,9 +6,9 @@ import {
   useEffect,
   useState,
 } from "react";
-import { InputGroup } from "../../../components/forms";
-import { Button } from "../../../components/utils";
-import { useModal } from "../../../hooks/components";
+import { InputGroup } from "../../../../components/forms";
+import { Button } from "../../../../components/utils";
+import { useModal } from "../../../../hooks/components";
 
 type Props = {
   hidden: boolean;

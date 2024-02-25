@@ -8,21 +8,27 @@ import {
   useState,
 } from "react";
 import { useParams } from "react-router-dom";
-import { ExitModal, InfoModal, RecordingModal, SaveRecordingModal } from ".";
-import { Exit as ExitIcon } from "../../../assets/icons/buttons";
+import { Exit as ExitIcon } from "../../../../assets/icons/buttons";
 import {
   Chat as ChatIcon,
   Record as RecordIcon,
-} from "../../../assets/icons/meeting-controls";
-import { Info as InfoIcon } from "../../../assets/icons/symbols";
-import { useModal } from "../../../hooks/components";
-import { useSaveRecording } from "../../../hooks/meetings/useSaveRecording";
-import { Participant } from "./types";
+} from "../../../../assets/icons/meeting-controls";
+import { Info as InfoIcon } from "../../../../assets/icons/symbols";
+import { useModal } from "../../../../hooks/components";
+import { useSaveRecording } from "../../../../hooks/meetings/useSaveRecording";
+import {
+  ExitModal,
+  InfoModal,
+  RecordingModal,
+  SaveRecordingModal,
+} from "../modals";
+import { Participant } from "../types";
 
 type Props = {
   participants: Participant[];
   setHideUsernameModal: Dispatch<SetStateAction<boolean>>;
   localParticipant: MutableRefObject<Participant | null>;
+  setShowNotes: Dispatch<SetStateAction<boolean>>;
 };
 
 type States = {
@@ -39,6 +45,7 @@ const Controls: FC<Props> = ({
   participants,
   localParticipant,
   setHideUsernameModal,
+  setShowNotes,
 }) => {
   const [recording, setRecording] = useState<boolean>(false);
   const [recordingStates, setRecordingStates] = useState<States>({
@@ -154,12 +161,15 @@ const Controls: FC<Props> = ({
 
   return (
     <>
-      <article className="fixed bottom-[10%] left-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-row items-center gap-x-4 rounded-3xl border-[1.5px] border-gray-500 bg-gray-100 bg-gradient-to-r from-gray-100 to-gray-200/20 px-3 py-1.5 opacity-30 shadow-md hover:opacity-100 dark:border-gray-400 dark:bg-gray-900/70 dark:bg-none dark:text-gray-100 dark:shadow-none lg:bottom-[5%] lg:shadow-lg">
+      <article className="fixed bottom-[10%] left-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 flex-row items-center gap-x-4 rounded-3xl border-[1.5px] border-gray-500 bg-gray-100 bg-gradient-to-r from-gray-100 to-gray-200/20 px-3 py-1.5 opacity-30 shadow-md hover:opacity-100 dark:border-gray-400 dark:bg-gray-900/70 dark:bg-none dark:text-gray-100 dark:shadow-none lg:bottom-[5%] lg:shadow-lg">
         <InfoIcon
           className="h-[50px] cursor-pointer stroke-gray-500 hover:stroke-amber-500 dark:stroke-gray-400 dark:hover:stroke-amber-300"
           onClick={() => setHideInfoModal((prev) => !prev)}
         />
-        <ChatIcon className="h-[50px] cursor-pointer stroke-gray-500 hover:stroke-amber-500 dark:stroke-gray-400 dark:hover:stroke-amber-300" />
+        <ChatIcon
+          className="h-[50px] cursor-pointer stroke-gray-500 hover:stroke-amber-500 dark:stroke-gray-400 dark:hover:stroke-amber-300"
+          onClick={() => setShowNotes((prev) => !prev)}
+        />
         <RecordIcon
           height="35"
           className={`mx-[7px] cursor-pointer stroke-gray-500 hover:stroke-amber-500 dark:stroke-gray-400 dark:hover:stroke-amber-300 ${recording ? "animate-pulse !stroke-amber-500 dark:!stroke-amber-300" : ""}`}
