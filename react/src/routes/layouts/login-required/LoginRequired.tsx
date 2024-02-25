@@ -1,13 +1,16 @@
-import { FC, useContext } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { FC, useContext, useEffect } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../contexts";
 
 const LoginRequired: FC = () => {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, checkingAuth } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/home" />;
-  }
+  useEffect(() => {
+    if (!checkingAuth && !isAuthenticated) {
+      navigate("/home");
+    }
+  }, [checkingAuth]);
 
   return <Outlet />;
 };
