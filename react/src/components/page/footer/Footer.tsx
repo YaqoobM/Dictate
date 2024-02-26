@@ -4,7 +4,7 @@ import { Logo } from "../../../assets/icons/symbols";
 
 const Footer: FC = () => {
   return (
-    <footer className="border-t-2 border-gray-200 bg-gray-800 bg-gradient-to-r from-gray-100 to-gray-200/95 dark:border-gray-800 dark:bg-gray-500 dark:from-gray-800 dark:to-gray-900">
+    <div className="border-t-2 border-gray-200 bg-gray-800 bg-gradient-to-r from-gray-100 to-gray-200/95 dark:border-gray-800 dark:bg-gray-500 dark:from-gray-800 dark:to-gray-900">
       <div className="container mx-auto p-4 md:py-8">
         <div className="sm:flex sm:items-center sm:justify-between">
           <Link
@@ -66,7 +66,7 @@ const Footer: FC = () => {
           ™. All Rights Reserved.
         </span>
       </div>
-    </footer>
+    </div>
   );
 };
 

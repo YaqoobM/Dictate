@@ -15,7 +15,7 @@ import {
 } from "../../../../assets/icons/meeting-controls";
 import { Info as InfoIcon } from "../../../../assets/icons/symbols";
 import { useModal } from "../../../../hooks/components";
-import { useSaveRecording } from "../../../../hooks/meetings/useSaveRecording";
+import { useSaveRecording } from "../../../../hooks/resources";
 import {
   ExitModal,
   InfoModal,

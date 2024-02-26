@@ -8,7 +8,7 @@ import { Loader as LoadingIcon } from "../../../assets/icons/utils";
 import { InputGroup } from "../../../components/forms";
 import { Button } from "../../../components/utils";
 import { useModal } from "../../../hooks/components";
-import { useMeeting } from "../../../hooks/meetings";
+import { useGetMeeting } from "../../../hooks/meetings";
 
 type Props = {
   hidden: boolean;
@@ -24,7 +24,7 @@ const JoinMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
   const { Modal } = useModal();
   const navigate = useNavigate();
 
-  const { refetch, isFetching, isSuccess, isError, error } = useMeeting(
+  const { refetch, isFetching, isSuccess, isError, error } = useGetMeeting(
     meetingId,
     false,
     false,

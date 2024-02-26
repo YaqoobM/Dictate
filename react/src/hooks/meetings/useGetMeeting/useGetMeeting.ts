@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import { Meeting } from "../../../types";
 import { useAxios } from "../../utils";
 
 type Response = Meeting;
 
-const useMeeting = (
+const useGetMeeting = (
   id: string,
   retryOnMount: boolean = true,
   enabled: boolean = true,
@@ -23,7 +23,7 @@ const useMeeting = (
     enabled,
   });
 
-  let error = null;
+  let error: AxiosResponse | null = null;
 
   if (
     query.error &&
@@ -45,4 +45,4 @@ const useMeeting = (
   };
 };
 
-export default useMeeting;
+export default useGetMeeting;

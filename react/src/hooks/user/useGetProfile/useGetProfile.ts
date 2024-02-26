@@ -7,7 +7,10 @@ type Response = {
   user: User;
 };
 
-const useProfile = (retryOnMount: boolean = true, enabled: boolean = true) => {
+const useGetProfile = (
+  retryOnMount: boolean = true,
+  enabled: boolean = true,
+) => {
   const axios = useAxios();
 
   const query = useQuery({
@@ -46,4 +49,4 @@ const useProfile = (retryOnMount: boolean = true, enabled: boolean = true) => {
   };
 };
 
-export default useProfile;
+export default useGetProfile;

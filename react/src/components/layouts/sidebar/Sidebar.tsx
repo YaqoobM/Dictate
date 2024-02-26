@@ -9,9 +9,9 @@ type Props = {
 const Sidebar: FC<Props> = ({ sidebar, children }) => {
   if (sidebar === "meetings") {
     return (
-      <div className="container mx-auto h-full w-full px-8 py-1 sm:py-2 md:py-3">
-        <MeetingSidebar className="h-full align-top" />
-        <div className="inline-block h-full align-top">{children}</div>
+      <div className="container mx-auto flex w-full flex-col px-8 py-3 sm:py-4 md:py-5 lg:flex-row">
+        <MeetingSidebar breakpoint="lg" />
+        <div className="w-full lg:h-full">{children}</div>
       </div>
     );
   } else {

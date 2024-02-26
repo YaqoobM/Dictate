@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 import Cookies from "js-cookie";
 import { Recording } from "../../../types";
 import { useAxios } from "../../utils";
@@ -31,11 +31,26 @@ const useSaveRecording = () => {
       });
     },
     onSuccess: ({ data }) => {
-      queryClient.invalidateQueries({ queryKey: ["recordings", data.id] });
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          if (
+            query.queryKey[0] === "recording" &&
+            query.queryKey[1] === data.id
+          ) {
+            return true;
+          }
+
+          if (query.queryKey[0] === "recordings") {
+            return true;
+          }
+
+          return false;
+        },
+      });
     },
   });
 
-  let error = null;
+  let error: AxiosResponse | null = null;
 
   if (
     mutation.error &&
