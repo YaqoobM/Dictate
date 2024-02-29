@@ -1,7 +1,6 @@
 import { Dispatch, FC, SetStateAction } from "react";
-import { useCalendar } from "../../../../hooks/utils";
+import { useCalendar, useGetSuffix } from "../../../../hooks/calendar";
 import { Meeting } from "../../../../types";
-import { getDateSuffix } from "../helpers";
 
 interface Day {
   day: number;
@@ -128,7 +127,7 @@ const Calendar: FC<Props> = ({
               className={`absolute left-2 top-2 text-xs font-medium uppercase group-hover:text-amber-500 group-hover:dark:text-amber-300 sm:text-sm ${isToday(day) ? "group-hover:text-gray-100" : ""}`}
             >
               {day.day}
-              {getDateSuffix(day.day)}
+              {useGetSuffix(day.day)}
             </p>
             {day.hasMeetings ? (
               <p

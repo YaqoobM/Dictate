@@ -1,7 +1,7 @@
 import { Dispatch, FC, SetStateAction } from "react";
 import { Arrow as ArrowIcon } from "../../../../assets/icons/symbols";
 import { Button } from "../../../../components/utils";
-import { months } from "../helpers";
+import { useGetMonth } from "../../../../hooks/calendar";
 
 type Props = {
   date: Date;
@@ -40,7 +40,7 @@ const Controls: FC<Props> = ({
           </span>
         </h1>
         <h1 className="text-xl capitalize">
-          {months[date.getMonth()]} {date.getFullYear()}
+          {useGetMonth(date.getMonth())} {date.getFullYear()}
         </h1>
         <h1
           className="group flex items-center gap-x-1.5 pt-1 text-lg tracking-tight hover:cursor-pointer"

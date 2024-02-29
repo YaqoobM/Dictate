@@ -1,4 +1,5 @@
-import { Dispatch, FC, SetStateAction } from "react";
+import { Dispatch, FC, SetStateAction, useState } from "react";
+import { DatePicker } from "../../../../components/forms";
 import { Button } from "../../../../components/utils";
 import { useModal } from "../../../../hooks/components";
 import { useCreateMeeting } from "../../../../hooks/meetings";
@@ -9,6 +10,8 @@ type Props = {
 };
 
 const ScheduleMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
+  const [x, y] = useState<Date | null>(null);
+
   const { Modal } = useModal();
 
   const { create, reset, isPending, isSuccess, isError } = useCreateMeeting();
@@ -26,6 +29,7 @@ const ScheduleMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
       <h1 className="text-3xl font-semibold capitalize tracking-tight text-amber-500 dark:text-amber-300">
         Schedule New Meeting
       </h1>
+      <DatePicker value={x} setValue={y} />
       <Button className="w-full" onClick={handleSave}>
         Go
       </Button>

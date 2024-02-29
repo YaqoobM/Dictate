@@ -6,11 +6,15 @@ import {
   Info as InfoIcon,
 } from "../../../../assets/icons/symbols";
 import { Loader as LoadingIcon } from "../../../../assets/icons/utils";
+import {
+  useGetDay,
+  useGetMonth,
+  useGetSuffix,
+} from "../../../../hooks/calendar";
 import { useModal } from "../../../../hooks/components";
 import { useGetTeams } from "../../../../hooks/teams";
 import { useGetUserFn } from "../../../../hooks/user";
 import { Meeting } from "../../../../types";
-import { days, getDateSuffix, months } from "../helpers";
 import { UpdateMeetingModal } from "../modals";
 
 type Props = {
@@ -129,7 +133,7 @@ const Schedule: FC<Props> = ({ day, meetings }) => {
       <div className="mt-3 flex flex-col gap-y-2">
         {day ? (
           <>
-            <h1 className="text-lg font-medium capitalize">{`${days[day.getDay()]} ${day.getDate()}${getDateSuffix(day.getDate())} ${months[day.getMonth()]} ${day.getFullYear()}`}</h1>
+            <h1 className="text-lg font-medium capitalize">{`${useGetDay(day.getDay())} ${day.getDate()}${useGetSuffix(day.getDate())} ${useGetMonth(day.getMonth())} ${day.getFullYear()}`}</h1>
             <div className="h-0.5 rounded-full bg-gray-300 dark:bg-gray-700" />
             {meetings.length === 0 ? (
               <h1 className="mt-1 text-base font-medium capitalize">
