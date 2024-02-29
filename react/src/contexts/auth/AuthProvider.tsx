@@ -50,18 +50,6 @@ const AuthProvider: FC<Props> = ({ children }) => {
     },
   });
 
-  const logoutMutation = useMutation({
-    mutationFn: () =>
-      axios.post("/api/logout/", {}, { headers: { "X-CSRFToken": csrfToken } }),
-    onSuccess: () => {
-      queryClient.invalidateQueries();
-
-      if (isAuthenticated) {
-        setIsAuthenticated(false);
-      }
-    },
-  });
-
   const signUpMutation = useMutation({
     mutationFn: ({ email, username, password }: SignUpParams) =>
       axios.post(
@@ -74,6 +62,20 @@ const AuthProvider: FC<Props> = ({ children }) => {
 
       if (!isAuthenticated) {
         setIsAuthenticated(true);
+      }
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: () =>
+      axios.post("/api/logout/", {}, { headers: { "X-CSRFToken": csrfToken } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      loginMutation.reset();
+      signUpMutation.reset();
+
+      if (isAuthenticated) {
+        setIsAuthenticated(false);
       }
     },
   });

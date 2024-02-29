@@ -55,7 +55,7 @@ const SignUp: FC = () => {
   };
 
   return (
-    <section className="px-2 py-10 sm:px-0 xl:py-20">
+    <section className="w-full px-2 py-10 sm:px-0 xl:py-20">
       <div className="mx-auto flex flex-col items-center justify-center py-8">
         <h1 className="mb-6 flex flex-row items-center gap-x-3 text-3xl font-semibold text-amber-500 dark:text-amber-300">
           <span>Sign Up</span>

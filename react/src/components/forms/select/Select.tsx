@@ -45,7 +45,7 @@ const Select: FC<Props> = ({
           className={`flex w-full flex-row justify-between gap-x-2 text-left focus:outline-none ${inputBox ? "rounded-lg border-[1.5px] border-gray-300 bg-transparent py-2.5 pl-2.5 pr-2 text-sm text-amber-500 focus:border-amber-500 dark:border-gray-600 dark:text-amber-300 dark:focus:border-amber-300" : "text-xl "}`}
           onClick={() => setIsVisible((prev) => !prev)}
         >
-          <span className="block truncate">{value.label}</span>
+          <span className="block truncate tracking-wide">{value.label}</span>
           <span className="inset-y-0 right-0 flex items-center">
             <Chevron
               className={`${inputBox ? "w-4 fill-amber-500 dark:fill-amber-300" : "w-5 fill-gray-950 dark:fill-gray-100"}`}
@@ -53,25 +53,31 @@ const Select: FC<Props> = ({
           </span>
         </button>
         <div
-          className={`absolute left-1/2 top-[calc(100%_+_4px)] z-10 flex max-h-56 w-full -translate-x-1/2 flex-col overflow-auto rounded-md border py-1 text-base shadow-lg focus:outline-none sm:text-sm ${isVisible ? "block" : "hidden"} ${inputBox ? "dark:border-gray-800 dark:bg-gray-900" : "border-gray-300 bg-gray-200 text-gray-950"} ${dropdownClass}`}
+          className={`absolute left-1/2 top-[calc(100%_+_4px)] z-10 flex max-h-56 w-full -translate-x-1/2 flex-col justify-center gap-y-2 overflow-auto rounded-md border-[1.5px] border-gray-300 bg-gray-100 px-4 py-3.5 text-base text-gray-600 shadow-lg dark:bg-gray-900 dark:text-gray-300 dark:shadow-xl sm:text-sm ${isVisible ? "block" : "hidden"} ${inputBox ? "dark:border-gray-600" : "dark:border-gray-700"} ${dropdownClass}`}
         >
           {options.map((option, i) => (
-            <p
-              className={`flex select-none flex-row items-center gap-x-1 px-3 py-2 ${option.value === "disabled_option" ? "text-gray-600 dark:text-gray-300" : "cursor-pointer hover:text-amber-500 dark:hover:text-amber-300"}`}
-              onClick={() => handleClick(option)}
-              key={i}
-            >
-              <span className="block truncate font-normal tracking-tight">
-                {option.label}
-              </span>
-              {option.value === value.value ? (
-                <span className="flex items-center text-amber-500 dark:hover:text-amber-300">
-                  <Tick className="w-5 fill-amber-500 dark:fill-amber-300" />
+            <div className="group flex flex-col justify-center gap-y-2" key={i}>
+              <p
+                className={`flex select-none flex-row items-center gap-x-1 ${option.value === "disabled_option" ? "opacity-70" : "cursor-pointer hover:text-amber-500 dark:hover:text-amber-300"}`}
+                onClick={() =>
+                  option.value === "disabled_option"
+                    ? null
+                    : handleClick(option)
+                }
+              >
+                <span className="block truncate tracking-wide">
+                  {option.label}
                 </span>
-              ) : (
-                ""
-              )}
-            </p>
+                {option.value === value.value ? (
+                  <span className="flex items-center text-amber-500 dark:hover:text-amber-300">
+                    <Tick className="w-5 fill-amber-500 dark:fill-amber-300" />
+                  </span>
+                ) : (
+                  ""
+                )}
+              </p>
+              <div className="h-px rounded-full bg-gray-300 group-last:hidden dark:bg-gray-600" />
+            </div>
           ))}
         </div>
       </div>

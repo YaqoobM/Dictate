@@ -7,8 +7,12 @@ import { useModal } from "../../../hooks/components";
 import { useGetMeetings } from "../../../hooks/meetings";
 import { useGetTeams } from "../../../hooks/teams";
 import { Meeting } from "../../../types";
-import { ScheduleMeetingModal } from "./modals";
-import { Calendar, Controls, Schedule } from "./other";
+import { Calendar, Controls, Schedule } from "./components";
+import {
+  CreateMeetingModal,
+  JoinMeetingModal,
+  ScheduleMeetingModal,
+} from "./modals";
 
 type SelectOption = {
   label: string;
@@ -31,6 +35,14 @@ const Calendars: FC = () => {
   const {
     hidden: hideScheduleMeetingModal,
     setHidden: setHideScheduleMeetingModal,
+  } = useModal();
+
+  const { hidden: hideJoinMeetingModal, setHidden: setHideJoinMeetingModal } =
+    useModal();
+
+  const {
+    hidden: hideCreateMeetingModal,
+    setHidden: setHideCreateMeetingModal,
   } = useModal();
 
   const {
@@ -99,7 +111,11 @@ const Calendars: FC = () => {
   }, [teams, isTeamsPending]);
 
   return (
-    <SidebarLayout sidebar="meetings">
+    <SidebarLayout
+      sidebar="meetings"
+      setHideJoinMeetingModal={setHideJoinMeetingModal}
+      setHideCreateMeetingModal={setHideCreateMeetingModal}
+    >
       <div className="px-6 py-1.5">
         <div className="flex items-center gap-x-4">
           <Select
@@ -128,25 +144,56 @@ const Calendars: FC = () => {
       </div>
       <div className="mt-3 flex flex-col gap-y-10 px-6 xl:flex-row xl:items-start xl:justify-between">
         <Calendar
-          className="mb-8 grow xl:mb-0 xl:mr-6"
+          className="mb-8 grow-[4] xl:mb-0 xl:mr-6"
           date={activeMonth}
           meetings={cleanedMeetings}
+          selectedDay={selectedDay}
           setSelectedDay={setSelectedDay}
         />
-        <aside className="order-first flex flex-col items-center gap-y-3 xl:order-none xl:w-[330px] xl:items-stretch">
+        <aside className="order-first flex grow flex-col gap-y-3 xl:order-none xl:w-[330px]">
           <Controls
             date={activeMonth}
             setDate={setActiveMonth}
             setHideScheduleMeetingModal={setHideScheduleMeetingModal}
           />
-          <Schedule meetings={cleanedMeetings} day={selectedDay} />
+          <Schedule
+            meetings={cleanedMeetings
+              .filter(
+                (monthlyMeetings) =>
+                  selectedDay &&
+                  monthlyMeetings.month === selectedDay.getMonth() &&
+                  monthlyMeetings.year === selectedDay.getFullYear(),
+              )
+              .reduce<Meeting[]>((accumulator, value) => {
+                let temp_meetings: Meeting[] = [];
+
+                value.meetings.forEach((meeting) => {
+                  if (
+                    parseInt(meeting.start_time.split(" ")[0].split("/")[0]) ===
+                    selectedDay?.getDate()
+                  ) {
+                    temp_meetings.push(meeting);
+                  }
+                });
+
+                return [...accumulator, ...temp_meetings];
+              }, [])}
+            day={selectedDay}
+          />
         </aside>
       </div>
 
       <ScheduleMeetingModal
-        teamFilter={teamFilter.value}
         hidden={hideScheduleMeetingModal}
         setHidden={setHideScheduleMeetingModal}
+      />
+      <JoinMeetingModal
+        hidden={hideJoinMeetingModal}
+        setHidden={setHideJoinMeetingModal}
+      />
+      <CreateMeetingModal
+        hidden={hideCreateMeetingModal}
+        setHidden={setHideCreateMeetingModal}
       />
     </SidebarLayout>
   );

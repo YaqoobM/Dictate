@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TypedDict
 
 from asgiref.sync import async_to_sync
@@ -69,7 +70,10 @@ class MeetingConsumer(JsonWebsocketConsumer):
             self.user["username"] = self.scope["user"].username
 
         # team meeting?
-        if self.meeting.team and self.user not in self.meeting.team.members.all():
+        if (
+            self.meeting.team
+            and self.scope["user"] not in self.meeting.team.members.all()
+        ):
             self.close(code=4401)
 
         # completed checks
@@ -139,6 +143,7 @@ class MeetingConsumer(JsonWebsocketConsumer):
         Handle dropped connection.
         - remove user from cache (storing current participants)
         - send group broadcast announcing dropped user to current participants
+        - set meeting end_time if last participant
         - save group notes (if available) to db
         """
         # remove user from group broadcast
@@ -164,6 +169,14 @@ class MeetingConsumer(JsonWebsocketConsumer):
                 "user": self.user,
             },
         )
+
+        # set end_time if last participant
+        if (
+            len([p for p in current_participants if p["channel"] != self.channel_name])
+            == 0
+        ):
+            self.meeting.end_time = datetime.now()
+            self.meeting.save()
 
         # save group notes if available
         notes = cache.get(f"meeting_{self.meeting_id}_notes")

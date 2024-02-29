@@ -1,6 +1,7 @@
 import { Dispatch, FC, SetStateAction } from "react";
 import { Arrow as ArrowIcon } from "../../../../assets/icons/symbols";
 import { Button } from "../../../../components/utils";
+import { months } from "../helpers";
 
 type Props = {
   date: Date;
@@ -34,18 +35,18 @@ const Controls: FC<Props> = ({
           onClick={() => handleChangeMonth("prev")}
         >
           <ArrowIcon className="w-4 rotate-180 stroke-gray-950 group-hover:stroke-amber-500 dark:stroke-gray-100 group-hover:dark:stroke-amber-300" />
-          <span className="pb-px text-sm font-medium uppercase group-hover:text-amber-500 group-hover:dark:text-amber-300">
+          <span className="text-sm font-medium uppercase group-hover:text-amber-500 group-hover:dark:text-amber-300">
             back
           </span>
         </h1>
-        <h1 className="text-xl">
-          {date.toLocaleString("en-us", { month: "long" })} {date.getFullYear()}
+        <h1 className="text-xl capitalize">
+          {months[date.getMonth()]} {date.getFullYear()}
         </h1>
         <h1
           className="group flex items-center gap-x-1.5 pt-1 text-lg tracking-tight hover:cursor-pointer"
           onClick={() => handleChangeMonth("next")}
         >
-          <span className="pb-px text-sm font-medium uppercase group-hover:text-amber-500 group-hover:dark:text-amber-300">
+          <span className="text-sm font-medium uppercase group-hover:text-amber-500 group-hover:dark:text-amber-300">
             next
           </span>
           <ArrowIcon className="w-4 stroke-gray-950 group-hover:stroke-amber-500 dark:stroke-gray-100 group-hover:dark:stroke-amber-300" />

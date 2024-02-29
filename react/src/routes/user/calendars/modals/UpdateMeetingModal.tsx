@@ -2,13 +2,15 @@ import { Dispatch, FC, SetStateAction } from "react";
 import { Button } from "../../../../components/utils";
 import { useModal } from "../../../../hooks/components";
 import { useCreateMeeting } from "../../../../hooks/meetings";
+import { Meeting } from "../../../../types";
 
 type Props = {
+  meeting: Meeting | null;
   hidden: boolean;
   setHidden: Dispatch<SetStateAction<boolean>>;
 };
 
-const ScheduleMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
+const UpdateMeetingModal: FC<Props> = ({ meeting, hidden, setHidden }) => {
   const { Modal } = useModal();
 
   const { create, reset, isPending, isSuccess, isError } = useCreateMeeting();
@@ -24,7 +26,7 @@ const ScheduleMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
       setHidden={setHidden}
     >
       <h1 className="text-3xl font-semibold capitalize tracking-tight text-amber-500 dark:text-amber-300">
-        Schedule New Meeting
+        Update Meeting
       </h1>
       <Button className="w-full" onClick={handleSave}>
         Go
@@ -33,4 +35,4 @@ const ScheduleMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
   );
 };
 
-export default ScheduleMeetingModal;
+export default UpdateMeetingModal;

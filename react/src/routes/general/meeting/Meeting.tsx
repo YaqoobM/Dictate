@@ -10,9 +10,9 @@ import { Button } from "../../../components/utils";
 import { AuthContext } from "../../../contexts";
 import { useModal } from "../../../hooks/components";
 import { useMeetingWebsocket } from "../../../hooks/meetings";
+import { Controls } from "./components";
 import { SetUsernameModal } from "./modals";
 import { Notes } from "./notes";
-import { Controls } from "./other";
 import { VideoGrid } from "./video";
 
 type RouteParams = {
