@@ -16,11 +16,12 @@ type Day = {
 };
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
+  placeholder?: string;
   value: Date | null;
   setValue: Dispatch<SetStateAction<Date | null>>;
 }
 
-const DatePicker: FC<Props> = ({ value, setValue, ...props }) => {
+const DatePicker: FC<Props> = ({ placeholder, value, setValue, ...props }) => {
   const [selectedMonth, setSelectedMonth] = useState<Date>(
     value ? new Date(value.getFullYear(), value.getMonth()) : new Date(),
   );
@@ -45,7 +46,7 @@ const DatePicker: FC<Props> = ({ value, setValue, ...props }) => {
           <span className="block truncate capitalize tracking-wide">
             {value
               ? `${useGetDay(value.getDay())} ${value.getDate()}${useGetSuffix(value.getDate())} ${useGetMonth(value.getMonth())} ${value.getFullYear()}`
-              : "Please select a date"}
+              : placeholder || "Please select a date"}
           </span>
           <span className="inset-y-0 right-0 flex items-center">
             <Chevron className="w-4 fill-amber-500 dark:fill-amber-300" />
@@ -103,7 +104,7 @@ const DatePicker: FC<Props> = ({ value, setValue, ...props }) => {
               {calendar.map((day, i) => (
                 <button
                   type="button"
-                  className={`m-px size-10 rounded-full border-2 border-transparent text-sm hover:border-amber-500 hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 disabled:pointer-events-none disabled:opacity-50 dark:hover:border-amber-300 dark:hover:text-amber-300 dark:focus-visible:border-amber-300 ${value && value.getFullYear() === day.year && value.getMonth() == day.month && value.getDate() === day.day ? "bg-amber-500/70 dark:bg-amber-300/70" : null}`}
+                  className={`m-px size-10 rounded-full border-2 border-transparent text-sm hover:border-amber-500 hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 disabled:pointer-events-none disabled:opacity-50 dark:hover:border-amber-300 dark:hover:text-amber-300 dark:focus-visible:border-amber-300 ${value && value.getFullYear() === day.year && value.getMonth() == day.month && value.getDate() === day.day ? "bg-amber-500/70 hover:!text-gray-600 dark:bg-amber-300/70 dark:hover:!text-gray-300" : null}`}
                   disabled={day.disabled}
                   onClick={() => handleClick(day)}
                   key={i}

@@ -74,7 +74,7 @@ const Schedule: FC<Props> = ({ day, meetings }) => {
     }
 
     let start = new Date(
-      parseInt(meeting.start_time.split(" ")[0].split("/")[2]),
+      parseInt(`20${meeting.start_time.split(" ")[0].split("/")[2]}`),
       parseInt(meeting.start_time.split(" ")[0].split("/")[1]) - 1,
       parseInt(meeting.start_time.split(" ")[0].split("/")[0]),
       parseInt(meeting.start_time.split(" ")[1].split(":")[0]),
@@ -83,7 +83,7 @@ const Schedule: FC<Props> = ({ day, meetings }) => {
     );
 
     let end = new Date(
-      parseInt(meeting.end_time.split(" ")[0].split("/")[2]),
+      parseInt(`20${meeting.end_time.split(" ")[0].split("/")[2]}`),
       parseInt(meeting.end_time.split(" ")[0].split("/")[1]) - 1,
       parseInt(meeting.end_time.split(" ")[0].split("/")[0]),
       parseInt(meeting.end_time.split(" ")[1].split(":")[0]),
@@ -104,7 +104,7 @@ const Schedule: FC<Props> = ({ day, meetings }) => {
     }
 
     let start = new Date(
-      parseInt(meeting.start_time.split(" ")[0].split("/")[2]),
+      parseInt(`20${meeting.start_time.split(" ")[0].split("/")[2]}`),
       parseInt(meeting.start_time.split(" ")[0].split("/")[1]) - 1,
       parseInt(meeting.start_time.split(" ")[0].split("/")[0]),
       parseInt(meeting.start_time.split(" ")[1].split(":")[0]),

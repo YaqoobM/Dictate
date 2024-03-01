@@ -1,19 +1,16 @@
 import { Dispatch, FC, SetStateAction } from "react";
-import { Input, Label } from "..";
+import { Label, Select, SelectOption } from "..";
 
 type Props = {
-  id: string;
-  name: string;
-  type: string;
-  value: string;
-  setValue: Dispatch<SetStateAction<string>>;
-  placeholder?: string;
+  value: SelectOption;
+  setValue: Dispatch<SetStateAction<SelectOption>>;
+  options: SelectOption[];
   label?: string;
   error?: string;
   className?: string;
 };
 
-const InputGroup: FC<Props> = ({ label, error, className, ...props }) => {
+const SelectGroup: FC<Props> = ({ label, error, className, ...props }) => {
   return (
     <div className={className}>
       {label ? (
@@ -28,9 +25,9 @@ const InputGroup: FC<Props> = ({ label, error, className, ...props }) => {
           )}
         </Label>
       ) : null}
-      <Input {...props} />
+      <Select {...props} />
     </div>
   );
 };
 
-export default InputGroup;
+export default SelectGroup;

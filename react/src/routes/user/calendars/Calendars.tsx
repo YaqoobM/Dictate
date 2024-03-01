@@ -17,6 +17,7 @@ import {
 type SelectOption = {
   label: string;
   value: string;
+  disabled?: boolean;
 };
 
 type SortedMeetings = {
@@ -90,16 +91,18 @@ const Calendars: FC = () => {
     const array = [defaultOption];
 
     if (isTeamsPending) {
-      array.push({ label: "Loading...", value: "disabled_option" });
+      array.push({ label: "Loading...", value: "loading", disabled: true });
     } else if (isTeamsError || !teams) {
       array.push({
         label: "Something went wrong...",
-        value: "disabled_option",
+        value: "error",
+        disabled: true,
       });
     } else if (teams.length === 0) {
       array.push({
         label: "No teams available...",
-        value: "disabled_option",
+        value: "no teams",
+        disabled: true,
       });
     } else {
       array.push(
@@ -184,6 +187,7 @@ const Calendars: FC = () => {
       </div>
 
       <ScheduleMeetingModal
+        selectedDay={selectedDay || undefined}
         hidden={hideScheduleMeetingModal}
         setHidden={setHideScheduleMeetingModal}
       />

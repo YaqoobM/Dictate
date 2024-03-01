@@ -12,16 +12,11 @@ import {
   Success as SuccessIcon,
 } from "../../../../assets/icons/symbols";
 import { Loader as LoadingIcon } from "../../../../assets/icons/utils";
-import { Select } from "../../../../components/forms";
+import { Select, SelectOption } from "../../../../components/forms";
 import { Button } from "../../../../components/utils";
 import { useModal } from "../../../../hooks/components";
 import { useCreateMeeting } from "../../../../hooks/meetings";
 import { useGetTeams } from "../../../../hooks/teams";
-
-type SelectOption = {
-  label: string;
-  value: string;
-};
 
 type Props = {
   hidden: boolean;
@@ -31,7 +26,7 @@ type Props = {
 const CreateMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
   const defaultOption: SelectOption = {
     label: "Anyone Can Join",
-    value: "no_team_selected",
+    value: "_no_team_selected_",
   };
 
   const [team, setTeam] = useState<SelectOption>(defaultOption);
@@ -52,16 +47,18 @@ const CreateMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
     const array = [defaultOption];
 
     if (isTeamsPending) {
-      array.push({ label: "Loading...", value: "disabled_option" });
+      array.push({ label: "Loading...", value: "loading", disabled: true });
     } else if (isTeamsError || !teams) {
       array.push({
         label: "Something went wrong...",
-        value: "disabled_option",
+        value: "error",
+        disabled: true,
       });
     } else if (teams.length === 0) {
       array.push({
         label: "No teams available...",
-        value: "disabled_option",
+        value: "no teams",
+        disabled: true,
       });
     } else {
       array.push(
@@ -123,15 +120,6 @@ const CreateMeetingModal: FC<Props> = ({ hidden, setHidden }) => {
         )}
       </div>
       <div className="grid grid-cols-1 gap-x-3 lg:grid-cols-4">
-        {/* <InputGroup
-          id="meetingId"
-          name="meetingId"
-          type="text"
-          value={meetingId}
-          setValue={setMeetingId}
-          placeholder="enter meeting id here..."
-          className="lg:col-span-3"
-        /> */}
         <Select
           className="lg:col-span-3"
           value={team}

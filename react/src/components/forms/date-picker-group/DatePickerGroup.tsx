@@ -1,19 +1,16 @@
 import { Dispatch, FC, SetStateAction } from "react";
-import { Input, Label } from "..";
+import { DatePicker, Label } from "..";
 
 type Props = {
-  id: string;
-  name: string;
-  type: string;
-  value: string;
-  setValue: Dispatch<SetStateAction<string>>;
+  value: Date | null;
+  setValue: Dispatch<SetStateAction<Date | null>>;
   placeholder?: string;
   label?: string;
   error?: string;
   className?: string;
 };
 
-const InputGroup: FC<Props> = ({ label, error, className, ...props }) => {
+const DatePickerGroup: FC<Props> = ({ label, error, className, ...props }) => {
   return (
     <div className={className}>
       {label ? (
@@ -28,9 +25,9 @@ const InputGroup: FC<Props> = ({ label, error, className, ...props }) => {
           )}
         </Label>
       ) : null}
-      <Input {...props} />
+      <DatePicker {...props} />
     </div>
   );
 };
 
-export default InputGroup;
+export default DatePickerGroup;
