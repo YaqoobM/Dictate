@@ -6,7 +6,14 @@ import {
 
 import { Login, SignUp } from "./auth";
 import { Home, Meeting } from "./general";
-import { LoginRequired, LogoutRequired, Main, Root, Suspense } from "./layouts";
+import {
+  LoginRequired,
+  LogoutRequired,
+  Main,
+  Root,
+  Sidebar,
+  Suspense,
+} from "./layouts";
 import { Calendars, Profile, Resources, Teams } from "./lazy";
 import { Error, NotFound } from "./utils";
 
@@ -24,8 +31,10 @@ export const router = createBrowserRouter(
 
         <Route element={<LoginRequired />}>
           <Route element={<Suspense />}>
-            <Route path="calendars" element={<Calendars />} />
-            <Route path="resources" element={<Resources />} />
+            <Route element={<Sidebar sidebar="meetings" />}>
+              <Route path="calendars" element={<Calendars />} />
+              <Route path="resources" element={<Resources />} />
+            </Route>
             <Route path="teams" element={<Teams />} />
             <Route path="profile" element={<Profile />} />
           </Route>

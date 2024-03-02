@@ -2,17 +2,12 @@ import { FC, useMemo, useState } from "react";
 import { Error as ErrorIcon } from "../../../assets/icons/symbols";
 import { Loader as LoadingIcon } from "../../../assets/icons/utils";
 import { Select } from "../../../components/forms";
-import { Sidebar as SidebarLayout } from "../../../components/layouts";
 import { useModal } from "../../../hooks/components";
 import { useGetMeetings } from "../../../hooks/meetings";
 import { useGetTeams } from "../../../hooks/teams";
 import { Meeting } from "../../../types";
 import { Calendar, Controls, Schedule } from "./components";
-import {
-  CreateMeetingModal,
-  JoinMeetingModal,
-  ScheduleMeetingModal,
-} from "./modals";
+import { ScheduleMeetingModal } from "./modals";
 
 type SelectOption = {
   label: string;
@@ -38,19 +33,11 @@ const Calendars: FC = () => {
     setHidden: setHideScheduleMeetingModal,
   } = useModal();
 
-  const { hidden: hideJoinMeetingModal, setHidden: setHideJoinMeetingModal } =
-    useModal();
-
-  const {
-    hidden: hideCreateMeetingModal,
-    setHidden: setHideCreateMeetingModal,
-  } = useModal();
-
   const {
     meetings,
     isPending: isMeetingsPending,
     isError: isMeetingsError,
-  } = useGetMeetings(teamFilter.value);
+  } = useGetMeetings();
 
   const {
     teams,
@@ -60,15 +47,30 @@ const Calendars: FC = () => {
 
   // sort and filter meetings
   const cleanedMeetings: SortedMeetings[] = useMemo(() => {
-    const array: SortedMeetings[] = [];
+    const sortedMeetings: SortedMeetings[] = [];
 
-    for (const meeting of meetings || []) {
+    let filteredMeetings: Meeting[] = [];
+
+    if (meetings) {
+      if (teamFilter.value === "all") {
+        filteredMeetings = meetings;
+      } else if (teams) {
+        const teamMeetings =
+          teams.find((team) => team.id === teamFilter.value)?.meetings || [];
+
+        filteredMeetings =
+          meetings.filter((meeting) => teamMeetings.includes(meeting.url)) ||
+          [];
+      }
+    }
+
+    for (const meeting of filteredMeetings) {
       let month = parseInt(meeting.start_time.split(" ")[0].split("/")[1]) - 1;
       let year = parseInt(
         `20${meeting.start_time.split(" ")[0].split("/")[2]}`,
       );
 
-      let sortedMeeting = array.find(
+      let sortedMeeting = sortedMeetings.find(
         (v) => v.month === month && v.year === year,
       );
 
@@ -79,13 +81,13 @@ const Calendars: FC = () => {
         if (sortedMeeting) {
           sortedMeeting.meetings.push(meeting);
         } else {
-          array.push({ month, year, meetings: [meeting] });
+          sortedMeetings.push({ month, year, meetings: [meeting] });
         }
       }
     }
 
-    return array;
-  }, [meetings]);
+    return sortedMeetings;
+  }, [meetings, teams, teamFilter]);
 
   const options: SelectOption[] = useMemo(() => {
     const array = [defaultOption];
@@ -114,38 +116,32 @@ const Calendars: FC = () => {
   }, [teams, isTeamsPending]);
 
   return (
-    <SidebarLayout
-      sidebar="meetings"
-      setHideJoinMeetingModal={setHideJoinMeetingModal}
-      setHideCreateMeetingModal={setHideCreateMeetingModal}
-    >
-      <div className="px-6 py-1.5">
-        <div className="flex items-center gap-x-4">
-          <Select
-            value={teamFilter}
-            setValue={setTeamFilter}
-            options={options}
-            inputBox={false}
-            dropdownClass="min-w-max w-screen max-w-32"
+    <div className="px-6 py-1.5">
+      <div className="mb-1.5 flex items-center gap-x-4">
+        <Select
+          value={teamFilter}
+          setValue={setTeamFilter}
+          options={options}
+          inputBox={false}
+          dropdownClass="min-w-max w-screen max-w-32"
+        />
+        {isMeetingsPending ? (
+          <LoadingIcon
+            className="animate-spin stroke-amber-500 dark:stroke-amber-300"
+            height="26"
           />
-          {isMeetingsPending ? (
-            <LoadingIcon
-              className="animate-spin stroke-amber-500 dark:stroke-amber-300"
-              height="26"
-            />
-          ) : isMeetingsError ? (
-            <h2 className="flex items-center gap-x-2">
-              <ErrorIcon className="stroke-red-600" height="26" />
-              <span className="tracking-tight text-red-600">
-                Something went wrong finding your meetings
-              </span>
-            </h2>
-          ) : (
-            ""
-          )}
-        </div>
+        ) : isMeetingsError ? (
+          <h2 className="flex items-center gap-x-2">
+            <ErrorIcon className="stroke-red-600" height="26" />
+            <span className="tracking-tight text-red-600">
+              Something went wrong finding your meetings
+            </span>
+          </h2>
+        ) : (
+          ""
+        )}
       </div>
-      <div className="mt-3 flex flex-col gap-y-10 px-6 xl:flex-row xl:items-start xl:justify-between">
+      <div className="mt-3 flex flex-col gap-y-10 xl:flex-row xl:items-start xl:justify-between">
         <Calendar
           className="mb-8 grow-[4] xl:mb-0 xl:mr-6"
           date={activeMonth}
@@ -191,15 +187,7 @@ const Calendars: FC = () => {
         hidden={hideScheduleMeetingModal}
         setHidden={setHideScheduleMeetingModal}
       />
-      <JoinMeetingModal
-        hidden={hideJoinMeetingModal}
-        setHidden={setHideJoinMeetingModal}
-      />
-      <CreateMeetingModal
-        hidden={hideCreateMeetingModal}
-        setHidden={setHideCreateMeetingModal}
-      />
-    </SidebarLayout>
+    </div>
   );
 };
 

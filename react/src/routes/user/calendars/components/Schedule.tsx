@@ -1,4 +1,3 @@
-import { useQueries } from "@tanstack/react-query";
 import { FC, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -12,8 +11,8 @@ import {
   useGetSuffix,
 } from "../../../../hooks/calendar";
 import { useModal } from "../../../../hooks/components";
+import { useGetParticipants } from "../../../../hooks/meetings";
 import { useGetTeams } from "../../../../hooks/teams";
-import { useGetUserFn } from "../../../../hooks/user";
 import { Meeting } from "../../../../types";
 import { UpdateMeetingModal } from "../modals";
 
@@ -34,34 +33,11 @@ const Schedule: FC<Props> = ({ day, meetings }) => {
     isError: isTeamsError,
   } = useGetTeams();
 
-  const participants = useQueries({
-    queries: meetings
-      .reduce<string[]>((accumulator, value) => {
-        if (!value.team && value.participants) {
-          return [
-            ...accumulator,
-            ...value.participants.filter((p) => !accumulator.includes(p)),
-          ];
-        }
-        return [...accumulator];
-      }, [])
-      .map((participant) => {
-        const id = participant.split("/").slice(-2, -1)[0];
-
-        return {
-          queryKey: ["user", id],
-          queryFn: () => useGetUserFn(participant.split("/").slice(-2, -1)[0]),
-          //         1 min
-          staleTime: 1 * 60 * 1000,
-        };
-      }),
-  });
-  const isParticipantsPending = participants.some(
-    (participant) => participant.isPending,
-  );
-  const isParticipantsError = participants.some(
-    (participant) => participant.isError,
-  );
+  const {
+    participants,
+    isPending: isParticipantsPending,
+    isError: isParticipantsError,
+  } = useGetParticipants(meetings);
 
   const {
     hidden: hideUpdateMeetingModal,
@@ -200,8 +176,8 @@ const Schedule: FC<Props> = ({ day, meetings }) => {
                                 "Something went wrong"
                               ) : (
                                 participants?.find(
-                                  (p) => p.data?.url === participant,
-                                )?.data?.username || "Something went wrong"
+                                  (p) => p?.url === participant,
+                                )?.username || "Something went wrong"
                               )}
                             </p>
                           </div>

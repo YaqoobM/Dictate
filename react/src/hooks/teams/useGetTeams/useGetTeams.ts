@@ -3,16 +3,12 @@ import { AxiosError, AxiosResponse } from "axios";
 import { Team } from "../../../types";
 import { useAxios } from "../../utils";
 
-type Response = Team[];
-
 const useGetTeams = () => {
   const axios = useAxios();
 
   const query = useQuery({
     queryKey: ["teams"],
-    queryFn: () => {
-      return axios.get<Response>("/api/teams/").then((res) => res.data);
-    },
+    queryFn: () => axios.get<Team[]>("/api/teams/").then((res) => res.data),
     //         1 min
     staleTime: 1 * 60 * 1000,
   });

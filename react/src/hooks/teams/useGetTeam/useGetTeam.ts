@@ -1,23 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { AxiosError, AxiosResponse } from "axios";
-import { Meeting } from "../../../types";
+import { Team } from "../../../types";
 import { useAxios } from "../../utils";
 
-const useGetMeeting = (
-  id: string,
-  retryOnMount: boolean = true,
-  enabled: boolean = true,
-) => {
+const useGetTeam = (id: string, enabled: boolean = true) => {
   const axios = useAxios();
 
   const query = useQuery({
-    queryKey: ["meeting", id],
-    queryFn: () =>
-      axios.get<Meeting>(`/api/meetings/${id}/`).then((res) => res.data),
-    retry: false,
+    queryKey: ["team", id],
+    queryFn: () => axios.get<Team>(`/api/teams/${id}/`).then((res) => res.data),
     //         1 min
     staleTime: 1 * 60 * 1000,
-    retryOnMount,
     enabled,
   });
 
@@ -32,15 +25,12 @@ const useGetMeeting = (
   }
 
   return {
-    refetch: query.refetch,
-    meeting: query.data,
+    team: query.data,
     isPending: query.isPending,
-    isFetching: query.isFetching,
-    isFetched: query.isFetched,
     isSuccess: query.isSuccess,
     isError: query.isError,
     error,
   };
 };
 
-export default useGetMeeting;
+export default useGetTeam;

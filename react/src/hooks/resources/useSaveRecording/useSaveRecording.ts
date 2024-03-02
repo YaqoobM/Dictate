@@ -9,8 +9,6 @@ type MutationParams = {
   file: File;
 };
 
-type Response = Recording;
-
 const useSaveRecording = () => {
   const queryClient = useQueryClient();
   const axios = useAxios();
@@ -23,7 +21,7 @@ const useSaveRecording = () => {
       data.append("meeting", meeting);
       data.append("recording", file);
 
-      return axios.post<Response>("/api/recordings/", data, {
+      return axios.post<Recording>("/api/recordings/", data, {
         headers: {
           "X-CSRFToken": csrfToken,
           "Content-Type": "multipart/form-data",

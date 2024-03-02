@@ -3,10 +3,6 @@ import { AxiosError } from "axios";
 import { User } from "../../../types";
 import { useAxios } from "../../utils";
 
-type Response = {
-  user: User;
-};
-
 const useGetProfile = (
   retryOnMount: boolean = true,
   enabled: boolean = true,
@@ -15,7 +11,12 @@ const useGetProfile = (
 
   const query = useQuery({
     queryKey: ["profile"],
-    queryFn: () => axios.get<Response>("/api/profile/").then((res) => res.data),
+    queryFn: () =>
+      axios
+        .get<{
+          user: User;
+        }>("/api/profile/")
+        .then((res) => res.data),
     retry: (count, err) => {
       if (err instanceof AxiosError && err.response?.status === 401) {
         return false;

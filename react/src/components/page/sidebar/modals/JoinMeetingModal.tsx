@@ -5,10 +5,10 @@ import {
   Success as SuccessIcon,
 } from "../../../../assets/icons/symbols";
 import { Loader as LoadingIcon } from "../../../../assets/icons/utils";
-import { InputGroup } from "../../../../components/forms";
-import { Button } from "../../../../components/utils";
 import { useModal } from "../../../../hooks/components";
 import { useGetMeeting } from "../../../../hooks/meetings";
+import { InputGroup } from "../../../forms";
+import { Button } from "../../../utils";
 
 type Props = {
   hidden: boolean;

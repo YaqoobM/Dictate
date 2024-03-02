@@ -10,8 +10,6 @@ type MutationParams = {
   end_time?: string;
 };
 
-type Response = Meeting;
-
 const useCreateMeeting = () => {
   const queryClient = useQueryClient();
   const axios = useAxios();
@@ -20,7 +18,7 @@ const useCreateMeeting = () => {
 
   const mutation = useMutation({
     mutationFn: ({ team, start_time, end_time }: MutationParams) =>
-      axios.post<Response>(
+      axios.post<Meeting>(
         "/api/meetings/",
         { team, start_time, end_time },
         { headers: { "X-CSRFToken": csrfToken } },

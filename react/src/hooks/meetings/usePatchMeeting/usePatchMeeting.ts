@@ -10,8 +10,6 @@ type MutationParams = {
   end_time?: string;
 };
 
-type Response = Meeting;
-
 const usePatchMeeting = () => {
   const queryClient = useQueryClient();
   const axios = useAxios();
@@ -20,7 +18,7 @@ const usePatchMeeting = () => {
 
   const mutation = useMutation({
     mutationFn: ({ id, start_time, end_time }: MutationParams) =>
-      axios.patch<Response>(
+      axios.patch<Meeting>(
         `/api/meetings/${id}/`,
         { start_time, end_time },
         { headers: { "X-CSRFToken": csrfToken } },

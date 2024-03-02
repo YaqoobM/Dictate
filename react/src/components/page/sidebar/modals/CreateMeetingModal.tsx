@@ -12,11 +12,11 @@ import {
   Success as SuccessIcon,
 } from "../../../../assets/icons/symbols";
 import { Loader as LoadingIcon } from "../../../../assets/icons/utils";
-import { Select, SelectOption } from "../../../../components/forms";
-import { Button } from "../../../../components/utils";
 import { useModal } from "../../../../hooks/components";
 import { useCreateMeeting } from "../../../../hooks/meetings";
 import { useGetTeams } from "../../../../hooks/teams";
+import { Select, SelectOption } from "../../../forms";
+import { Button } from "../../../utils";
 
 type Props = {
   hidden: boolean;
