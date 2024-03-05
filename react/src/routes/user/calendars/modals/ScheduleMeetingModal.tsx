@@ -218,7 +218,7 @@ const ScheduleMeetingModal: FC<Props> = ({
 
   return (
     <Modal
-      className="!top-1/3 flex w-full max-w-xs flex-col gap-y-2 p-5 sm:max-w-lg sm:gap-y-4 lg:max-w-2xl"
+      className="flex w-full max-w-xs flex-col gap-y-2 p-5 sm:max-w-lg sm:gap-y-4 lg:max-w-2xl"
       hidden={hidden}
       setHidden={setHidden}
     >

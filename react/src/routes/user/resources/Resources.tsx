@@ -4,18 +4,12 @@ import { Error as ErrorIcon } from "../../../assets/icons/symbols";
 import { Loader as LoadingIcon } from "../../../assets/icons/utils";
 import { Select, SelectOption } from "../../../components/forms";
 import { useGetTeams } from "../../../hooks/teams";
-import { Notes, Recording } from "../../../types";
+import { Meeting, Notes, Recording } from "../../../types";
 import { useGetFilledResources } from "./hooks";
 
 export type ResourceInfo = {
   resource: "recording" | "notes";
-  day?: number;
-  month?: number;
-  year?: number;
-  startTime?: string;
-  endTime?: string;
-  team?: string;
-  participants?: string[];
+  meetingObject: Meeting;
 };
 
 export type FilledResources = (

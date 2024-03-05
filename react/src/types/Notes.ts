@@ -1,7 +1,7 @@
 export interface Notes {
   id: string;
   url: string;
-  name: string;
+  title: string;
   meeting: string;
   content: string;
 }

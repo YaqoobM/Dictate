@@ -4,7 +4,7 @@ import { SelectOption } from "../../../../components/forms";
 import { useGetMeetings, useGetParticipants } from "../../../../hooks/meetings";
 import { useGetNotes, useGetRecordings } from "../../../../hooks/resources";
 import { useGetTeam, useGetTeams } from "../../../../hooks/teams";
-import { Meeting, Notes, Recording } from "../../../../types";
+import { Notes, Recording } from "../../../../types";
 
 const useGetFilledResources = (
   teamFilter: SelectOption,
@@ -46,41 +46,6 @@ const useGetFilledResources = (
     isError: isParticipantsError,
   } = useGetParticipants(meetings || []);
 
-  const fillResource: (
-    resource: (Recording & ResourceInfo) | (Notes & ResourceInfo),
-    meeting: Meeting,
-  ) => void = (resource, meeting) => {
-    resource.day = parseInt(meeting.start_time.split(" ")[0].split("/")[0]);
-    resource.month =
-      parseInt(meeting.start_time.split(" ")[0].split("/")[1]) - 1;
-    resource.year = parseInt(
-      `20${meeting.start_time.split(" ")[0].split("/")[2]}`,
-    );
-
-    resource.startTime = `${
-      meeting.start_time.split(" ")[1].split(":")[0]
-    }:${meeting.start_time.split(" ")[1].split(":")[1]}`;
-
-    if (meeting.end_time) {
-      resource.endTime = `${
-        meeting.end_time.split(" ")[1].split(":")[0]
-      }:${meeting.end_time.split(" ")[1].split(":")[1]}`;
-    }
-
-    if (meeting.team && teams) {
-      resource.team = teams.find((team) => team.url === meeting?.team)?.name;
-    } else if (
-      meeting.participants &&
-      participants.every((participant) => participant)
-    ) {
-      resource.participants = participants
-        .filter((participant) =>
-          meeting!.participants!.includes(participant!.url),
-        )
-        .map((participant) => participant!.username);
-    }
-  };
-
   const filterAndSortResources: (
     resources: FilledResources,
     teamFilter: SelectOption,
@@ -101,33 +66,22 @@ const useGetFilledResources = (
     }
 
     return finalArray.sort((a, b) => {
-      if (
-        !a.startTime ||
-        !a.year ||
-        !a.month ||
-        !a.day ||
-        !b.startTime ||
-        !b.year ||
-        !b.month ||
-        !b.day
-      ) {
-        return 0;
-      }
-
       const aDate = new Date(
-        a.year,
-        a.month,
-        a.day,
-        parseInt(a.startTime.split(":")[0]),
-        parseInt(a.startTime.split(":")[1]),
+        parseInt(`20${a.meetingObject.start_time.split(" ")[0].split("/")[2]}`),
+        parseInt(a.meetingObject.start_time.split(" ")[0].split("/")[1]) - 1,
+        parseInt(a.meetingObject.start_time.split(" ")[0].split("/")[0]),
+        parseInt(a.meetingObject.start_time.split(" ")[1].split(":")[0]),
+        parseInt(a.meetingObject.start_time.split(" ")[1].split(":")[1]),
+        parseInt(a.meetingObject.start_time.split(" ")[1].split(":")[2]),
       );
 
       const bDate = new Date(
-        b.year,
-        b.month,
-        b.day,
-        parseInt(b.startTime.split(":")[0]),
-        parseInt(b.startTime.split(":")[1]),
+        parseInt(`20${b.meetingObject.start_time.split(" ")[0].split("/")[2]}`),
+        parseInt(b.meetingObject.start_time.split(" ")[0].split("/")[1]) - 1,
+        parseInt(b.meetingObject.start_time.split(" ")[0].split("/")[0]),
+        parseInt(b.meetingObject.start_time.split(" ")[1].split(":")[0]),
+        parseInt(b.meetingObject.start_time.split(" ")[1].split(":")[1]),
+        parseInt(b.meetingObject.start_time.split(" ")[1].split(":")[2]),
       );
 
       // DESC
@@ -139,41 +93,48 @@ const useGetFilledResources = (
     const finalArray: FilledResources = [];
 
     if (meetings) {
-      const filledRecordings: (Recording & ResourceInfo)[] =
-        recordings?.map((recording) => {
-          const filledRecording: Recording & ResourceInfo = {
-            ...recording,
-            resource: "recording",
-          };
+      const filledRecordings =
+        recordings?.reduce<(Recording & ResourceInfo)[]>(
+          (accumulator, recording) => {
+            const meeting = meetings.find(
+              (meeting) => meeting.url === recording.meeting,
+            );
 
-          const meeting = meetings.find(
-            (meeting) => meeting.url === recording.meeting,
-          );
+            if (meeting) {
+              return [
+                ...accumulator,
+                {
+                  ...recording,
+                  resource: "recording",
+                  meetingObject: meeting,
+                },
+              ];
+            }
 
-          if (meeting) {
-            fillResource(filledRecording, meeting);
-          }
+            return accumulator;
+          },
+          [],
+        ) || [];
 
-          return filledRecording;
-        }) || [];
-
-      const filledNotes: (Notes & ResourceInfo)[] =
-        notes?.map((note) => {
-          const filledNotes: Notes & ResourceInfo = {
-            ...note,
-            resource: "notes",
-          };
-
+      const filledNotes =
+        notes?.reduce<(Notes & ResourceInfo)[]>((accumulator, note) => {
           const meeting = meetings.find(
             (meeting) => meeting.url === note.meeting,
           );
 
           if (meeting) {
-            fillResource(filledNotes, meeting);
+            return [
+              ...accumulator,
+              {
+                ...note,
+                resource: "notes",
+                meetingObject: meeting,
+              },
+            ];
           }
 
-          return filledNotes;
-        }) || [];
+          return accumulator;
+        }, []) || [];
 
       finalArray.push(...filledRecordings);
       finalArray.push(...filledNotes);
