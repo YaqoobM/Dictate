@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { FC, useContext, useEffect, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useNavigate, useParams } from "react-router-dom";
@@ -29,6 +30,7 @@ const Meeting: FC = () => {
   const { hidden: hideSetUsernameModal, setHidden: setHideSetUsernameModal } =
     useModal();
 
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   const {
@@ -123,6 +125,23 @@ const Meeting: FC = () => {
       setHideSetUsernameModal(false);
     }
   }, [checkingAuth]);
+
+  useEffect(() => {
+    return () => {
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          if (
+            query.queryKey[0] === "meetings" ||
+            query.queryKey[0] === "recordings" ||
+            query.queryKey[0] === "notes"
+          ) {
+            return true;
+          }
+          return false;
+        },
+      });
+    };
+  }, []);
 
   // triggered on first load only (not if they disable camera after joining)
   if (!gotLocalStream) {

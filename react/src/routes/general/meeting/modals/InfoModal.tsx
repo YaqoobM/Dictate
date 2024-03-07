@@ -117,7 +117,7 @@ const InfoModal: FC<Props> = ({
               .map((participant, i) => (
                 <div
                   className="flex flex-row items-center justify-between gap-x-4 sm:w-full sm:justify-normal lg:gap-x-8"
-                  key={i}
+                  key={participant.channel}
                 >
                   <p>{participant.username || "Guest"}</p>
                   <p className="italic">

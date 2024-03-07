@@ -19,6 +19,6 @@ div.ce-paragraph {
   @apply text-base;
 }
 
-#editorjs *:focus-visible {
+.editorjs *:focus-visible {
   @apply outline-none;
 }

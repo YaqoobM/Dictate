@@ -19,13 +19,13 @@ const ResourcesGrid: FC<Props> = ({ resources }) => {
 
   return (
     <div className="flex w-full flex-row flex-wrap gap-4">
-      {resources.map((resource, i) => (
+      {resources.map((resource) => (
         <GridElement
           resource={resource}
           participants={participants}
           isParticipantsPending={isParticipantsPending}
           isParticipantsError={isParticipantsError}
-          key={i}
+          key={resource.id}
         />
       ))}
     </div>

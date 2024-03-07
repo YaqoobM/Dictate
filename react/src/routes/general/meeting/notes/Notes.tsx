@@ -108,7 +108,10 @@ const Notes: FC<Props> = ({ groupNotes, groupNotesState, websocket }) => {
   return (
     <section className="mx-auto h-full w-full max-w-4xl">
       <div className="mx-4 mt-10 rounded-md bg-gray-50 py-20 text-gray-950 shadow dark:bg-gray-200 dark:shadow-lg">
-        <div id="editorjs" className="mx-auto w-[calc(100%_-_100px)]" />
+        <div
+          id="editorjs"
+          className="editorjs mx-auto w-[calc(100%_-_100px)]"
+        />
       </div>
     </section>
   );

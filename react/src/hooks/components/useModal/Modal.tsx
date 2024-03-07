@@ -8,12 +8,27 @@ import {
 import { Close } from "../../../assets/icons/buttons";
 
 interface Props extends HTMLAttributes<HTMLDivElement> {
+  styled?: boolean;
+  close?: boolean;
+  closeClassName?: string;
   hidden: boolean;
   setHidden: Dispatch<SetStateAction<boolean>>;
 }
 
 const Modal = forwardRef<HTMLDivElement, Props>(
-  ({ hidden, setHidden, className, children, ...props }, ref) => {
+  (
+    {
+      styled = true,
+      close = true,
+      closeClassName,
+      hidden,
+      setHidden,
+      className,
+      children,
+      ...props
+    },
+    ref,
+  ) => {
     useEffect(() => {
       if (hidden) {
         if (document.body.classList.contains("overflow-y-hidden")) {
@@ -33,16 +48,18 @@ const Modal = forwardRef<HTMLDivElement, Props>(
       >
         <div
           // margin-bottom = top displacement x2
-          className={`relative top-[20%] mx-auto mb-[40vh] block min-h-12 min-w-40 rounded-lg border border-gray-200 bg-gray-100 shadow-lg transition-all duration-300 dark:border-gray-800 dark:bg-gray-900 dark:shadow-xl ${hidden ? "scale-[1.03] opacity-0" : "scale-100 opacity-100"} ${className}`}
+          className={`relative top-[20%] mx-auto mb-[40vh] block min-h-12 min-w-40 transition-all duration-300 ${styled ? "rounded-lg border border-gray-200 bg-gray-100 shadow-lg dark:border-gray-800 dark:bg-gray-900 dark:shadow-xl" : null} ${hidden ? "scale-[1.03] opacity-0" : "scale-100 opacity-100"} ${className}`}
           onClick={(e) => e.stopPropagation()}
           ref={ref}
           {...props}
         >
-          <Close
-            className="absolute right-3 top-2 cursor-pointer stroke-gray-950 hover:stroke-amber-500 dark:stroke-gray-100 dark:hover:stroke-amber-300"
-            height="30"
-            onClick={() => setHidden(true)}
-          />
+          {close ? (
+            <Close
+              className={`absolute right-3 top-2 cursor-pointer stroke-gray-950 hover:stroke-amber-500 dark:stroke-gray-100 dark:hover:stroke-amber-300 ${closeClassName}`}
+              height="30"
+              onClick={() => setHidden(true)}
+            />
+          ) : null}
           {children}
         </div>
       </div>

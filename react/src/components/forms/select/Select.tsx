@@ -50,8 +50,11 @@ const Select: FC<Props> = ({
       <div
         className={`absolute left-1/2 top-[calc(100%_+_4px)] z-10 flex max-h-56 w-full -translate-x-1/2 flex-col gap-y-2 overflow-auto rounded-md border-[1.5px] border-gray-300 bg-gray-100 px-4 py-3.5 text-base text-gray-600 shadow-lg dark:bg-gray-900 dark:text-gray-300 dark:shadow-xl sm:text-sm ${isVisible ? "block" : "hidden"} ${inputBox ? "dark:border-gray-600" : "dark:border-gray-700"} ${dropdownClass}`}
       >
-        {options.map((option, i) => (
-          <div className="group flex flex-col justify-center gap-y-2" key={i}>
+        {options.map((option) => (
+          <div
+            className="group flex flex-col justify-center gap-y-2"
+            key={`${option.label}, ${option.value}`}
+          >
             <p
               className={`flex select-none flex-row items-center gap-x-1 ${option.disabled ? "opacity-70" : "cursor-pointer hover:text-amber-500 dark:hover:text-amber-300"}`}
               onClick={() => (option.disabled ? null : handleClick(option))}

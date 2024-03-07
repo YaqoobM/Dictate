@@ -119,7 +119,7 @@ const Schedule: FC<Props> = ({ day, meetings }) => {
               meetings.map((meeting, i) => (
                 <div
                   className="group/meeting mt-1 flex flex-col gap-y-1"
-                  key={i}
+                  key={meeting.id}
                 >
                   <div className="flex flex-row items-center justify-between">
                     <h1 className="flex flex-row items-center gap-x-1.5 font-medium">
@@ -166,7 +166,7 @@ const Schedule: FC<Props> = ({ day, meetings }) => {
                           <div
                             className="absolute top-0 -translate-y-1/2"
                             style={{ right: `${i * 8}px` }}
-                            key={i}
+                            key={participant}
                           >
                             <p className="peer h-4 w-4 rounded-full bg-blue-500 ring-1 ring-gray-300 transition-all hover:h-[18px] hover:w-[18px] dark:bg-blue-400 dark:ring-gray-700" />
                             <p className="absolute right-[9px] top-[125%] w-max translate-x-1/2 rounded-sm px-2 pb-1.5 pt-1 text-xs text-gray-600 opacity-0 shadow ring-1 ring-gray-300 transition-opacity peer-hover:opacity-100 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700">

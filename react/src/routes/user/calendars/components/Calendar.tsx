@@ -121,7 +121,7 @@ const Calendar: FC<Props> = ({
           <div
             className={`group relative w-full cursor-pointer rounded-md border-2 border-transparent pt-[120%] shadow-sm transition-transform hover:scale-105 hover:border-amber-500 hover:dark:border-amber-300 ${isToday(day) ? "bg-amber-500/60 dark:bg-amber-300/60" : "bg-gray-200 dark:bg-gray-900"} ${selectedDay && isToday(day, selectedDay) ? "border-blue-500 dark:border-blue-400" : ""} ${day.disabled ? "opacity-50" : ""}`}
             onClick={() => handleClick(day)}
-            key={i}
+            key={`${day.day}/${day.month}/${day.year}`}
           >
             <p
               className={`absolute left-2 top-2 text-xs font-medium uppercase group-hover:text-amber-500 group-hover:dark:text-amber-300 sm:text-sm ${isToday(day) ? "group-hover:text-gray-100" : ""}`}

@@ -107,7 +107,7 @@ const DatePicker: FC<Props> = ({ placeholder, value, setValue, ...props }) => {
                   className={`m-px size-10 rounded-full border-2 border-transparent text-sm hover:border-amber-500 hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 disabled:pointer-events-none disabled:opacity-50 dark:hover:border-amber-300 dark:hover:text-amber-300 dark:focus-visible:border-amber-300 ${value && value.getFullYear() === day.year && value.getMonth() == day.month && value.getDate() === day.day ? "bg-amber-500/70 hover:!text-gray-600 dark:bg-amber-300/70 dark:hover:!text-gray-300" : null}`}
                   disabled={day.disabled}
                   onClick={() => handleClick(day)}
-                  key={i}
+                  key={`${day.day}/${day.month}/${day.year}`}
                 >
                   {day.day}
                 </button>

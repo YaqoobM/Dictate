@@ -65,7 +65,7 @@ const VideoGrid: FC<Props> = ({
             participant={
               participants.find((p) => p.channel === stream.channel) || null
             }
-            key={i}
+            key={stream.channel}
           />
         ))}
       </section>
