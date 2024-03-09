@@ -1,3 +1,3 @@
 export { Footer } from "./footer";
 export { NavigationBar } from "./navigation-bar";
-export { MeetingSidebar } from "./sidebar";
+export { MeetingSidebar, TeamSidebar } from "./sidebar";

@@ -116,7 +116,7 @@ const Schedule: FC<Props> = ({ day, meetings }) => {
                 No meetings found...
               </h1>
             ) : (
-              meetings.map((meeting, i) => (
+              meetings.map((meeting) => (
                 <div
                   className="group/meeting mt-1 flex flex-col gap-y-1"
                   key={meeting.id}

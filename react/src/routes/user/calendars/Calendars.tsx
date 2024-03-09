@@ -1,19 +1,13 @@
 import { FC, useMemo, useState } from "react";
 import { Error as ErrorIcon } from "../../../assets/icons/symbols";
 import { Loader as LoadingIcon } from "../../../assets/icons/utils";
-import { Select } from "../../../components/forms";
+import { Select, SelectOption } from "../../../components/forms";
 import { useModal } from "../../../hooks/components";
 import { useGetMeetings } from "../../../hooks/meetings";
 import { useGetTeams } from "../../../hooks/teams";
 import { Meeting } from "../../../types";
 import { Calendar, Controls, Schedule } from "./components";
 import { ScheduleMeetingModal } from "./modals";
-
-type SelectOption = {
-  label: string;
-  value: string;
-  disabled?: boolean;
-};
 
 type SortedMeetings = {
   month: number;

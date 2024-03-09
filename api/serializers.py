@@ -24,86 +24,26 @@ class UserSerializer(HashedIdModelSerializer):
             "email",
             "username",
             "password",
-            "teams",
         ]
         read_only_fields = ["meetings"]
         extra_kwargs = {
             "password": {"write_only": True},
-            "teams": {"lookup_field": "hashed_id"},
             "url": {"lookup_field": "hashed_id"},
         }
 
     def create(self, validated_data):
-        ids = map(
-            lambda hash: Team.decode_hashed_id(hash),
-            validated_data.pop("teams"),
-        )
-
         user = super().create(validated_data)
         user.set_password(validated_data["password"])
-
-        user.teams.set(ids)
         user.save()
 
         return user
 
     def update(self, instance, validated_data):
-        if "teams" in validated_data:
-            ids = map(
-                lambda hash: Team.decode_hashed_id(hash),
-                validated_data.pop("teams"),
-            )
-            instance.teams.set(ids)
-
         if "password" in validated_data:
             password = validated_data.pop("password")
             instance.set_password(password)
 
         return super().update(instance, validated_data)
-
-    def to_internal_value(self, data):
-        if "teams" in data:
-            teams = data.pop("teams")
-            # Validation
-            if not isinstance(teams, list):
-                raise ValidationError(
-                    {"teams": "Must be a valid array of hashed_id strings."}
-                )
-
-            for i, team in enumerate(teams):
-                if not isinstance(team, str):
-                    raise ValidationError(
-                        {"teams": "Must be a valid array of hashed_id strings."}
-                    )
-
-                if re.match(f".*\/api\/teams\/[{get_hashed_alphabet()}]+\/?$", team):
-                    temp = team.rstrip("/")
-                    team = temp[temp.rfind("/") + 1 :]
-                    teams[i] = temp[temp.rfind("/") + 1 :]
-
-                if not re.match(f"^[{get_hashed_alphabet()}]+$", team):
-                    raise ValidationError(
-                        {"teams": "Must be a valid array of hashed_id strings."}
-                    )
-
-                try:
-                    Team.decode_hashed_id(team)
-                except ValueError:
-                    raise ValidationError({"teams": "Invalid hashed_id string."})
-
-                if not Team.objects.filter(
-                    id=Team.decode_hashed_id(team),
-                ).exists():
-                    raise ValidationError({"teams": f"Team: {team} does not exist."})
-
-            # temporarily assign teams so validation check for POST doesn't find missing key-value
-            data["teams"] = []
-            validated_data: dict = super().to_internal_value(data)
-
-            validated_data["teams"] = teams
-            return validated_data
-
-        return super().to_internal_value(data)
 
 
 class TeamSerializer(HashedIdModelSerializer):

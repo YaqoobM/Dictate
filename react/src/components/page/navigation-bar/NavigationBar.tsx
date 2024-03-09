@@ -1,4 +1,4 @@
-import { FC, useContext, useEffect, useState } from "react";
+import { FC, useContext, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu as MenuButton } from "../../../assets/icons/buttons";
 import {
@@ -6,10 +6,17 @@ import {
   LightMode as LightModeIcon,
 } from "../../../assets/icons/theme";
 import { AuthContext, ThemeContext } from "../../../contexts";
+import { useComponentVisibility } from "../../../hooks/components";
 
 const NavigationBar: FC = () => {
-  const [toggleMenu, setToggleMenu] = useState<boolean>(false);
   const { theme, toggleTheme } = useContext(ThemeContext);
+
+  const {
+    ref,
+    isVisible: isMenuVisible,
+    setIsVisible: setIsMenuVisible,
+  } = useComponentVisibility<HTMLElement>(false);
+
   const {
     isAuthenticated,
     loginIsError,
@@ -26,7 +33,7 @@ const NavigationBar: FC = () => {
 
   const updateTheme = () => {
     toggleTheme(theme === "dark" ? "light" : "dark");
-    setToggleMenu(false);
+    setIsMenuVisible(false);
   };
 
   const handleLogout = () => {
@@ -38,8 +45,8 @@ const NavigationBar: FC = () => {
   };
 
   useEffect(() => {
-    if (toggleMenu === true) {
-      setToggleMenu(false);
+    if (isMenuVisible === true) {
+      setIsMenuVisible(false);
     }
 
     if (loginIsError) {
@@ -61,8 +68,9 @@ const NavigationBar: FC = () => {
   return (
     <nav
       className={`relative z-20 text-gray-950 shadow dark:text-gray-200 dark:shadow-lg ${backgroundColor}`}
+      ref={ref}
     >
-      <div className="container mx-auto flex flex-row items-center justify-between px-8 py-3 ">
+      <div className="container mx-auto flex flex-row items-center justify-between px-8 py-3">
         <Link
           to="/home"
           className="border-b-2 border-transparent text-3xl font-medium focus:outline-none focus-visible:border-amber-500 dark:focus-visible:border-amber-300"
@@ -72,11 +80,11 @@ const NavigationBar: FC = () => {
         <span className="flex flex-row justify-between gap-x-4">
           <MenuButton
             width="24"
-            className={`peer stroke-gray-950 hover:cursor-pointer dark:stroke-gray-200 lg:hidden ${toggleMenu ? "clicked" : ""}`}
-            onClick={() => setToggleMenu((prev) => !prev)}
+            className={`peer stroke-gray-950 hover:cursor-pointer dark:stroke-gray-200 lg:hidden ${isMenuVisible ? "clicked" : ""}`}
+            onClick={() => setIsMenuVisible((prev) => !prev)}
           />
           <span
-            className={`hidden items-center gap-x-8 gap-y-2 peer-[.clicked]:absolute peer-[.clicked]:left-0 peer-[.clicked]:top-full peer-[.clicked]:z-10 peer-[.clicked]:flex peer-[.clicked]:w-screen peer-[.clicked]:flex-col peer-[.clicked]:pb-4 peer-[.clicked]:shadow-xl lg:!static lg:flex lg:!w-fit lg:!flex-row lg:!bg-transparent lg:!bg-none lg:!pb-0 lg:!shadow-none ${toggleMenu ? backgroundColor : ""}`}
+            className={`hidden items-center gap-x-8 gap-y-2 peer-[.clicked]:absolute peer-[.clicked]:left-0 peer-[.clicked]:top-full peer-[.clicked]:z-10 peer-[.clicked]:flex peer-[.clicked]:w-screen peer-[.clicked]:flex-col peer-[.clicked]:pb-4 peer-[.clicked]:shadow-xl lg:!static lg:flex lg:!w-fit lg:!flex-row lg:!bg-transparent lg:!bg-none lg:!pb-0 lg:!shadow-none ${isMenuVisible ? backgroundColor : ""}`}
           >
             {isAuthenticated ? (
               <>

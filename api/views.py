@@ -3,14 +3,12 @@ import re
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as login_user
 from django.contrib.auth import logout as logout_user
-from django.core.cache import cache
 from django.core.exceptions import ValidationError as DefaultValidationError
 from django.core.validators import validate_email
 from django.db.models import Q
-from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_protect
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -18,7 +16,7 @@ from rest_framework.reverse import reverse as rest_reverse
 from rest_framework.viewsets import ModelViewSet
 
 from .helpers import get_hashed_alphabet
-from .models import HashedIdModel, Meeting, Notes, Recording, User
+from .models import HashedIdModel, Meeting, Notes, Recording, Team, User
 from .permissions import AllowPOST, IsNotAuthenticated, IsUserOrReadOnly, ReadOnly
 from .serializers import (
     MeetingSerializer,
@@ -64,11 +62,30 @@ class TeamViewSet(HashedIdModelViewSet):
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_queryset(self):
-        """Get all associated teams"""
+        """Get all all teams if attempting to join, otherwise filter associated teams"""
+        if self.action == "join":
+            return Team.objects.all()
+
         return self.request.user.teams.all()
 
     def perform_create(self, serializer):
         return serializer.save(members=[self.request.user])
+
+    @action(detail=True, methods=["post"])
+    def join(self, request, hashed_id=None):
+        team = self.get_object()
+        self.request.user.teams.add(team)
+        self.request.user.save()
+
+        serializer = TeamSerializer(team, context={"request": request})
+        return Response({"team": serializer.data, "status": "success"})
+
+    @action(detail=True, methods=["post"])
+    def leave(self, request, hashed_id=None):
+        team = self.get_object()
+        self.request.user.teams.remove(team)
+        self.request.user.save()
+        return Response({"status": "success"})
 
 
 class MeetingViewSet(HashedIdModelViewSet):
@@ -205,13 +222,9 @@ def logout(request):
 @api_view(["POST"])
 @permission_classes([IsNotAuthenticated])
 def signup(request):
-    request.data["teams"] = []
-
     serializer = UserSerializer(data=request.data)
 
     if serializer.is_valid():
-        del serializer.validated_data["teams"]
-
         user = User.objects.create_user(**serializer.validated_data)
     else:
         raise ValidationError(serializer.errors)

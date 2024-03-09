@@ -35,7 +35,9 @@ export const router = createBrowserRouter(
               <Route path="calendars" element={<Calendars />} />
               <Route path="resources" element={<Resources />} />
             </Route>
-            <Route path="teams" element={<Teams />} />
+            <Route element={<Sidebar sidebar="teams" />}>
+              <Route path="teams" element={<Teams />} />
+            </Route>
             <Route path="profile" element={<Profile />} />
           </Route>
         </Route>

@@ -37,7 +37,7 @@ const AuthProvider: FC<Props> = ({ children }) => {
   const loginMutation = useMutation({
     mutationFn: ({ email, password }: LoginParams) =>
       axios.post(
-        "/api/login/",
+        "/api/profile/login/",
         { email, password },
         { headers: { "X-CSRFToken": csrfToken } },
       ),
@@ -53,7 +53,7 @@ const AuthProvider: FC<Props> = ({ children }) => {
   const signUpMutation = useMutation({
     mutationFn: ({ email, username, password }: SignUpParams) =>
       axios.post(
-        "/api/signup/",
+        "/api/profile/signup/",
         { email, username, password },
         { headers: { "X-CSRFToken": csrfToken } },
       ),
@@ -68,7 +68,11 @@ const AuthProvider: FC<Props> = ({ children }) => {
 
   const logoutMutation = useMutation({
     mutationFn: () =>
-      axios.post("/api/logout/", {}, { headers: { "X-CSRFToken": csrfToken } }),
+      axios.post(
+        "/api/profile/logout/",
+        {},
+        { headers: { "X-CSRFToken": csrfToken } },
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries();
       loginMutation.reset();

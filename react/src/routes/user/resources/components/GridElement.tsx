@@ -88,9 +88,46 @@ const GridElement: FC<Props> = ({
           )}
         </div>
       ) : null}
-      <h1 className="mb-0.5 mt-1 text-sm leading-none tracking-wide text-amber-500 dark:text-amber-300">
-        {resource.title}
-      </h1>
+      <div className="mb-0.5 mt-1 flex flex-row items-center justify-between gap-x-2">
+        <h1 className="text-sm leading-none tracking-wide text-amber-500 dark:text-amber-300">
+          {resource.title}
+        </h1>
+        {resource.meetingObject.team ? (
+          <div className="group relative my-0.5 h-4 w-4 rounded-full bg-amber-500 ring-1 ring-gray-300 transition-all hover:mb-0 hover:h-[18px] hover:w-[18px] dark:bg-amber-300 dark:ring-gray-700">
+            <p className="pointer-events-none absolute right-1/2 top-[125%] w-max translate-x-1/2 rounded-sm px-2 pb-1.5 pt-1 text-xs text-gray-600 opacity-0 shadow ring-1 ring-gray-300 transition-opacity group-hover:opacity-100 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700">
+              {isTeamsPending ? (
+                <LoadingIcon className="h-4 animate-spin stroke-amber-500 dark:stroke-amber-300" />
+              ) : isTeamsError ? (
+                "Something went wrong"
+              ) : (
+                teams?.find((team) => team.url === resource.meetingObject.team)
+                  ?.name || "Something went wrong"
+              )}
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-row">
+            {resource.meetingObject.participants?.map((participant, i) => (
+              <div
+                className="group relative mb-0.5 h-4 w-4 rounded-full bg-blue-500 ring-1 ring-gray-300 transition-all hover:mb-0 hover:h-[18px] hover:w-[18px] dark:bg-blue-400 dark:ring-gray-700"
+                style={{ left: `-${i * 4}px` }}
+                key={participant}
+              >
+                <p className="pointer-events-none absolute right-1/2 top-[125%] w-max translate-x-1/2 rounded-sm px-2 pb-1.5 pt-1 text-xs text-gray-600 opacity-0 shadow ring-1 ring-gray-300 transition-opacity group-hover:opacity-100 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700">
+                  {isParticipantsPending ? (
+                    <LoadingIcon className="h-4 animate-spin stroke-amber-500 dark:stroke-amber-300" />
+                  ) : isParticipantsError ? (
+                    "Something went wrong"
+                  ) : (
+                    participants?.find((p) => p?.url === participant)
+                      ?.username || "Something went wrong"
+                  )}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       <h1 className="text-xs font-medium uppercase">
         {`${day}${useGetSuffix(day)} ${useGetMonth(month)} ${year}`}
       </h1>
@@ -137,41 +174,6 @@ const GridElement: FC<Props> = ({
           ?
         </span>
       </h1>
-      {resource.meetingObject.team ? (
-        <div className="group relative my-0.5 h-4 w-4 rounded-full bg-amber-500 ring-1 ring-gray-300 transition-all hover:mb-0 hover:h-[18px] hover:w-[18px] dark:bg-amber-300 dark:ring-gray-700">
-          <p className="pointer-events-none absolute right-1/2 top-[125%] w-max translate-x-1/2 rounded-sm px-2 pb-1.5 pt-1 text-xs text-gray-600 opacity-0 shadow ring-1 ring-gray-300 transition-opacity group-hover:opacity-100 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700">
-            {isTeamsPending ? (
-              <LoadingIcon className="h-4 animate-spin stroke-amber-500 dark:stroke-amber-300" />
-            ) : isTeamsError ? (
-              "Something went wrong"
-            ) : (
-              teams?.find((team) => team.url === resource.meetingObject.team)
-                ?.name || "Something went wrong"
-            )}
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-row">
-          {resource.meetingObject.participants?.map((participant, i) => (
-            <div
-              className="group relative mb-0.5 h-4 w-4 rounded-full bg-blue-500 ring-1 ring-gray-300 transition-all hover:mb-0 hover:h-[18px] hover:w-[18px] dark:bg-blue-400 dark:ring-gray-700"
-              style={{ left: `-${i * 4}px` }}
-              key={participant}
-            >
-              <p className="pointer-events-none absolute right-1/2 top-[125%] w-max translate-x-1/2 rounded-sm px-2 pb-1.5 pt-1 text-xs text-gray-600 opacity-0 shadow ring-1 ring-gray-300 transition-opacity group-hover:opacity-100 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700">
-                {isParticipantsPending ? (
-                  <LoadingIcon className="h-4 animate-spin stroke-amber-500 dark:stroke-amber-300" />
-                ) : isParticipantsError ? (
-                  "Something went wrong"
-                ) : (
-                  participants?.find((p) => p?.url === participant)?.username ||
-                  "Something went wrong"
-                )}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
 
       {resource.resource === "notes" && "content" in resource ? (
         <ViewNotesModal

@@ -1,2 +1,2 @@
 export { default as Sidebar } from "./Sidebar.tsx";
-export { MeetingSidebar } from "./sidebars";
+export { MeetingSidebar, TeamSidebar } from "./sidebars";
