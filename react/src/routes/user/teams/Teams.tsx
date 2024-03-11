@@ -164,6 +164,10 @@ const Teams: FC = () => {
                 <span>{team.meetings.length}</span>
               ) : isTeamsPending ? (
                 <LoadingIcon className="h-5 animate-spin stroke-amber-500 dark:stroke-amber-300" />
+              ) : teamFilter.value === "no teams" ? (
+                <span className="text-sm text-amber-500 dark:text-amber-300">
+                  No team selected
+                </span>
               ) : (
                 <>
                   <ErrorIcon className="h-5 stroke-red-600" />
@@ -185,6 +189,10 @@ const Teams: FC = () => {
                 </span>
               ) : isRecordingsPending ? (
                 <LoadingIcon className="h-5 animate-spin stroke-amber-500 dark:stroke-amber-300" />
+              ) : teamFilter.value === "no teams" ? (
+                <span className="text-sm text-amber-500 dark:text-amber-300">
+                  No team selected
+                </span>
               ) : (
                 <>
                   <ErrorIcon className="h-5 stroke-red-600" />
@@ -205,6 +213,10 @@ const Teams: FC = () => {
                 </span>
               ) : isNotesPending ? (
                 <LoadingIcon className="h-5 animate-spin stroke-amber-500 dark:stroke-amber-300" />
+              ) : teamFilter.value === "no teams" ? (
+                <span className="text-sm text-amber-500 dark:text-amber-300">
+                  No team selected
+                </span>
               ) : (
                 <>
                   <ErrorIcon className="h-5 stroke-red-600" />
@@ -224,6 +236,10 @@ const Teams: FC = () => {
                 </span>
               ) : isTeamsPending ? (
                 <LoadingIcon className="h-6 animate-spin stroke-amber-500 dark:stroke-amber-300" />
+              ) : teamFilter.value === "no teams" ? (
+                <span className="text-sm text-amber-500 dark:text-amber-300">
+                  No team selected
+                </span>
               ) : (
                 <>
                   <ErrorIcon className="h-6 stroke-red-600" />
@@ -295,66 +311,74 @@ const Teams: FC = () => {
             ) : null}
           </h1>
           <div className="mt-2">
-            {sortedMeetings
-              ?.filter((meeting) => meeting.team === team?.url)
-              .filter((meeting) => {
-                console.log(meeting);
-                if (!meeting.end_time) {
-                  return true;
-                }
+            {sortedMeetings.length === 0 ? (
+              <span className="text-sm text-amber-500 dark:text-amber-300">
+                No team selected
+              </span>
+            ) : (
+              sortedMeetings
+                ?.filter((meeting) => meeting.team === team?.url)
+                .filter((meeting) => {
+                  if (!meeting.end_time) {
+                    return true;
+                  }
 
-                if (meetingCounter < 3) {
-                  meetingCounter++;
-                  return true;
-                }
+                  if (meetingCounter < 3) {
+                    meetingCounter++;
+                    return true;
+                  }
 
-                return false;
-              })
-              .map((meeting) => (
-                <div className="my-3 flex flex-col gap-y-0.5" key={meeting.id}>
-                  <h1 className="flex flex-row gap-x-2 font-medium tracking-wide text-amber-500 dark:text-amber-300">
-                    <span>{meeting.start_time.split(" ")[0]}</span>
-                    <span>|</span>
-                    <span>
-                      {meeting.start_time
-                        .split(" ")[1]
-                        .split(":")
-                        .slice(0, 2)
-                        .join(":")}
-                    </span>
-                    <span>-</span>
-                    {meeting.end_time ? (
+                  return false;
+                })
+                .map((meeting) => (
+                  <div
+                    className="my-3 flex flex-col gap-y-0.5"
+                    key={meeting.id}
+                  >
+                    <h1 className="flex flex-row gap-x-2 font-medium tracking-wide text-amber-500 dark:text-amber-300">
+                      <span>{meeting.start_time.split(" ")[0]}</span>
+                      <span>|</span>
                       <span>
-                        {meeting.end_time
+                        {meeting.start_time
                           .split(" ")[1]
                           .split(":")
                           .slice(0, 2)
                           .join(":")}
                       </span>
-                    ) : (
-                      <span className="animate-pulse">ongoing</span>
-                    )}
-                  </h1>
-                  <p
-                    className="group flex w-max cursor-pointer flex-row gap-x-1 py-px text-[15px] transition-all hover:gap-x-2"
-                    onClick={() => navigate("/calendars")}
-                  >
-                    <span className="group-hover:text-amber-500 group-hover:dark:text-amber-300">
-                      View Calendar
-                    </span>
-                    <ArrowIcon className="w-4 stroke-gray-950 group-hover:stroke-amber-500 dark:stroke-gray-100 group-hover:dark:stroke-amber-300" />
-                  </p>
-                  <p
-                    className="group flex w-max cursor-pointer flex-row gap-x-1 py-px text-[15px] transition-all hover:gap-x-2"
-                    onClick={() => navigate(`/meeting/${meeting.id}`)}
-                  >
-                    <span className="group-hover:text-amber-500 group-hover:dark:text-amber-300">
-                      Join Meeting
-                    </span>
-                    <ArrowIcon className="w-4 stroke-gray-950 group-hover:stroke-amber-500 dark:stroke-gray-100 group-hover:dark:stroke-amber-300" />
-                  </p>
-                </div>
-              ))}
+                      <span>-</span>
+                      {meeting.end_time ? (
+                        <span>
+                          {meeting.end_time
+                            .split(" ")[1]
+                            .split(":")
+                            .slice(0, 2)
+                            .join(":")}
+                        </span>
+                      ) : (
+                        <span className="animate-pulse">ongoing</span>
+                      )}
+                    </h1>
+                    <p
+                      className="group flex w-max cursor-pointer flex-row gap-x-1 py-px text-[15px] transition-all hover:gap-x-2"
+                      onClick={() => navigate("/calendars")}
+                    >
+                      <span className="group-hover:text-amber-500 group-hover:dark:text-amber-300">
+                        View Calendar
+                      </span>
+                      <ArrowIcon className="w-4 stroke-gray-950 group-hover:stroke-amber-500 dark:stroke-gray-100 group-hover:dark:stroke-amber-300" />
+                    </p>
+                    <p
+                      className="group flex w-max cursor-pointer flex-row gap-x-1 py-px text-[15px] transition-all hover:gap-x-2"
+                      onClick={() => navigate(`/meeting/${meeting.id}`)}
+                    >
+                      <span className="group-hover:text-amber-500 group-hover:dark:text-amber-300">
+                        Join Meeting
+                      </span>
+                      <ArrowIcon className="w-4 stroke-gray-950 group-hover:stroke-amber-500 dark:stroke-gray-100 group-hover:dark:stroke-amber-300" />
+                    </p>
+                  </div>
+                ))
+            )}
           </div>
         </div>
       </div>

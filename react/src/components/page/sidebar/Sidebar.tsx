@@ -14,7 +14,7 @@ const Sidebar: FC<Props> = ({
   modals,
   children,
 }) => {
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(true);
 
   const contentRef = useRef<HTMLDivElement>(null);
 

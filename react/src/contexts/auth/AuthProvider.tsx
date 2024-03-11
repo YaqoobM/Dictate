@@ -136,6 +136,7 @@ const AuthProvider: FC<Props> = ({ children }) => {
     <AuthContext.Provider
       value={{
         isAuthenticated,
+        setIsAuthenticated,
         checkingAuth,
         login,
         loginReset: loginMutation.reset,

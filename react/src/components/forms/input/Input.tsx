@@ -7,7 +7,8 @@ import {
 } from "react";
 
 interface Props extends InputHTMLAttributes<HTMLInputElement> {
-  setValue?: Dispatch<SetStateAction<string>>;
+  // setValue?: Dispatch<SetStateAction<string>>;
+  setValue?: (value: string) => void;
 }
 
 const Input = forwardRef<HTMLInputElement, Props>(

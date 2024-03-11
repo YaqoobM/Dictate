@@ -6,7 +6,8 @@ type Props = {
   name: string;
   type: string;
   value: string;
-  setValue: Dispatch<SetStateAction<string>>;
+  // setValue: Dispatch<SetStateAction<string>>;
+  setValue: (value: string) => void;
   placeholder?: string;
   label?: string;
   error?: string;

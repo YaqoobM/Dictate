@@ -3,6 +3,4 @@ export interface User {
   url: string;
   email: string;
   username: string;
-  teams: string[];
-  meetings: string[];
 }

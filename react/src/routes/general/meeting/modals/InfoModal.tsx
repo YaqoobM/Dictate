@@ -114,7 +114,7 @@ const InfoModal: FC<Props> = ({
             </div>
             {participants
               .filter((p) => p.channel !== localParticipant.current?.channel)
-              .map((participant, i) => (
+              .map((participant) => (
                 <div
                   className="flex flex-row items-center justify-between gap-x-4 sm:w-full sm:justify-normal lg:gap-x-8"
                   key={participant.channel}

@@ -1,8 +1,9 @@
 import { AxiosResponse } from "axios";
-import { createContext } from "react";
+import { Dispatch, SetStateAction, createContext } from "react";
 
 type ContextValue = {
   isAuthenticated: boolean;
+  setIsAuthenticated: Dispatch<SetStateAction<boolean>>;
   checkingAuth: boolean;
 
   login: (
@@ -38,6 +39,7 @@ type ContextValue = {
 
 const defaultValue: ContextValue = {
   isAuthenticated: false,
+  setIsAuthenticated: () => false,
   checkingAuth: false,
 
   login: () => {

@@ -25,7 +25,6 @@ class UserSerializer(HashedIdModelSerializer):
             "username",
             "password",
         ]
-        read_only_fields = ["meetings"]
         extra_kwargs = {
             "password": {"write_only": True},
             "url": {"lookup_field": "hashed_id"},
