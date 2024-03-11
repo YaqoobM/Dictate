@@ -4,4 +4,4 @@ const useAxios = () => {
   return axios;
 };
 
-export { useAxios };
+export default useAxios;

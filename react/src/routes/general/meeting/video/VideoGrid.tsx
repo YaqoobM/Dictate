@@ -57,7 +57,7 @@ const VideoGrid: FC<Props> = ({
         className="flex h-screen min-h-screen w-full flex-row flex-wrap items-center justify-center gap-3"
         ref={grid}
       >
-        {participantStreams.current.map((stream, i) => (
+        {participantStreams.current.map((stream) => (
           <PeerVideo
             className={`peer-video mx-auto max-w-screen-xl`}
             style={getPeerStyles()}

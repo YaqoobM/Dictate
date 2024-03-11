@@ -1,4 +1,4 @@
-import { Dispatch, FC, SetStateAction } from "react";
+import { FC } from "react";
 import { Input, Label } from "..";
 
 type Props = {
@@ -6,7 +6,6 @@ type Props = {
   name: string;
   type: string;
   value: string;
-  // setValue: Dispatch<SetStateAction<string>>;
   setValue: (value: string) => void;
   placeholder?: string;
   label?: string;

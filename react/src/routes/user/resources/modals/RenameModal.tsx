@@ -1,8 +1,5 @@
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
-import {
-  Error as ErrorIcon,
-  Success as SuccessIcon,
-} from "../../../../assets/icons/symbols";
+import { Error as ErrorIcon } from "../../../../assets/icons/symbols";
 import { Loader as LoadingIcon } from "../../../../assets/icons/utils";
 import { InputGroup } from "../../../../components/forms";
 import { Button } from "../../../../components/utils";

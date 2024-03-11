@@ -8,7 +8,6 @@ import { InputGroup } from "../../../../components/forms";
 import { Button } from "../../../../components/utils";
 import { useModal } from "../../../../hooks/components";
 import { useUpdateProfile } from "../../../../hooks/user";
-import { User } from "../../../../types";
 
 type Props = {
   hidden: boolean;

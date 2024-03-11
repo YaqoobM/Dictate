@@ -18,17 +18,9 @@ const Profile: FC = () => {
   const { hidden: hideEditProfileModal, setHidden: setHideEditProfileModal } =
     useModal();
 
-  const {
-    user,
-    isPending: isProfilePending,
-    isError: isProfileError,
-  } = useGetProfile();
+  const { user } = useGetProfile();
 
-  const {
-    teams,
-    isPending: isTeamsPending,
-    isError: isTeamsError,
-  } = useGetTeams();
+  const { teams } = useGetTeams();
 
   return (
     <div className="mx-auto my-5 px-10 md:mt-10 md:px-16">

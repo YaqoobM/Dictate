@@ -1,13 +1,6 @@
-import {
-  ChangeEvent,
-  Dispatch,
-  InputHTMLAttributes,
-  SetStateAction,
-  forwardRef,
-} from "react";
+import { ChangeEvent, InputHTMLAttributes, forwardRef } from "react";
 
 interface Props extends InputHTMLAttributes<HTMLInputElement> {
-  // setValue?: Dispatch<SetStateAction<string>>;
   setValue?: (value: string) => void;
 }
 

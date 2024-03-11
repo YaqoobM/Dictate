@@ -101,7 +101,7 @@ const DatePicker: FC<Props> = ({ placeholder, value, setValue, ...props }) => {
               <p className="m-px w-10 pb-1.5 text-center text-sm">Sa</p>
               <p className="m-px w-10 pb-1.5 text-center text-sm">Su</p>
 
-              {calendar.map((day, i) => (
+              {calendar.map((day) => (
                 <button
                   type="button"
                   className={`m-px size-10 rounded-full border-2 border-transparent text-sm hover:border-amber-500 hover:text-amber-500 focus:outline-none focus-visible:border-amber-500 disabled:pointer-events-none disabled:opacity-50 dark:hover:border-amber-300 dark:hover:text-amber-300 dark:focus-visible:border-amber-300 ${value && value.getFullYear() === day.year && value.getMonth() == day.month && value.getDate() === day.day ? "bg-amber-500/70 hover:!text-gray-600 dark:bg-amber-300/70 dark:hover:!text-gray-300" : null}`}
