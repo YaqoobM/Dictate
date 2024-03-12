@@ -57,7 +57,11 @@ const Profile: FC = () => {
         <h1 className="text-lg font-medium text-amber-500 dark:text-amber-300">
           Teams
         </h1>
-        {teams?.map((team) => <h2 key={team.id}>{team.name}</h2>)}
+        {teams ? (
+          teams.map((team) => <h2 key={team.id}>{team.name}</h2>)
+        ) : (
+          <h2>No teams available</h2>
+        )}
         <h2
           className="group mt-2 flex w-max cursor-pointer flex-row gap-x-1 py-px text-[15px] uppercase transition-all hover:gap-x-2"
           onClick={() => navigate("/teams")}

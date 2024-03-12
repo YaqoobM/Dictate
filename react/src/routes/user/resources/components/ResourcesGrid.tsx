@@ -19,15 +19,21 @@ const ResourcesGrid: FC<Props> = ({ resources }) => {
 
   return (
     <div className="flex w-full flex-row flex-wrap gap-4">
-      {resources.map((resource) => (
-        <GridElement
-          resource={resource}
-          participants={participants}
-          isParticipantsPending={isParticipantsPending}
-          isParticipantsError={isParticipantsError}
-          key={resource.id}
-        />
-      ))}
+      {resources.length > 0 ? (
+        resources.map((resource) => (
+          <GridElement
+            resource={resource}
+            participants={participants}
+            isParticipantsPending={isParticipantsPending}
+            isParticipantsError={isParticipantsError}
+            key={resource.id}
+          />
+        ))
+      ) : (
+        <h1 className="text-lg text-amber-500 dark:text-amber-300">
+          No Resources Available
+        </h1>
+      )}
     </div>
   );
 };

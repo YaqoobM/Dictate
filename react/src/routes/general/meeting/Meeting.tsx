@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { FC, useContext, useEffect, useState } from "react";
+import { FC, Suspense, useContext, useEffect, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -12,8 +12,8 @@ import { AuthContext } from "../../../contexts";
 import { useModal } from "../../../hooks/components";
 import { useMeetingWebsocket } from "../../../hooks/meetings";
 import { Controls } from "./components";
+import { Notes } from "./lazy";
 import { SetUsernameModal } from "./modals";
-import { Notes } from "./notes";
 import { VideoGrid } from "./video";
 
 type RouteParams = {
@@ -177,11 +177,17 @@ const Meeting: FC = () => {
           {showNotes ? (
             <PanelGroup direction="horizontal">
               <Panel defaultSize={50}>
-                <Notes
-                  groupNotes={groupNotes}
-                  groupNotesState={groupNotesState}
-                  websocket={websocket}
-                />
+                <Suspense
+                  fallback={
+                    <LoadingIcon className="mx-auto mt-[50%] h-10 animate-spin stroke-amber-500 dark:stroke-amber-300 lg:h-14" />
+                  }
+                >
+                  <Notes
+                    groupNotes={groupNotes}
+                    groupNotesState={groupNotesState}
+                    websocket={websocket}
+                  />
+                </Suspense>
               </Panel>
               <PanelResizeHandle className="mr-3 w-0.5 bg-amber-500 dark:bg-amber-300" />
               <Panel>
