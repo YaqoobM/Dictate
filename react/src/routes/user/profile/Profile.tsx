@@ -57,7 +57,7 @@ const Profile: FC = () => {
         <h1 className="text-lg font-medium text-amber-500 dark:text-amber-300">
           Teams
         </h1>
-        {teams ? (
+        {teams && teams.length > 0 ? (
           teams.map((team) => <h2 key={team.id}>{team.name}</h2>)
         ) : (
           <h2>No teams available</h2>
