@@ -19,9 +19,9 @@ def transform_video(instance_pk: int):
     temp_output_path = (
         recording.temp_upload.path[: recording.temp_upload.path.rfind(".")] + ".mp4"
     )
-    ffmpeg.input(recording.temp_upload.path).output(
-        temp_output_path, vcodec="libx264", acodec="aac"
-    ).run()
+    ffmpeg.input(recording.temp_upload.path).filter("scale", w=720, h=-2).filter(
+        "fps", fps=30, round="up"
+    ).output(temp_output_path, vcodec="libx264", crf=24, acodec="aac").run()
 
     # create nice output filename
     # (possible race conditions if multiple recordings saved at same time)
