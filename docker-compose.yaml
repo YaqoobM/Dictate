@@ -20,7 +20,7 @@ services:
       - websocket
       - relay
   app:
-    build: .
+    image: dictate
     container_name: dictate-app
     command: "gunicorn core.wsgi:application"
     environment:
@@ -32,14 +32,14 @@ services:
       - frontend
       - backend
     depends_on:
-      db-setup:
+      setup:
         condition: service_completed_successfully
       postgres:
         condition: service_started
       redis:
         condition: service_started
   websocket:
-    build: .
+    image: dictate
     container_name: dictate-websocket
     command: "daphne -b 0.0.0.0 -p 80 core.asgi:application"
     environment:
@@ -49,14 +49,14 @@ services:
       - frontend
       - backend
     depends_on:
-      db-setup:
+      setup:
         condition: service_completed_successfully
       postgres:
         condition: service_started
       redis:
         condition: service_started
   worker:
-    build: .
+    image: dictate
     container_name: dictate-worker
     command: "celery -A core worker -l INFO --concurrency 2"
     environment:
@@ -80,7 +80,7 @@ services:
       - frontend
       - backend
     depends_on:
-      db-setup:
+      setup:
         condition: service_completed_successfully
       postgres:
         condition: service_started
@@ -105,9 +105,10 @@ services:
       - redis:/data
     networks:
       - backend
-  db-setup:
+  setup:
+    image: dictate
     build: .
-    container_name: dictate-db-setup
+    container_name: dictate-setup
     command: "python manage.py setup_db"
     environment:
       - DOCKER_COMPOSE=true
