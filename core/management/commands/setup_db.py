@@ -37,6 +37,9 @@ class Command(BaseCommand):
         call_command("migrate")
 
         self.stdout.write("seeding tables...")
+        call_command("seed")
+        self.stdout.write(self.style.SUCCESS("Seeded test data"))
+
         User = get_user_model()
         try:
             User.objects.get(username=os.getenv("DJANGO_SUPERUSER_USERNAME"))
