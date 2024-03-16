@@ -20,7 +20,7 @@ server {
 
     client_max_body_size 100M;
     # ssl_certificate /etc/nginx/ssl/live/$DOMAIN_NAME/fullchain.pem;
-    # ssl_certificate_key /etc/nginx/ssl/live/$DOMAIN_NAME/fullchain.pem;
+    # ssl_certificate_key /etc/nginx/ssl/live/$DOMAIN_NAME/privkey.pem;
 
 
     location / {
@@ -56,7 +56,7 @@ server {
     listen 3478 default_server;
 
     # ssl_certificate /etc/nginx/ssl/live/$DOMAIN_NAME/fullchain.pem;
-    # ssl_certificate_key /etc/nginx/ssl/live/$DOMAIN_NAME/fullchain.pem;
+    # ssl_certificate_key /etc/nginx/ssl/live/$DOMAIN_NAME/privkey.pem;
 
     server_name _;
 
@@ -71,7 +71,7 @@ server {
 
 #     server_name stun.dictate.com stun.localhost stun.127.0.0.1;
 #     # ssl_certificate /etc/nginx/ssl/live/$DOMAIN_NAME/fullchain.pem;
-#     # ssl_certificate_key /etc/nginx/ssl/live/$DOMAIN_NAME/fullchain.pem;
+#     # ssl_certificate_key /etc/nginx/ssl/live/$DOMAIN_NAME/privkey.pem;
 #     location / {
 #         proxy_pass http://relay:3478;
 #         proxy_redirect off;
