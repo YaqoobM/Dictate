@@ -38,7 +38,7 @@ type WebsocketUser = {
 };
 
 const getUrl = (id: string) => {
-  let url = window.location.protocol === "https://" ? "wss://" : "ws://";
+  let url = window.location.protocol === "https:" ? "wss://" : "ws://";
   url +=
     import.meta.env.MODE === "development"
       ? window.location.hostname + ":8000"
