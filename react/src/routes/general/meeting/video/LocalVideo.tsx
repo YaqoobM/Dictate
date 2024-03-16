@@ -55,6 +55,7 @@ const LocalVideo: FC<Props> = ({
     <Video
       videoMuted={participant.current ? participant.current.videoMuted : true}
       videoRef={videoRef}
+      muted={true}
       {...props}
     />
   );

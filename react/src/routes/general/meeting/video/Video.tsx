@@ -5,6 +5,7 @@ interface Props extends HTMLAttributes<HTMLElement> {
   videoRef: MutableRefObject<HTMLVideoElement | null>;
   videoMuted: boolean;
   username?: string;
+  muted?: boolean;
 }
 
 const Video: FC<Props> = ({
@@ -13,12 +14,19 @@ const Video: FC<Props> = ({
   videoMuted,
   className,
   children,
+  muted = false,
   ...props
 }) => {
   return (
     <article className={`flex ${className}`} {...props}>
       <div className="relative max-h-full w-full flex-grow overflow-hidden rounded bg-gray-200 dark:bg-gray-800">
-        <video className="mx-auto h-full" ref={videoRef} autoPlay playsInline />
+        <video
+          className="mx-auto h-full"
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted={muted}
+        />
         {!videoRef.current?.srcObject || videoMuted ? (
           <div className="absolute inset-0 flex min-h-32 flex-col items-center justify-center rounded bg-gray-200 shadow-sm dark:bg-gray-800 dark:shadow">
             <LoadingIcon className="h-6 animate-spin stroke-amber-500 dark:stroke-amber-300 lg:h-8" />
