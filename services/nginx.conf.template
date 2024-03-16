@@ -1,0 +1,53 @@
+server {
+    listen 80;
+    server_name localhost 127.0.0.1 $DOMAIN_NAME;
+    client_max_body_size 100M;
+
+    location / {
+        resolver 127.0.0.11 valid=5m;
+        proxy_pass http://app;
+
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $server_name;
+    }
+
+    location /ws/ {
+        proxy_pass http://websocket;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $server_name;
+    }
+}
+
+server {
+    listen 80 default_server;
+    listen 3478 default_server;
+    server_name _;
+
+    return 404;
+}
+
+# TURN - if clients can't use UDP
+# server {
+#     listen 3478;
+#     server_name stun.dictate.com stun.localhost stun.127.0.0.1;
+
+#     location / {
+#         proxy_pass http://relay:3478;
+#         proxy_redirect off;
+#         proxy_set_header Host $host;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Forwarded-Host $server_name;
+#     }
+# }

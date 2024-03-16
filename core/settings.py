@@ -26,7 +26,7 @@ ALLOWED_HOSTS = [
     ".localhost",
     "127.0.0.1",
     "[::1]",
-    *os.getenv("DICTATE_HOST").split(","),
+    os.getenv("DICTATE_HOST"),
 ]
 
 # Enable functionality with specific IPs
@@ -56,9 +56,7 @@ if os.getenv("DOCKER_CONTAINER") and DEBUG:
 
 # see api/models
 PRODUCTION_URL = (
-    os.getenv("DICTATE_HOST").split(",")[0]
-    if ENVIRONMENT == "production"
-    else "https://dictate.com"
+    os.getenv("DICTATE_HOST") if ENVIRONMENT == "production" else "https://dictate.com"
 )
 
 # Application definition

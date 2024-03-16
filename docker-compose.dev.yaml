@@ -15,6 +15,9 @@ services:
       - frontend
     volumes:
       - ./services/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./services/nginx.conf.template:/etc/nginx/templates/nginx.conf.template:ro
+    environment:
+      - DOMAIN_NAME=${DICTATE_HOST}
     depends_on:
       - app
       - websocket
