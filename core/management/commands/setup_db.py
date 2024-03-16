@@ -3,13 +3,20 @@ import time
 
 from django.contrib.auth import get_user_model
 from django.core.management import CommandError, call_command
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandParser
 from django.db import OperationalError, connections
 from dotenv import load_dotenv
 
 
 class Command(BaseCommand):
     help = "CMD script to setup database"
+
+    def add_arguments(self, parser: CommandParser) -> None:
+        parser.add_argument(
+            "--ensure-connection-only",
+            action="store_true",
+            help="Returns after testing connection without touching the database",
+        )
 
     def handle(self, *args, **options) -> str | None:
         load_dotenv()
@@ -32,13 +39,17 @@ class Command(BaseCommand):
                 )
                 time.sleep(1)
 
+        if options["ensure-connection-only"]:
+            return
+
         self.stdout.write("running migrations...")
         call_command("makemigrations")
         call_command("migrate")
 
         self.stdout.write("seeding tables...")
-        call_command("seed")
-        self.stdout.write(self.style.SUCCESS("Seeded test data"))
+        if os.getenv("ENVIRONMENT") == "development":
+            call_command("seed")
+            self.stdout.write(self.style.SUCCESS("Seeded test data"))
 
         User = get_user_model()
         try:

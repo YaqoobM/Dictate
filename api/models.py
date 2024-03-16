@@ -8,7 +8,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from sqids import Sqids
 
-from .helpers import get_hashed_alphabet, get_remote_storage
+from .helpers import get_hashed_alphabet
 
 
 class HashedIdModel(models.Model):
@@ -85,7 +85,6 @@ class Recording(HashedIdModel):
         _("post-processed recording"),
         validators=[FileExtensionValidator(["mp4"])],
         upload_to="recordings/",
-        storage=get_remote_storage,
         blank=True,
         null=True,
     )

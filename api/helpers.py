@@ -24,7 +24,3 @@ def get_hashed_alphabet(
         return string
 
     return _reorder(alphabet, hash)
-
-
-def get_remote_storage():
-    return storages["s3"] if settings.ENVIRONMENT == "production" else storages["local"]

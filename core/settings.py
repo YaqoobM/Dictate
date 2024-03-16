@@ -19,10 +19,15 @@ SECRET_KEY = os.getenv("SECRET_KEY", "secret_key_123")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG") is not None
 
-ENVIRONMENT = os.getenv("ENVIRONMENT") or "production"
+ENVIRONMENT = os.getenv("ENVIRONMENT") or "development"
 
 
-ALLOWED_HOSTS = [".localhost", "127.0.0.1", "[::1]"]
+ALLOWED_HOSTS = [
+    ".localhost",
+    "127.0.0.1",
+    "[::1]",
+    *os.getenv("DICTATE_HOST").split(","),
+]
 
 # Enable functionality with specific IPs
 #   e.g.) debug_toolbar only shows if website accessed from INTERNAL_IPS
@@ -40,8 +45,6 @@ if ENVIRONMENT == "development":
 
     # wildcard for ports?
     CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
-    
-    # SESSION_COOKIE_SAMESITE = "None"
 
 
 if os.getenv("DOCKER_CONTAINER") and DEBUG:
@@ -52,7 +55,11 @@ if os.getenv("DOCKER_CONTAINER") and DEBUG:
     ]
 
 # see api/models
-PRODUCTION_URL = os.getenv("PRODUCTION_URL") if ENVIRONMENT == "production" else "http://localhost"
+PRODUCTION_URL = (
+    os.getenv("DICTATE_HOST").split(",")[0]
+    if ENVIRONMENT == "production"
+    else "https://dictate.com"
+)
 
 # Application definition
 INSTALLED_APPS = [
@@ -74,7 +81,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -110,7 +117,18 @@ ASGI_APPLICATION = "core.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-if os.getenv("DOCKER_COMPOSE"):
+if ENVIRONMENT == "production":
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv("AWS_RDS_DATABASE_NAME"),
+            "USER": os.getenv("AWS_RDS_USER"),
+            "PASSWORD": os.getenv("AWS_RDS_PASSWORD"),
+            "HOST": os.getenv("AWS_RDS_HOST"),
+            "PORT": "5432",
+        }
+    }
+elif os.getenv("DOCKER_COMPOSE"):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -130,7 +148,17 @@ else:
     }
 
 # defaults cache to local memory
-if os.getenv("DOCKER_COMPOSE"):
+if ENVIRONMENT == "production":
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://" + os.getenv("AWS_ELASTICACHE_HOST") + ":6379",
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            },
+        }
+    }
+elif os.getenv("DOCKER_COMPOSE"):
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
@@ -143,11 +171,20 @@ if os.getenv("DOCKER_COMPOSE"):
 
 
 # defaults session storage to db
-if os.getenv("DOCKER_COMPOSE"):
+if ENVIRONMENT == "production" or os.getenv("DOCKER_COMPOSE"):
     SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 
-if os.getenv("DOCKER_COMPOSE"):
+if ENVIRONMENT == "production":
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [(os.getenv("AWS_ELASTICACHE_HOST"), 6379)],
+            },
+        },
+    }
+elif os.getenv("DOCKER_COMPOSE"):
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -202,33 +239,47 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "local": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "s3": {
-        "BACKEND": "storages.backends.s3.S3Storage",
-        "OPTIONS": {
-            # To do...
-            # https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+if ENVIRONMENT == "production":
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+            "OPTIONS": {
+                "bucket_name": os.getenv("AWS_S3_BUCKET_NAME"),
+                "region_name": os.getenv("AWS_S3_REGION"),
+                "access_key": os.getenv("AWS_S3_ACCESS_KEY"),
+                "secret_key": os.getenv("AWS_S3_SECRET_ACCESS_KEY"),
+            },
         },
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        # Compression w/o caching
-        # "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-    },
-}
+        "local": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+else:
+    # if DOCKER_COMPOSE then a volume will automatically be mounted
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "local": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Celery Configuration Options
-if os.getenv("DOCKER_COMPOSE"):
+if ENVIRONMENT == "production":
+    CELERY_BROKER_URL = "redis://" + os.getenv("AWS_ELASTICACHE_HOST") + ":6379"
+    CELERY_RESULT_BACKEND = "django-cache"
+elif os.getenv("DOCKER_COMPOSE"):
     CELERY_BROKER_URL = "redis://redis:6379/0"
     CELERY_RESULT_BACKEND = "django-cache"
 else:
@@ -238,6 +289,4 @@ else:
 # CELERY_TIMEZONE = "Australia/Tasmania"
 # CELERY_TASK_TRACK_STARTED = True
 # CELERY_TASK_TIME_LIMIT = 30 * 60
-CELERY_WORKER_CONCURRENCY = (
-    2 if ENVIRONMENT == "development" else cpu_count()
-)
+CELERY_WORKER_CONCURRENCY = 2 if ENVIRONMENT == "development" else cpu_count()

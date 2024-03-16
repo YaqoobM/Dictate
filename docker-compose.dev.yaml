@@ -24,7 +24,7 @@ services:
     container_name: dictate-app
     command: "gunicorn core.wsgi:application"
     environment:
-      - ENVIRONMENT=production
+      - ENVIRONMENT=development
       - DOCKER_COMPOSE=true
     volumes:
       - recording-temp-storage:/opt/dictate/media
@@ -35,12 +35,16 @@ services:
     depends_on:
       setup:
         condition: service_completed_successfully
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
   websocket:
     image: dictate
     container_name: dictate-websocket
     command: "daphne -b 0.0.0.0 -p 80 core.asgi:application"
     environment:
-      - ENVIRONMENT=production
+      - ENVIRONMENT=development
       - DOCKER_COMPOSE=true
     restart: unless-stopped
     networks:
@@ -49,12 +53,16 @@ services:
     depends_on:
       setup:
         condition: service_completed_successfully
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
   worker:
     image: dictate
     container_name: dictate-worker
     command: "celery -A core worker -l INFO --concurrency 2"
     environment:
-      - ENVIRONMENT=production
+      - ENVIRONMENT=development
       - DOCKER_COMPOSE=true
     volumes:
       - recording-temp-storage:/opt/dictate/media
@@ -64,6 +72,7 @@ services:
     depends_on:
       - app
       - websocket
+      - redis
   relay:
     image: coturn/coturn:alpine3.18
     container_name: dictate-relay
@@ -76,17 +85,48 @@ services:
     depends_on:
       setup:
         condition: service_completed_successfully
+      postgres:
+        condition: service_started
+  postgres:
+    image: postgres:16-alpine3.18
+    container_name: dictate-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./services/coturn_schema.sql:/docker-entrypoint-initdb.d/coturn_schema.sql:ro
+    networks:
+      - backend
+  redis:
+    image: redis:7.2-alpine3.18
+    container_name: dictate-redis
+    restart: unless-stopped
+    volumes:
+      - redis:/data
+    networks:
+      - backend
   setup:
     image: dictate
     build: .
     container_name: dictate-setup
-    command: "python manage.py setup_db --ensure-connection-only"
+    command: "python manage.py setup_db"
     environment:
-      - ENVIRONMENT=production
+      - ENVIRONMENT=development
       - DOCKER_COMPOSE=true
     networks:
       - backend
+    depends_on:
+      - postgres
 volumes:
+  postgres:
+    name: dictate-postgres
+    driver: local
+  redis:
+    name: dictate-redis
+    driver: local
   recording-temp-storage:
     name: dictate-recording-temp-storage
     driver: local

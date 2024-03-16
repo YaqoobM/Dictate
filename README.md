@@ -1,36 +1,58 @@
 # Dictate - Video-conferencing for small meetings and groups
 
-## Commands
+## Help
 
-#### Run app and go to http://localhost
+### Dev Build
 
-```console
-$ docker compose up
-```
+- #### Docker
 
-#### Local build for dev
+  - go to http://localhost/
 
-```console
-$ python manage.py build
-$ python manage.py runserver
-$ npm run --prefix frontend/react dev
-```
+    ```console
+    $ docker compose -f docker-compose.dev.yml up
+    ```
 
-## Config
+- #### Outside docker (for HMR)
 
-#### Update variables in .env
+  - build project
 
-- ENVIRONMENT = "development" | "production"
-- DEBUG = "true" | unset
-- PRODUCTION_URL = example.com | unset
+    ```console
+    $ python manage.py setup_db
+    $ python manage.py seed
+    ```
 
-### Endpoints
+  - go to http://localhost:8000/api/ (api)
 
-- /
-  - main app
-- /api/
-  - api endpoints
-- /api/auth/
-  - logging into api for accessing /api/ through browser
-    - /api/auth/login
-    - /api/auth/logout
+    ```console
+    $ python manage.py runserver
+    ```
+
+  - go to http://localhost:5137/ (web)
+
+    ```console
+    $ python manage.py build
+    $ npm run --prefix frontend/react dev
+    ```
+
+### Prod Build
+
+- #### Setup
+
+  - Create an EC2 instance to host app
+    - Attach a key-pair for ssh
+    - Install git and docker
+  - Create a postgres RDS instance for db
+    - setup relay server db (run coturn_schema.sql script)
+    - allow inbound EC2 IP (or any IPs)
+    - run migrations from EC2 instance
+  - Create an S3 instance for recording storage
+    - allow all IPs to GET bucket resources
+  - Create an Elasticache redis cluster for cache
+    - allow inbound EC2 IP (or any IPs)
+  - Setup Elastic IP for EC2
+  - Update .env file accordingly
+  - go to http://<domain_name>/
+
+    ```console
+    $ docker compose up
+    ```
