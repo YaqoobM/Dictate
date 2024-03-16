@@ -76,6 +76,7 @@ services:
   relay:
     image: coturn/coturn:alpine3.18
     container_name: dictate-relay
+    command: --psql-userdb="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/coturn"
     restart: unless-stopped
     volumes:
       - ./services/coturn.conf:/etc/coturn/turnserver.conf:ro
