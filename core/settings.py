@@ -33,6 +33,17 @@ ALLOWED_HOSTS = [
 #   e.g.) debug_toolbar only shows if website accessed from INTERNAL_IPS
 INTERNAL_IPS = ["127.0.0.1"]
 
+if ENVIRONMENT == "production":
+    CSRF_TRUSTED_ORIGINS = [
+        "https://*." + os.getenv("DICTATE_HOST"),
+        "https://*.localhost",
+        "https://*.127.0.0.1",
+    ]
+elif os.getenv("DOCKER_COMPOSE"):
+    CSRF_TRUSTED_ORIGINS = ["http://localhost"]
+else:
+    CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
+
 if ENVIRONMENT == "development":
     CORS_ALLOWED_ORIGIN_REGEXES = [
         r"^http:\/\/localhost:*([0-9]+)?$",
@@ -43,9 +54,6 @@ if ENVIRONMENT == "development":
 
     CORS_ALLOW_CREDENTIALS = True
 
-    # wildcard for ports?
-    CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
-
 
 if os.getenv("DOCKER_CONTAINER") and DEBUG:
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
@@ -55,9 +63,12 @@ if os.getenv("DOCKER_CONTAINER") and DEBUG:
     ]
 
 # see api/models
-PRODUCTION_URL = (
-    os.getenv("DICTATE_HOST") if ENVIRONMENT == "production" else "https://dictate.com"
-)
+if ENVIRONMENT == "production":
+    PRODUCTION_URL = "https://" + os.getenv("DICTATE_HOST")
+elif os.getenv("DOCKER_COMPOSE"):
+    PRODUCTION_URL = "http://localhost"
+else:
+    PRODUCTION_URL = "http://localhost:8000"
 
 # Application definition
 INSTALLED_APPS = [
