@@ -26,4 +26,4 @@ db.sqlite3
 /frontend/templates/frontend/react/*
 
 # certbot
-cerbot/
+certbot/

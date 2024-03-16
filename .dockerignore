@@ -34,4 +34,4 @@ lerna-debug.log*
 node_modules/
 
 # certbot
-cerbot/
+certbot/
