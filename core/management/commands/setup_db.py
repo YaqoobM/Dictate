@@ -39,7 +39,7 @@ class Command(BaseCommand):
                 )
                 time.sleep(1)
 
-        if "ensure-connection-only" in options and options["ensure-connection-only"]:
+        if "ensure_connection_only" in options and options["ensure_connection_only"]:
             return
 
         self.stdout.write("running migrations...")
