@@ -1,7 +1,20 @@
 server {
     listen 80;
-    server_name localhost 127.0.0.1 $DOMAIN_NAME;
+    listen 443 ssl;
+
+    server_name $DOMAIN_NAME www.$DOMAIN_NAME localhost 127.0.0.1;
+
     client_max_body_size 100M;
+    ssl_certificate /etc/nginx/ssl/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    # location / {
+    #     return 301 https://$host$request_uri;
+    # }
 
     location / {
         resolver 127.0.0.11 valid=5m;
@@ -31,7 +44,12 @@ server {
 
 server {
     listen 80 default_server;
+    listen 443 default_server ssl;
     listen 3478 default_server;
+
+    ssl_certificate /etc/nginx/ssl/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+
     server_name _;
 
     return 404;

@@ -50,6 +50,10 @@
   - Create an Elasticache redis cluster for cache
     - allow inbound EC2 IP (or any IPs)
   - Setup Elastic IP for EC2
+  - Setup domain name
+    - use cloudflare (if you want)
+    - add dns records for <domain_name>, stun.<domain_name> and turn.<domain_name>
+    - optionally add ssh.<domain_name> w/o proxy
   - Update .env file accordingly
   - go to http://<domain_name>/
 

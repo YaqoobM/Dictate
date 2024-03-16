@@ -14,8 +14,7 @@ services:
     networks:
       - frontend
     volumes:
-      - ./services/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./services/nginx.conf.template:/etc/nginx/templates/nginx.conf.template:ro
+      - ./nginx/nginx.dev.conf:/etc/nginx/nginx.conf:ro
     environment:
       - DOMAIN_NAME=${DICTATE_HOST}
     depends_on:
@@ -79,10 +78,16 @@ services:
   relay:
     image: coturn/coturn:alpine3.18
     container_name: dictate-relay
-    command: --psql-userdb="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/coturn"
+    command:
+      [
+        "--psql-userdb",
+        "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/coturn",
+        "--no-tls",
+        "--no-dtls",
+      ]
     restart: unless-stopped
     volumes:
-      - ./services/coturn.conf:/etc/coturn/turnserver.conf:ro
+      - ./coturn/coturn.conf:/etc/coturn/turnserver.conf:ro
     networks:
       - frontend
       - backend

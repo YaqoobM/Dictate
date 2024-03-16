@@ -6,16 +6,20 @@ services:
     restart: unless-stopped
     ports:
       - 80:80
+      - 443:443
       - 3478:3478
       - 3478:3478/udp
+      - 5349:5349
 
       # TURN Ports
       # - 49160-49163:49160-49163/udp
     networks:
       - frontend
     volumes:
-      - ./services/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./services/nginx.conf.template:/etc/nginx/templates/nginx.conf.template:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/http.conf.template:/etc/nginx/templates/http.conf.template:ro
+      - ./certbot/www/:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
     environment:
       - DOMAIN_NAME=${DICTATE_HOST}
     depends_on:
@@ -70,10 +74,14 @@ services:
   relay:
     image: coturn/coturn:alpine3.18
     container_name: dictate-relay
-    command: --psql-userdb="postgresql://${AWS_RDS_USER}:${AWS_RDS_PASSWORD}@${AWS_RDS_HOST}:5432/coturn"
+    command:
+      [
+        "--psql-userdb",
+        "postgresql://${AWS_RDS_USER}:${AWS_RDS_PASSWORD}@${AWS_RDS_HOST}:5432/coturn",
+      ]
     restart: unless-stopped
     volumes:
-      - ./services/coturn.conf:/etc/coturn/turnserver.conf:ro
+      - ./coturn/coturn.conf:/etc/coturn/turnserver.conf:ro
     networks:
       - frontend
       - backend
@@ -90,6 +98,11 @@ services:
       - DOCKER_COMPOSE=true
     networks:
       - backend
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
 volumes:
   recording-temp-storage:
     name: dictate-recording-temp-storage
