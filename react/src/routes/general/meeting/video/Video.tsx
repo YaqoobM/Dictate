@@ -25,7 +25,11 @@ const Video: FC<Props> = ({
           ref={videoRef}
           autoPlay
           playsInline
-          muted={muted}
+          onCanPlayThrough={() => {
+            if (muted && videoRef.current) {
+              videoRef.current.muted = true;
+            }
+          }}
         />
         {!videoRef.current?.srcObject || videoMuted ? (
           <div className="absolute inset-0 flex min-h-32 flex-col items-center justify-center rounded bg-gray-200 shadow-sm dark:bg-gray-800 dark:shadow">
