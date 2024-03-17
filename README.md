@@ -54,6 +54,10 @@
     - use cloudflare (if you want)
     - add dns records for <domain_name>, stun.<domain_name> and turn.<domain_name>
     - optionally add ssh.<domain_name> w/o proxy
+  - Setup tsl
+    - create certs inside ec2 instance:
+    - `docker compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ --dry-run -d <domain_name>`
+    - toggle comments on lines 16-17, 22-23, 55-56, 59-60 in nginx/http.conf.template
   - Update .env file accordingly
   - go to http://<domain_name>/
 
