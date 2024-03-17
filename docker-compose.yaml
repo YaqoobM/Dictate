@@ -84,7 +84,6 @@ services:
       - ./coturn/coturn.conf:/etc/coturn/turnserver.conf:ro
     networks:
       - frontend
-      - backend
     depends_on:
       setup:
         condition: service_completed_successfully
