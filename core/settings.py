@@ -26,7 +26,7 @@ ALLOWED_HOSTS = [
     ".localhost",
     "127.0.0.1",
     "[::1]",
-    os.getenv("DICTATE_HOST"),
+    "." + os.getenv("DICTATE_HOST"),
 ]
 
 # Enable functionality with specific IPs
