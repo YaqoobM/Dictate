@@ -119,7 +119,7 @@ const Calendar: FC<Props> = ({
       <div className="grid grid-cols-7 items-center justify-items-center gap-1 text-center sm:gap-2">
         {loadedCalendar.map((day) => (
           <div
-            className={`group relative w-full cursor-pointer rounded-md border-2 border-transparent pt-[120%] shadow-sm transition-transform hover:scale-105 hover:border-amber-500 hover:dark:border-amber-300 ${isToday(day) ? "bg-amber-500/60 dark:bg-amber-300/60" : "bg-gray-200 dark:bg-gray-900"} ${selectedDay && isToday(day, selectedDay) ? "border-blue-500 dark:border-blue-400" : ""} ${day.disabled ? "opacity-50" : ""}`}
+            className={`group relative w-full cursor-pointer rounded-md border-2 border-transparent pt-[120%] shadow-sm transition-transform hover:scale-105 hover:border-amber-500 hover:dark:border-amber-300 ${isToday(day) ? "bg-amber-500/60 dark:bg-amber-300/60" : "bg-gray-200 dark:bg-gray-900"} ${selectedDay && isToday(day, selectedDay) ? "!border-blue-500 dark:!border-blue-400" : ""} ${day.disabled ? "opacity-50" : ""}`}
             onClick={() => handleClick(day)}
             key={`${day.day}/${day.month}/${day.year}`}
           >
