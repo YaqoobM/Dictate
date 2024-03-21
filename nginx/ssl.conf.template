@@ -13,14 +13,13 @@ server {
 }
 
 server {
-    listen 443;
-    # listen 443 ssl;
+    listen 443 ssl;
 
     server_name $DOMAIN_NAME www.$DOMAIN_NAME localhost 127.0.0.1;
 
     client_max_body_size 100M;
-    # ssl_certificate /etc/nginx/ssl/live/$DOMAIN_NAME/fullchain.pem;
-    # ssl_certificate_key /etc/nginx/ssl/live/$DOMAIN_NAME/privkey.pem;
+    ssl_certificate /etc/nginx/ssl/live/$DOMAIN_NAME/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/live/$DOMAIN_NAME/privkey.pem;
 
 
     location / {
@@ -51,12 +50,11 @@ server {
 
 server {
     listen 80 default_server;
-    listen 443 default_server;
-    # listen 443 default_server ssl;
+    listen 443 default_server ssl;
     listen 3478 default_server;
 
-    # ssl_certificate /etc/nginx/ssl/live/$DOMAIN_NAME/fullchain.pem;
-    # ssl_certificate_key /etc/nginx/ssl/live/$DOMAIN_NAME/privkey.pem;
+    ssl_certificate /etc/nginx/ssl/live/$DOMAIN_NAME/fullchain.pem;
+    ssl_certificate_key /etc/nginx/ssl/live/$DOMAIN_NAME/privkey.pem;
 
     server_name _;
 
@@ -66,12 +64,12 @@ server {
 # TURN - if clients can't use UDP
 # server {
 #     listen 3478;
-#     listen 5349;
-#     # listen 5349 ssl;
+#     listen 5349 ssl;
 
 #     server_name stun.dictate.com stun.localhost stun.127.0.0.1;
-#     # ssl_certificate /etc/nginx/ssl/live/$DOMAIN_NAME/fullchain.pem;
-#     # ssl_certificate_key /etc/nginx/ssl/live/$DOMAIN_NAME/privkey.pem;
+#     ssl_certificate /etc/nginx/ssl/live/$DOMAIN_NAME/fullchain.pem;
+#     ssl_certificate_key /etc/nginx/ssl/live/$DOMAIN_NAME/privkey.pem;
+#
 #     location / {
 #         proxy_pass http://relay:3478;
 #         proxy_redirect off;

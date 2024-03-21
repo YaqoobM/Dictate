@@ -9,7 +9,7 @@
   - go to http://localhost/
 
     ```console
-    $ docker compose -f docker-compose.dev.yml up
+    $ docker compose -f docker-compose.dev.yaml up
     ```
 
 - #### Outside docker (for HMR)
@@ -55,10 +55,29 @@
     - add dns records for <domain_name>, stun.<domain_name> and turn.<domain_name>
     - optionally add ssh.<domain_name> w/o proxy
   - Setup tsl
-    - create certs inside ec2 instance:
-    - `docker compose run --rm certbot certonly --webroot --webroot-path /var/www/certbot/ --dry-run -d <domain_name>`
-    - toggle comments on lines 16-17, 22-23, 55-56, 59-60 in nginx/http.conf.template
-  - Update .env file accordingly
+
+    - create certs inside ec2 instance (run nginx then certbot in separate process):
+
+      ```console
+      $ docker run -p 80:80 -p 443:443 \
+          -v $(pwd)/nginx/nginx.certbot.conf:/etc/nginx/nginx.conf:ro \
+          -v $(pwd)/certbot/www/:/var/www/certbot/:ro \
+          -v $(pwd)/certbot/conf/:/etc/nginx/ssl/:ro \
+          nginx:1.25.3-alpine3.18
+      ```
+
+      ```console
+      $ docker run --rm \
+          -v $(pwd)/certbot/www/:/var/www/certbot/:rw \
+          -v $(pwd)/certbot/conf/:/etc/letsencrypt/:rw \
+          certbot certonly --webroot \
+          --webroot-path /var/www/certbot/ \
+          --dry-run -d <domain_name>
+      ```
+
+      - `--dry-run` flag to test first
+
+  - Update .env file
   - go to http://<domain_name>/
 
     ```console
