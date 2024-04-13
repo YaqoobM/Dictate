@@ -1,6 +1,10 @@
+import os
+
+import ffmpeg
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.files import File
 from django.core.files.storage import storages
 from django.core.validators import FileExtensionValidator
 from django.db import models
@@ -98,6 +102,44 @@ class Recording(HashedIdModel):
         # allow setting null internally (after processing)
         null=True,
     )
+
+    def transform_temp_upload(self):
+        if not self.temp_upload:
+            raise Exception("File does not exist in 'temp_upload'")
+
+        if self.upload:
+            raise Exception("File already exists in 'upload'")
+
+        # transform video and store in temp folder
+        temp_output_path = (
+            self.temp_upload.path[: self.temp_upload.path.rfind(".")] + ".mp4"
+        )
+        ffmpeg.input(self.temp_upload.path).filter("scale", w=720, h=-2).filter(
+            "fps", fps=30, round="up"
+        ).output(temp_output_path, vcodec="libx264", crf=24, acodec="aac").run()
+
+        # create nice output filename
+        # (possible race conditions if multiple recordings saved at same time)
+        i = 1
+        while True:
+            for filename in [
+                os.path.basename(r.upload.name)
+                for r in self.meeting.recordings.all()
+                if r.upload.name
+            ]:
+                if int(filename.split(".")[0].split("_")[-1]) == i:
+                    i += 1
+                    continue
+            break
+        output_name = self.meeting.hashed_id + "_recording_" + f"{i:03}" + ".mp4"
+
+        # save transformed video to permanent storage
+        with open(temp_output_path, "rb") as f:
+            self.upload.save(output_name, File(f))
+
+        # delete temp files
+        self.temp_upload.delete()
+        os.remove(temp_output_path)
 
 
 class Notes(HashedIdModel):

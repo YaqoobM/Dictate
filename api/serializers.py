@@ -1,3 +1,4 @@
+import os
 import re
 from collections import OrderedDict
 
@@ -224,6 +225,12 @@ class RecordingSerializer(HashedIdModelSerializer):
         meeting = Meeting.objects.get(
             id=Meeting.decode_hashed_id(validated_data.pop("meeting"))
         )
+
+        if "temp_upload" in validated_data:
+            _, file_extension = os.path.splitext(validated_data["temp_upload"].name)
+
+            if file_extension != ".webm":
+                raise ValidationError({"recording": "Must be webm file type."})
 
         try:
             recording = Recording.objects.create(meeting=meeting, **validated_data)

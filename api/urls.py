@@ -12,8 +12,8 @@ router.register(r"notes", views.NotesViewSet, "notes")
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("profile/", views.profile),
-    path("profile/login/", views.login),
-    path("profile/logout/", views.logout),
-    path("profile/signup/", views.signup),
+    path("profile/", views.profile, name="user-profile"),
+    path("profile/login/", views.login, name="user-login"),
+    path("profile/logout/", views.logout, name="user-logout"),
+    path("profile/signup/", views.signup, name="user-signup"),
 ]

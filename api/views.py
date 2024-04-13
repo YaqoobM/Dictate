@@ -74,6 +74,10 @@ class TeamViewSet(HashedIdModelViewSet):
     @action(detail=True, methods=["post"])
     def join(self, request, hashed_id=None):
         team = self.get_object()
+
+        if team in self.request.user.teams.all():
+            return Response({"message": "already part of team"}, 400)
+
         self.request.user.teams.add(team)
         self.request.user.save()
 
@@ -235,7 +239,8 @@ def signup(request):
         {
             "user": rest_reverse("user-detail", args=[user.hashed_id], request=request),
             "message": "successfully created account and logged in.",
-        }
+        },
+        status=201,
     )
 
 
