@@ -83,3 +83,24 @@
     ```console
     $ docker compose up
     ```
+
+### Testing
+
+- Create 2 test users beforehand
+
+  - tester@dictate.com
+    - password: 12345678
+  - tester2@dictate.com
+
+    - password: 12345678
+
+  - open test application for detailed view
+
+    ```console
+    $ npm run test
+    ```
+
+  - run end-to-end tests from command line
+    ```console
+    $ npm run test:e2e
+    ```

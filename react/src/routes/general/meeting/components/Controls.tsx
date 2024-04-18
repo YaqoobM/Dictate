@@ -134,9 +134,13 @@ const Controls: FC<Props> = ({
     return () => {
       if (recording && recorder.current.chunks.length > 0) {
         // save file
-        const file = new File(recorder.current.chunks, "my_recording.webm", {
-          type: "video/webm",
-        });
+        const file = new File(
+          recorder.current.chunks,
+          `recording_${meetingId}_${Math.floor(Math.random() * 100)}.webm`,
+          {
+            type: "video/webm",
+          },
+        );
         create({ meeting: meetingId, file });
         setHideRecordingSuccessModal(false);
 

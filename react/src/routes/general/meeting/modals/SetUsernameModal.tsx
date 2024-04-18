@@ -66,8 +66,8 @@ const SetUsernameModal: FC<Props> = ({ websocket, hidden, setHidden }) => {
       </div>
       <div className="grid grid-cols-1 gap-x-3 lg:grid-cols-4">
         <InputGroup
-          id="meetingId"
-          name="meetingId"
+          id="username"
+          name="username"
           type="text"
           value={username}
           setValue={setUsername}

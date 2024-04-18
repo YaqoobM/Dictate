@@ -116,9 +116,9 @@ const Resources: FC = () => {
           ""
         )}
       </div>
-      <div>
+      <section>
         <ResourcesGrid resources={filledResources} />
-      </div>
+      </section>
     </div>
   );
 };

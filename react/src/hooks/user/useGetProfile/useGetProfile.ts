@@ -15,7 +15,7 @@ const useGetProfile = (
       axios
         .get<{
           user: User;
-        }>("/api/profile/")
+        }>("/api/who_am_i/")
         .then((res) => res.data),
     retry: (count, err) => {
       if (err instanceof AxiosError && err.response?.status === 401) {

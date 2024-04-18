@@ -74,16 +74,22 @@ const ScheduleMeetingModal: FC<Props> = ({
     const array = [defaultTeamOption];
 
     if (isTeamsPending) {
-      array.push({ label: "Loading...", value: "disabled_option" });
+      array.push({
+        label: "Loading...",
+        value: "loading",
+        disabled: true,
+      });
     } else if (isTeamsError || !teams) {
       array.push({
         label: "Something went wrong...",
-        value: "disabled_option",
+        value: "error",
+        disabled: true,
       });
     } else if (teams.length === 0) {
       array.push({
         label: "No teams available...",
-        value: "disabled_option",
+        value: "not_available",
+        disabled: true,
       });
     } else {
       array.push(

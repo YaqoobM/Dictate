@@ -6,14 +6,16 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "test:e2e": "cypress run --browser chrome",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "cypress open",
+    "test:e2e": "cypress run --browser chrome"
   },
   "dependencies": {
     "@editorjs/checklist": "^1.6.0",
     "@editorjs/delimiter": "^1.4.0",
     "@editorjs/editorjs": "^2.29.0",
+    "@editorjs/embed": "^2.7.1",
     "@editorjs/header": "^2.8.1",
     "@editorjs/marker": "^1.4.0",
     "@editorjs/nested-list": "^1.4.2",
@@ -41,6 +43,7 @@
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.17",
     "cypress": "^13.7.2",
+    "dayjs": "^1.11.10",
     "eslint": "^8.53.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",

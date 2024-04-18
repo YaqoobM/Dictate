@@ -129,6 +129,7 @@ const Teams: FC = () => {
       <div className="mb-3 flex flex-col justify-between gap-y-2 sm:flex-row sm:items-center">
         <div className="flex items-center gap-x-4">
           <Select
+            id="teamFilter"
             value={teamFilter}
             setValue={setTeamFilter}
             options={options}
@@ -157,7 +158,7 @@ const Teams: FC = () => {
       </div>
       <div className="flex flex-col justify-center gap-2 gap-x-10 lg:flex-row 2xl:gap-x-20">
         <div className="w-full lg:w-1/2">
-          <div className="flex flex-col gap-y-2 rounded-lg bg-gray-700 p-5">
+          <div className="flex flex-col gap-y-2 rounded-lg bg-gray-200 p-5 dark:bg-gray-700">
             <h1 className="flex flex-row items-center gap-x-2">
               <span>Meetings:</span>
               {team ? (

@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError as DefaultValidationError
 from django.core.validators import validate_email
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -39,9 +39,14 @@ class HashedIdModelViewSet(ModelViewSet):
         if not re.match(f"^[{get_hashed_alphabet()}]+$", self.kwargs["hashed_id"]):
             raise ValidationError({"hashed_id": "Invalid id."})
 
+        try:
+            _id = HashedIdModel.decode_hashed_id(self.kwargs["hashed_id"])
+        except ValueError:
+            raise ValidationError({"hashed_id": "Invalid id."})
+
         obj = get_object_or_404(
             self.get_queryset(),
-            id=HashedIdModel.decode_hashed_id(self.kwargs["hashed_id"]),
+            id=_id,
         )
 
         self.check_object_permissions(self.request, obj)
@@ -245,7 +250,7 @@ def signup(request):
 
 
 @api_view(["GET"])
-def profile(request):
+def who_am_i(request):
     if not request.user.is_authenticated:
         return Response(
             {"credentials": "sign in or create an account to access your profile."}, 401
@@ -254,3 +259,9 @@ def profile(request):
     serializer = UserSerializer(request.user, context={"request": request})
 
     return Response({"user": serializer.data})
+
+
+@api_view(["GET"])
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return Response({"status": "success"})

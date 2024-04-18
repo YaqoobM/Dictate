@@ -20,7 +20,7 @@ const Home: FC = () => {
               real-time, face-to-face, fast meetings
             </h1>
             <p className="mb-8 lg:mb-6">
-              Access quick, response and high quality meetings with your team
+              Access quick, responsive and high quality meetings with your team
               now! Start a meeting below or join an ongoing meeting using your
               custom meeting link.{" "}
               <Link to="/login" className="text-amber-500 dark:text-amber-300">

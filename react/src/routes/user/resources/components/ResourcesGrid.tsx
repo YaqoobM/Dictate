@@ -26,7 +26,7 @@ const ResourcesGrid: FC<Props> = ({ resources }) => {
             participants={participants}
             isParticipantsPending={isParticipantsPending}
             isParticipantsError={isParticipantsError}
-            key={resource.id}
+            key={`${resource.resource}_${resource.id}`}
           />
         ))
       ) : (

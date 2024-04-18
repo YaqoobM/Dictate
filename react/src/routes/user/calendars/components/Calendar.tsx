@@ -11,7 +11,9 @@ interface Day {
 
 interface ExtraInfoDay extends Day {
   hasMeetings: boolean;
+  hasTeamMeetings: boolean;
   hasOngoingMeetings: boolean;
+  hasOngoingTeamMeetings: boolean;
 }
 
 type SortedMeetings = {
@@ -41,7 +43,9 @@ const Calendar: FC<Props> = ({
   const loadedCalendar = calendar.reduce<ExtraInfoDay[]>(
     (accumulator, { day, month, year, disabled }) => {
       let hasMeetings = false;
+      let hasTeamMeetings = false;
       let hasOngoingMeetings = false;
+      let hasOngoingTeamMeetings = false;
 
       let filteredMeetings = meetings.find(
         (sortedMeeting) =>
@@ -50,13 +54,18 @@ const Calendar: FC<Props> = ({
 
       for (const meeting of filteredMeetings || []) {
         if (parseInt(meeting.start_time.split(" ")[0].split("/")[0]) === day) {
-          if (!hasMeetings) {
+          if (meeting.team) {
+            hasTeamMeetings = true;
+          } else {
             hasMeetings = true;
           }
 
           if (!meeting.end_time) {
-            hasOngoingMeetings = true;
-            break;
+            if (meeting.team) {
+              hasOngoingTeamMeetings = true;
+            } else {
+              hasOngoingMeetings = true;
+            }
           }
         }
       }
@@ -69,7 +78,9 @@ const Calendar: FC<Props> = ({
           year,
           disabled,
           hasMeetings,
+          hasTeamMeetings,
           hasOngoingMeetings,
+          hasOngoingTeamMeetings,
         },
       ];
     },
@@ -119,21 +130,17 @@ const Calendar: FC<Props> = ({
       <div className="grid grid-cols-7 items-center justify-items-center gap-1 text-center sm:gap-2">
         {loadedCalendar.map((day) => (
           <div
-            className={`group relative w-full cursor-pointer rounded-md border-2 border-transparent pt-[120%] shadow-sm transition-transform hover:scale-105 hover:border-amber-500 hover:dark:border-amber-300 ${isToday(day) ? "bg-amber-500/60 dark:bg-amber-300/60" : "bg-gray-200 dark:bg-gray-900"} ${selectedDay && isToday(day, selectedDay) ? "!border-blue-500 dark:!border-blue-400" : ""} ${day.disabled ? "opacity-50" : ""}`}
+            className={`relative w-full cursor-pointer rounded-md border-2 border-transparent pt-[120%] shadow-sm transition-transform hover:scale-105 hover:border-amber-500 hover:dark:border-amber-300 ${isToday(day) ? "bg-amber-500/60 dark:bg-amber-300/60" : "bg-gray-200 dark:bg-gray-900"} ${selectedDay && isToday(day, selectedDay) ? "!border-blue-500 dark:!border-blue-400" : ""} ${day.disabled ? "opacity-50" : ""}`}
             onClick={() => handleClick(day)}
             key={`${day.day}/${day.month}/${day.year}`}
           >
-            <p
-              className={`absolute left-2 top-2 text-xs font-medium uppercase group-hover:text-amber-500 group-hover:dark:text-amber-300 sm:text-sm ${isToday(day) ? "group-hover:text-gray-100" : ""}`}
-            >
+            <p className="absolute left-2 top-2 text-xs font-medium uppercase sm:text-sm">
               {day.day}
               {useGetSuffix(day.day)}
             </p>
-            {day.hasMeetings ? (
-              <p
-                className={`absolute bottom-2 right-2 aspect-square w-[12.5%] rounded-full bg-blue-500 group-hover:bg-amber-500 dark:bg-blue-400 group-hover:dark:bg-amber-300 ${day.hasOngoingMeetings ? "animate-pulse" : ""}`}
-              />
-            ) : null}
+            <p
+              className={`absolute bottom-2 right-2 aspect-square w-[12.5%] rounded-full ${day.hasMeetings ? "bg-blue-500 dark:bg-blue-400" : day.hasTeamMeetings ? "bg-amber-500 dark:bg-amber-300" : "hidden"} ${day.hasOngoingMeetings || day.hasOngoingTeamMeetings ? "animate-pulse" : null}`}
+            />
           </div>
         ))}
       </div>

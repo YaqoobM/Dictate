@@ -4,6 +4,7 @@ import { useModal } from "../../../../hooks/components";
 import Checklist from "@editorjs/checklist";
 import Delimiter from "@editorjs/delimiter";
 import EditorJS from "@editorjs/editorjs";
+import Embed from "@editorjs/embed";
 import Header from "@editorjs/header";
 import Marker from "@editorjs/marker";
 import NestedList from "@editorjs/nested-list";
@@ -35,6 +36,7 @@ const ViewNotesModal: FC<Props> = ({ resource, hidden, setHidden }) => {
           checklist: Checklist,
           table: Table,
           marker: Marker,
+          embed: Embed,
         },
         defaultBlock: "embed",
         readOnly: true,

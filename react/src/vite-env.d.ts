@@ -36,3 +36,8 @@ declare module "@editorjs/paragraph" {
   import Paragraph from "@editorjs/paragraph";
   export = Paragraph;
 }
+
+declare module "@editorjs/embed" {
+  import Embed from "@editorjs/embed";
+  export = Embed;
+}

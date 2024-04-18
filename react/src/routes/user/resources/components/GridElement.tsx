@@ -59,7 +59,10 @@ const GridElement: FC<Props> = ({
     Boolean(resource.upload);
 
   return (
-    <div className="flex flex-col gap-y-0.5">
+    <div
+      id={`${resource.resource}_${resource.id}`}
+      className="flex flex-col gap-y-0.5"
+    >
       {resource.resource === "notes" ? (
         <div
           className="group h-32 cursor-pointer rounded bg-gray-200 p-1.5 transition-colors hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700"

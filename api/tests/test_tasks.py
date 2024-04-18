@@ -41,7 +41,7 @@ class TaskTests(APITestCase):
 
     @patch("api.tasks.Recording.transform_temp_upload")
     @patch("api.tasks.transform_video.retry")
-    def test_task_transform_video_success(self, retry_fn, transform_video_fn):
+    def test_task_transform_video_error_success(self, retry_fn, transform_video_fn):
         retry_fn.side_effect = Retry()
         transform_video_fn.side_effect = ffmpeg.Error("a", "b", "c")
 

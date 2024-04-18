@@ -32,15 +32,16 @@ const AuthProvider: FC<Props> = ({ children }) => {
   const queryClient = useQueryClient();
   const axios = useAxios();
 
-  const csrfToken = Cookies.get("csrftoken");
-
   const loginMutation = useMutation({
-    mutationFn: ({ email, password }: LoginParams) =>
-      axios.post(
-        "/api/profile/login/",
+    mutationFn: ({ email, password }: LoginParams) => {
+      const csrfToken = Cookies.get("csrftoken");
+
+      return axios.post(
+        "/api/login/",
         { email, password },
         { headers: { "X-CSRFToken": csrfToken } },
-      ),
+      );
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
 
@@ -51,12 +52,15 @@ const AuthProvider: FC<Props> = ({ children }) => {
   });
 
   const signUpMutation = useMutation({
-    mutationFn: ({ email, username, password }: SignUpParams) =>
-      axios.post(
-        "/api/profile/signup/",
+    mutationFn: ({ email, username, password }: SignUpParams) => {
+      const csrfToken = Cookies.get("csrftoken");
+
+      return axios.post(
+        "/api/signup/",
         { email, username, password },
         { headers: { "X-CSRFToken": csrfToken } },
-      ),
+      );
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
 
@@ -67,12 +71,15 @@ const AuthProvider: FC<Props> = ({ children }) => {
   });
 
   const logoutMutation = useMutation({
-    mutationFn: () =>
-      axios.post(
-        "/api/profile/logout/",
+    mutationFn: () => {
+      const csrfToken = Cookies.get("csrftoken");
+
+      return axios.post(
+        "/api/logout/",
         {},
         { headers: { "X-CSRFToken": csrfToken } },
-      ),
+      );
+    },
     onSuccess: () => {
       queryClient.invalidateQueries();
       loginMutation.reset();
@@ -122,7 +129,7 @@ const AuthProvider: FC<Props> = ({ children }) => {
 
   useEffect(() => {
     axios
-      .get("/api/profile/")
+      .get("/api/who_am_i/")
       .then((res) => {
         if (res.status === 200) {
           setIsAuthenticated(true);
