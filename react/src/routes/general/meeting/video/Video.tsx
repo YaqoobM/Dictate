@@ -32,7 +32,7 @@ const Video: FC<Props> = ({
           }}
         />
         {!videoRef.current?.srcObject || videoMuted ? (
-          <div className="absolute inset-0 flex min-h-32 flex-col items-center justify-center rounded bg-gray-200 shadow-sm dark:bg-gray-800 dark:shadow">
+          <div className="absolute inset-0 flex  flex-col items-center justify-center rounded border-[1.5px] border-gray-100 bg-gray-200 shadow-sm dark:border-gray-900 dark:bg-gray-800 dark:shadow">
             <LoadingIcon className="h-6 animate-spin stroke-amber-500 dark:stroke-amber-300 lg:h-8" />
             <h1 className="mt-0.5 text-xs tracking-tight text-amber-500 dark:text-amber-300 sm:mt-1 lg:mt-1.5 lg:text-sm">
               Loading
