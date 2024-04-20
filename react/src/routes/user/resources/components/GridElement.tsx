@@ -97,7 +97,7 @@ const GridElement: FC<Props> = ({
         </h1>
         {resource.meetingObject.team ? (
           <div className="group relative my-0.5 h-4 w-4 rounded-full bg-amber-500 ring-1 ring-gray-300 transition-all hover:mb-0 hover:h-[18px] hover:w-[18px] dark:bg-amber-300 dark:ring-gray-700">
-            <p className="pointer-events-none absolute right-1/2 top-[125%] w-max translate-x-1/2 rounded-sm px-2 pb-1.5 pt-1 text-xs text-gray-600 opacity-0 shadow ring-1 ring-gray-300 transition-opacity group-hover:opacity-100 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700">
+            <p className="pointer-events-none absolute right-1/2 top-[125%] w-max translate-x-1/2 rounded-sm bg-gray-100 px-2 pb-1.5 pt-1 text-xs text-gray-600 opacity-0 shadow ring-1 ring-gray-300 transition-opacity group-hover:opacity-100 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700">
               {isTeamsPending ? (
                 <LoadingIcon className="h-4 animate-spin stroke-amber-500 dark:stroke-amber-300" />
               ) : isTeamsError ? (
@@ -116,7 +116,7 @@ const GridElement: FC<Props> = ({
                 style={{ left: `-${i * 4}px` }}
                 key={participant}
               >
-                <p className="pointer-events-none absolute right-1/2 top-[125%] w-max translate-x-1/2 rounded-sm px-2 pb-1.5 pt-1 text-xs text-gray-600 opacity-0 shadow ring-1 ring-gray-300 transition-opacity group-hover:opacity-100 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700">
+                <p className="pointer-events-none absolute right-1/2 top-[125%] w-max translate-x-1/2 rounded-sm bg-gray-100 px-2 pb-1.5 pt-1 text-xs text-gray-600 opacity-0 shadow ring-1 ring-gray-300 transition-opacity group-hover:opacity-100 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700">
                   {isParticipantsPending ? (
                     <LoadingIcon className="h-4 animate-spin stroke-amber-500 dark:stroke-amber-300" />
                   ) : isParticipantsError ? (

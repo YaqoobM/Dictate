@@ -150,7 +150,7 @@ const Schedule: FC<Props> = ({ day, meetings }) => {
                       {meeting.team ? (
                         <div className="absolute right-0 top-0 -translate-y-1/2">
                           <p className="peer h-4 w-4 rounded-full bg-amber-500 ring-1 ring-gray-300 transition-all hover:h-[18px] hover:w-[18px] dark:bg-amber-300 dark:ring-gray-700" />
-                          <p className="absolute right-[9px] top-[125%] w-max translate-x-1/2 rounded-sm px-2 pb-1.5 pt-1 text-xs text-gray-600 opacity-0 shadow ring-1 ring-gray-300 transition-opacity peer-hover:opacity-100 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700">
+                          <p className="absolute right-[9px] top-[125%] w-max translate-x-1/2 rounded-sm bg-gray-100 px-2 pb-1.5 pt-1 text-xs text-gray-600 opacity-0 shadow ring-1 ring-gray-300 transition-opacity peer-hover:opacity-100 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700">
                             {isTeamsPending ? (
                               <LoadingIcon className="h-4 animate-spin stroke-amber-500 dark:stroke-amber-300" />
                             ) : isTeamsError ? (
@@ -169,7 +169,7 @@ const Schedule: FC<Props> = ({ day, meetings }) => {
                             key={participant}
                           >
                             <p className="peer h-4 w-4 rounded-full bg-blue-500 ring-1 ring-gray-300 transition-all hover:h-[18px] hover:w-[18px] dark:bg-blue-400 dark:ring-gray-700" />
-                            <p className="absolute right-[9px] top-[125%] w-max translate-x-1/2 rounded-sm px-2 pb-1.5 pt-1 text-xs text-gray-600 opacity-0 shadow ring-1 ring-gray-300 transition-opacity peer-hover:opacity-100 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700">
+                            <p className="absolute right-[9px] top-[125%] w-max translate-x-1/2 rounded-sm bg-gray-100 px-2 pb-1.5 pt-1 text-xs text-gray-600 opacity-0 shadow ring-1 ring-gray-300 transition-opacity peer-hover:opacity-100 dark:bg-gray-900 dark:text-gray-300 dark:ring-gray-700">
                               {isParticipantsPending ? (
                                 <LoadingIcon className="h-4 animate-spin stroke-amber-500 dark:stroke-amber-300" />
                               ) : isParticipantsError ? (
