@@ -1,10 +1,6 @@
 """gunicorn WSGI server configuration"""
-import os
+
 from multiprocessing import cpu_count
-
-# from dotenv import load_dotenv
-
-# load_dotenv()
 
 
 def get_workers(max_workers: int = 10) -> int:

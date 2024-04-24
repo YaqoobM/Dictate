@@ -49,7 +49,7 @@ const useLeaveTeam = () => {
   }
 
   return {
-    create: mutation.mutate,
+    leave: mutation.mutate,
     reset: mutation.reset,
     data: mutation.data,
     isPending: mutation.isPending,

@@ -137,9 +137,7 @@ const Controls: FC<Props> = ({
         const file = new File(
           recorder.current.chunks,
           `recording_${meetingId}_${Math.floor(Math.random() * 100)}.webm`,
-          {
-            type: "video/webm",
-          },
+          { type: "video/webm" },
         );
         create({ meeting: meetingId, file });
         setHideRecordingSuccessModal(false);

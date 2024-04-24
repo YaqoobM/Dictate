@@ -66,3 +66,29 @@ class Command(BaseCommand):
             self.stdout.write(
                 self.style.ERROR("Something went wrong creating the superuser")
             )
+
+        try:
+            User.objects.get(email="tester@dictate.com")
+            self.stdout.write(self.style.NOTICE("Test users already exists"))
+        except User.DoesNotExist:
+            User.objects.create_user(
+                email="tester@dictate.com", username="tester", password="12345678"
+            )
+            self.stdout.write(self.style.SUCCESS("Created superuser"))
+        except:
+            self.stdout.write(
+                self.style.ERROR("Something went wrong creating the superuser")
+            )
+
+        try:
+            User.objects.get(email="tester2@dictate.com")
+            self.stdout.write(self.style.NOTICE("Test users already exists"))
+        except User.DoesNotExist:
+            User.objects.create_user(
+                email="tester2@dictate.com", username="tester", password="12345678"
+            )
+            self.stdout.write(self.style.SUCCESS("Created superuser"))
+        except:
+            self.stdout.write(
+                self.style.ERROR("Something went wrong creating the superuser")
+            )

@@ -33,6 +33,7 @@ lerna-debug.log*
 # js
 node_modules/
 cypress/screenshots/
+cypress/downloads/
 
 # certbot
 certbot/

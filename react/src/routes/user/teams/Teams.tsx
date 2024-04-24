@@ -1,11 +1,13 @@
 import { FC, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { LeaveTeamModal } from ".";
 import {
   Arrow as ArrowIcon,
   Error as ErrorIcon,
 } from "../../../assets/icons/symbols";
 import { Loader as LoadingIcon } from "../../../assets/icons/utils";
 import { Select, SelectOption } from "../../../components/forms";
+import { useModal } from "../../../hooks/components";
 import { useGetMeetings } from "../../../hooks/meetings";
 import { useGetNotes, useGetRecordings } from "../../../hooks/resources";
 import { useGetTeams } from "../../../hooks/teams";
@@ -20,6 +22,9 @@ const Teams: FC = () => {
   };
 
   const [teamFilter, setTeamFilter] = useState<SelectOption>(defaultOption);
+
+  const { hidden: hideLeaveTeamModal, setHidden: setHideLeaveTeamModal } =
+    useModal();
 
   const navigate = useNavigate();
 
@@ -227,6 +232,15 @@ const Teams: FC = () => {
                 </>
               )}
             </h1>
+            <h2
+              className="group mt-1 flex w-max cursor-pointer flex-row gap-x-1 py-px text-[15px] capitalize transition-all hover:gap-x-2"
+              onClick={() => setHideLeaveTeamModal(false)}
+            >
+              <span className="group-hover:text-amber-500 group-hover:dark:text-amber-300">
+                Leave Team
+              </span>
+              <ArrowIcon className="w-4 stroke-gray-950 group-hover:stroke-amber-500 dark:stroke-gray-100 group-hover:dark:stroke-amber-300" />
+            </h2>
           </div>
           <div className="mb-5 mt-7">
             <h1 className="flex flex-row items-center gap-x-3">
@@ -250,10 +264,13 @@ const Teams: FC = () => {
                 </>
               )}
             </h1>
-            {team?.members.map((url) => {
+            {team?.members.map((url, i) => {
               if (isUsersPending) {
                 return (
-                  <div className="my-2 flex flex-row items-center gap-x-3">
+                  <div
+                    className="my-2 flex flex-row items-center gap-x-3"
+                    key={i}
+                  >
                     <LoadingIcon className="h-8 animate-spin stroke-amber-500 dark:stroke-amber-300" />
                     <p className="text-amber-500 dark:text-amber-300">
                       Loading team members
@@ -264,7 +281,10 @@ const Teams: FC = () => {
 
               if (isUsersError || users.some((user) => !user)) {
                 return (
-                  <div className="my-2 flex flex-row items-center gap-x-3">
+                  <div
+                    className="my-2 flex flex-row items-center gap-x-3"
+                    key={i}
+                  >
                     <ErrorIcon className="h-8 stroke-red-600" />
                     <span className="text-red-600">
                       Something went wrong getting profiles
@@ -383,6 +403,14 @@ const Teams: FC = () => {
           </div>
         </div>
       </div>
+
+      <LeaveTeamModal
+        team={teamFilter.value}
+        options={options}
+        setTeamFilter={setTeamFilter}
+        hidden={hideLeaveTeamModal}
+        setHidden={setHideLeaveTeamModal}
+      />
     </div>
   );
 };

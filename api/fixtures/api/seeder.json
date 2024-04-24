@@ -3,7 +3,7 @@
     "model": "api.user",
     "pk": 1,
     "fields": {
-      "email": "test@gmail.com",
+      "email": "test@dictate.com",
       "username": "Douglas",
       "password": "123"
     }
@@ -12,7 +12,7 @@
     "model": "api.user",
     "pk": 2,
     "fields": {
-      "email": "john@gmail.com",
+      "email": "john@dictate.com",
       "username": "John M",
       "password": "123"
     }
@@ -30,7 +30,7 @@
     "model": "api.user",
     "pk": 4,
     "fields": {
-      "email": "tim_cloth@gmail.com",
+      "email": "tim_cloth@dictate.com",
       "username": "Timothy",
       "password": "123"
     }
@@ -39,7 +39,7 @@
     "model": "api.user",
     "pk": 5,
     "fields": {
-      "email": "simon@gmail.com",
+      "email": "simon@dictate.com",
       "username": "Simon Stevenson",
       "password": "123"
     }

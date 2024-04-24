@@ -1,4 +1,5 @@
 import dayjs = require("dayjs");
+const teamName1 = `test_team_${Math.floor(Math.random() * 1000)}`;
 
 describe("calendars page", () => {
   before(() => {
@@ -8,7 +9,7 @@ describe("calendars page", () => {
       // create meeting
       cy.request({
         method: "POST",
-        url: "http://localhost:8000/api/meetings/",
+        url: "/api/meetings/",
         body: {},
         headers: { "X-CSRFToken": cookie.value },
       });
@@ -16,8 +17,8 @@ describe("calendars page", () => {
       // create team
       cy.request({
         method: "POST",
-        url: "http://localhost:8000/api/teams/",
-        body: { name: "testTeam" },
+        url: "/api/teams/",
+        body: { name: teamName1 },
         headers: { "X-CSRFToken": cookie.value },
       })
         .its("body")
@@ -25,7 +26,7 @@ describe("calendars page", () => {
           // create team meeting
           cy.request({
             method: "POST",
-            url: "http://localhost:8000/api/meetings/",
+            url: "/api/meetings/",
             body: { team: body.id },
             headers: { "X-CSRFToken": cookie.value },
           });
@@ -38,9 +39,7 @@ describe("calendars page", () => {
   beforeEach(() => {
     cy.login();
 
-    cy.intercept("GET", "http://localhost:8000/api/meetings/").as(
-      "getMeetings",
-    );
+    cy.intercept("GET", "/api/meetings/").as("getMeetings");
     cy.visit("/calendars");
     cy.wait(500);
 
@@ -58,7 +57,7 @@ describe("calendars page", () => {
     cy.get("button span").contains("All Meetings");
   });
 
-  it("shows a meeting in the calender", () => {
+  it("shows a meeting in the calendar", () => {
     cy.wait("@getMeetings");
 
     cy.get("section")
@@ -154,15 +153,15 @@ describe("calendars page", () => {
       .as("teamFilter");
 
     cy.get("@teamFilter").find("button").click();
-    cy.get("@teamFilter").find("button + div p").contains("testTeam").click();
+    cy.get("@teamFilter").find("button + div p").contains(teamName1).click();
 
     cy.get("button span")
-      .contains("testTeam")
+      .contains(teamName1)
       .parent()
       .parent()
       .find("button + div")
       .should("have.class", "hidden");
-    cy.get("button span").contains("testTeam");
+    cy.get("button span").contains(teamName1);
 
     cy.get("section")
       .contains(dayjs().format("D"))
@@ -214,7 +213,7 @@ describe("calendars page", () => {
       .contains("Team")
       .next()
       .find("button + div span")
-      .contains("testTeam")
+      .contains(teamName1)
       .click();
 
     cy.get("@form")
@@ -291,7 +290,7 @@ describe("calendars page", () => {
     cy.getCookie("csrftoken").then((cookie) => {
       cy.request({
         method: "POST",
-        url: "http://localhost:8000/api/meetings/",
+        url: "/api/meetings/",
         body: {},
         headers: { "X-CSRFToken": cookie.value },
       })

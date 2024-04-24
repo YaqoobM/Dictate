@@ -6,7 +6,7 @@ describe("resources page", () => {
       // create team
       cy.request({
         method: "POST",
-        url: "http://localhost:8000/api/teams/",
+        url: "/api/teams/",
         body: { name: "testTeam" },
         headers: { "X-CSRFToken": cookie.value },
       })
@@ -15,7 +15,7 @@ describe("resources page", () => {
           // create team meeting
           cy.request({
             method: "POST",
-            url: "http://localhost:8000/api/meetings/",
+            url: "/api/meetings/",
             body: { team: body.id },
             headers: { "X-CSRFToken": cookie.value },
           })
@@ -36,7 +36,7 @@ describe("resources page", () => {
             });
         });
 
-      cy.intercept("POST", "http://localhost:8000/api/logout/").as("logout");
+      cy.intercept("POST", "/api/logout/").as("logout");
       cy.visit("/home");
       cy.viewport(1024, 700);
       cy.get("nav button").contains("Log Out").click();
@@ -48,13 +48,9 @@ describe("resources page", () => {
   beforeEach(() => {
     cy.login();
 
-    cy.intercept("GET", "http://localhost:8000/api/meetings/").as(
-      "getMeetings",
-    );
-    cy.intercept("GET", "http://localhost:8000/api/recordings/").as(
-      "getRecordings",
-    );
-    cy.intercept("GET", "http://localhost:8000/api/notes/").as("getNotes");
+    cy.intercept("GET", "/api/meetings/").as("getMeetings");
+    cy.intercept("GET", "/api/recordings/").as("getRecordings");
+    cy.intercept("GET", "/api/notes/").as("getNotes");
 
     cy.visit("/resources");
     cy.wait(500);
@@ -211,7 +207,7 @@ describe("resources page", () => {
     cy.getCookie("csrftoken").then((cookie) => {
       cy.request({
         method: "POST",
-        url: "http://localhost:8000/api/meetings/",
+        url: "/api/meetings/",
         body: {},
         headers: { "X-CSRFToken": cookie.value },
       })

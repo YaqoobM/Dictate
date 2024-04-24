@@ -192,6 +192,8 @@ class MeetingConsumer(JsonWebsocketConsumer):
         Handle connection messages, either:
         - webrtc signal (proxy message to peer after validation and transformation)
         - group notes (proxy message to all connections in group and save to cache)
+        - set username (proxy message to all connections in group and save to cache)
+        - user media (i.e. muted audio/video) (proxy message to all connections in group and save to cache)
         """
 
         # type exists?

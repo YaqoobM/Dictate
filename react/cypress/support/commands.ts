@@ -1,12 +1,5 @@
 Cypress.Commands.add("login", () => {
-  cy.intercept({
-    method: "GET",
-    url: "http://localhost:8000/api/get_csrf_token/",
-  }).as("getToken");
-
   cy.visit("/login");
-  // csrf token already exists!
-  cy.wait("@getToken");
 
   cy.getCookie("sessionid").should("not.exist");
   cy.getCookie("csrftoken").should("exist");
@@ -39,13 +32,13 @@ Cypress.Commands.add("logout", () => {
   cy.getCookie("csrftoken").should("exist");
   cy.getCookie("sessionid").should("exist");
 
-  cy.intercept("POST", "http://localhost:8000/api/logout/").as("logout");
+  cy.intercept("POST", "/api/logout/").as("logout");
   cy.visit("/home");
   cy.viewport(1024, 700);
   cy.get("nav button").contains("Log Out").click();
   cy.wait("@logout");
 
   cy.viewport(1000, 660);
-  cy.url().should("eq", "http://localhost:5173/");
+  cy.url().should("eq", "http://localhost/");
   cy.getCookie("sessionid").should("not.exist");
 });

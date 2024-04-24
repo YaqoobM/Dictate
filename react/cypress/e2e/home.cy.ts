@@ -50,9 +50,7 @@ describe("home page", () => {
   });
 
   it("opens join meeting modal successfully", () => {
-    cy.request("POST", "http://localhost:8000/api/meetings/", {})
-      .its("body")
-      .as("testMeeting");
+    cy.request("POST", "/api/meetings/", {}).its("body").as("testMeeting");
 
     cy.get("hgroup span button:last")
       .should("contain.text", "Join a Meeting")
@@ -68,9 +66,7 @@ describe("home page", () => {
   });
 
   it("joins ongoing meeting successfully and redirects to page", () => {
-    cy.request("POST", "http://localhost:8000/api/meetings/", {})
-      .its("body")
-      .as("testMeeting");
+    cy.request("POST", "/api/meetings/", {}).its("body").as("testMeeting");
 
     cy.get("hgroup span button:last")
       .should("contain.text", "Join a Meeting")

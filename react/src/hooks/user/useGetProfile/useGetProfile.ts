@@ -12,11 +12,7 @@ const useGetProfile = (
   const query = useQuery({
     queryKey: ["profile"],
     queryFn: () =>
-      axios
-        .get<{
-          user: User;
-        }>("/api/who_am_i/")
-        .then((res) => res.data),
+      axios.get<{ user: User }>("/api/who_am_i/").then((res) => res.data),
     retry: (count, err) => {
       if (err instanceof AxiosError && err.response?.status === 401) {
         return false;

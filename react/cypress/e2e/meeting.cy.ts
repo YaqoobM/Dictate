@@ -1,6 +1,6 @@
 describe("meeting page", () => {
   beforeEach(() => {
-    cy.request("POST", "http://localhost:8000/api/meetings/", {})
+    cy.request("POST", "/api/meetings/", {})
       .its("body")
       .as("testMeeting")
       .then((meeting: any) => {
@@ -236,17 +236,30 @@ describe("meeting page", () => {
     cy.intercept(
       {
         method: "POST",
-        url: "http://localhost:8000/api/recordings/",
+        url: "/api/recordings/",
       },
       {
         statusCode: 201,
         body: {
-          url: "http://localhost:8000/api/recordings/mock-url/",
+          url: "/api/recordings/mock-url/",
         },
       },
     );
 
-    cy.login();
+    // login
+    cy.visit("/login");
+
+    cy.getCookie("sessionid").should("not.exist");
+    cy.getCookie("csrftoken").should("exist");
+
+    cy.get("input[name=email]").type("tester@dictate.com");
+    cy.get("input[name=password]").type("12345678");
+
+    cy.get("button").contains("Log In").click();
+
+    cy.url().should("include", "/calendars");
+    cy.getCookie("sessionid").should("exist");
+
     cy.get("@testMeeting").then((meeting: any) => {
       cy.visit(`/meeting/${meeting.id}/`);
     });

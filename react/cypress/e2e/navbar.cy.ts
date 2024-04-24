@@ -1,19 +1,22 @@
 describe("navbar", () => {
   beforeEach(() => {
-    cy.visit("/");
     cy.viewport(1024, 700);
   });
 
   it("successfully loads", () => {
+    cy.visit("/");
     cy.get("nav").contains("Dictate");
   });
 
   it("shows login and signup buttons if not logged in", () => {
+    cy.visit("/");
     cy.get("nav a").contains("Login");
     cy.get("nav a").contains("Sign Up");
   });
 
   it("navigates to login and signup pages successfully", () => {
+    cy.visit("/");
+
     cy.get("nav a").contains("Login").click();
     cy.url().should("include", "/login");
 
@@ -53,16 +56,22 @@ describe("navbar", () => {
   });
 
   it("contains dark mode toggle", () => {
+    cy.visit("/");
+
     cy.get("nav a + span svg:last-child");
   });
 
   it("toggles dark mode successfully", () => {
+    cy.visit("/");
+
     cy.get("body").should("not.have.class", "dark");
     cy.get("nav a + span svg:last-child").click();
     cy.get("body").should("have.class", "dark");
   });
 
   it("shows menu toggle for small viewport widths", () => {
+    cy.visit("/");
+
     cy.get("nav a + span svg:first-child").should(
       "have.css",
       "display",
@@ -80,6 +89,8 @@ describe("navbar", () => {
   });
 
   it("opens menu toggle successfully for small viewport widths", () => {
+    cy.visit("/");
+
     cy.viewport(1000, 660);
     cy.get("nav a + span svg:first-child").click();
 

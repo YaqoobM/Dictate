@@ -25,6 +25,7 @@ const useDeleteProfile = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries();
+      Cookies.remove("sessionid");
     },
   });
 
