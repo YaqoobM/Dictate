@@ -185,21 +185,23 @@
 
 ### Testing
 
-- Create 2 test users beforehand
+- Setup
 
-  - tester@dictate.com
-    - password: 12345678
-  - tester2@dictate.com
+  - Run the project locally
 
-    - password: 12345678
+  ```console
+  $ docker compose -f docker-compose.dev.yaml up
+  ```
+
+- Running tests (in a separate process)
 
   - open test application for detailed view
 
     ```console
-    $ npm run test
+    $ cd react && npm run test
     ```
 
   - run end-to-end tests from command line
     ```console
-    $ npm run test:e2e
+    $ cd react && npm run test:e2e
     ```
