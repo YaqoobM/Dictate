@@ -17,6 +17,7 @@ type Props = {
     isPending: boolean;
     isSuccess: boolean;
     isError: boolean;
+    error?: string;
   };
   recorder: MediaRecorder | null;
   hidden: boolean;
@@ -56,15 +57,13 @@ const RecordingModal: FC<Props> = ({
     >
       {isAuthenticated ? (
         <>
-          <h1 className="flex flex-row items-center gap-x-4 text-3xl font-semibold capitalize tracking-tight text-amber-500 dark:text-amber-300">
+          <h1 className="flex flex-col items-center gap-x-4 text-3xl font-semibold capitalize tracking-tight text-amber-500 dark:text-amber-300 sm:flex-row">
             <span>
               {recordingStates.isPending
                 ? "loading"
-                : recordingStates.isError
-                  ? "something went wrong"
-                  : recording
-                    ? "stop recording?"
-                    : "start recording?"}
+                : recording
+                  ? "stop recording?"
+                  : "start recording?"}
             </span>
             {recordingStates.isPending ? (
               <LoaderIcon className="h-8 animate-spin stroke-amber-500 dark:stroke-amber-300" />
@@ -72,9 +71,12 @@ const RecordingModal: FC<Props> = ({
               <ErrorIcon className="h-8 stroke-red-600" />
             ) : recordingStates.isSuccess ? (
               <SuccessIcon className="h-8 stroke-green-600" />
-            ) : (
-              ""
-            )}
+            ) : null}
+            {recordingStates.isError ? (
+              <span className="text-lg font-medium capitalize text-red-500 sm:self-end">
+                {recordingStates?.error || "Something went wrong"}
+              </span>
+            ) : null}
           </h1>
           <Button
             className="w-full"

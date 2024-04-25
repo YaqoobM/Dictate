@@ -35,6 +35,7 @@ type States = {
   isPending: boolean;
   isSuccess: boolean;
   isError: boolean;
+  error?: string;
 };
 
 type RouteParams = {
@@ -81,50 +82,61 @@ const Controls: FC<Props> = ({
         video: { displaySurface: "browser" },
         preferCurrentTab: true,
       };
-      navigator.mediaDevices
-        .getDisplayMedia(opts)
-        .then((stream) => {
-          recorder.current.stream = stream;
-          recorder.current.recorder = new MediaRecorder(stream, {
-            audioBitsPerSecond: 128000,
-            videoBitsPerSecond: 2500000,
-            mimeType: "video/webm;codecs=vp8",
-          });
 
-          // store stream data
-          recorder.current.recorder.ondataavailable = (e) => {
-            if (e.data.size > 0) {
-              recorder.current.chunks.push(e.data);
-            }
-          };
+      try {
+        navigator.mediaDevices
+          .getDisplayMedia(opts)
+          .then((stream) => {
+            recorder.current.stream = stream;
+            recorder.current.recorder = new MediaRecorder(stream, {
+              audioBitsPerSecond: 128000,
+              videoBitsPerSecond: 2500000,
+              mimeType: "video/webm;codecs=vp8",
+            });
 
-          // handle stop event (force clean-up)
-          recorder.current.recorder.onstop = () => {
+            // store stream data
+            recorder.current.recorder.ondataavailable = (e) => {
+              if (e.data.size > 0) {
+                recorder.current.chunks.push(e.data);
+              }
+            };
+
+            // handle stop event (force clean-up)
+            recorder.current.recorder.onstop = () => {
+              setRecording(false);
+            };
+
+            recorder.current.stream.getTracks().forEach((track) => {
+              track.onended = () => recorder.current.recorder?.stop();
+            });
+
+            setRecordingStates({
+              isPending: false,
+              isSuccess: true,
+              isError: false,
+            });
+
+            recorder.current.recorder.start(200);
+            return;
+          })
+          .catch(() => {
+            setRecordingStates({
+              isPending: false,
+              isSuccess: false,
+              isError: true,
+            });
             setRecording(false);
-          };
-
-          recorder.current.stream.getTracks().forEach((track) => {
-            track.onended = () => recorder.current.recorder?.stop();
+            return;
           });
-
-          setRecordingStates({
-            isPending: false,
-            isSuccess: true,
-            isError: false,
-          });
-
-          recorder.current.recorder.start(200);
-          return;
-        })
-        .catch(() => {
-          setRecordingStates({
-            isPending: false,
-            isSuccess: false,
-            isError: true,
-          });
-          setRecording(false);
-          return;
+      } catch (e) {
+        // .getDisplayMedia() not supported on mobile
+        setRecordingStates({
+          isPending: false,
+          isSuccess: false,
+          isError: true,
+          error: "Recordings not supported on mobile devices",
         });
+      }
     }
 
     if (!recording && recorder.current.recorder) {
