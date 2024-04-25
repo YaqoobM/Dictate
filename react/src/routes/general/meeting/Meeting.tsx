@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { FC, Suspense, useContext, useEffect, useState } from "react";
+import { FC, Suspense, useContext, useEffect, useRef, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -23,6 +23,8 @@ type RouteParams = {
 const Meeting: FC = () => {
   const [gotLocalStream, setGotLocalStream] = useState<boolean>(false);
   const [showNotes, setShowNotes] = useState<boolean>(false);
+
+  const mainDivRef = useRef<HTMLElement | null>(null);
 
   const { meetingId } = useParams<keyof RouteParams>() as RouteParams;
   const { isAuthenticated, checkingAuth } = useContext(AuthContext);
@@ -171,11 +173,20 @@ const Meeting: FC = () => {
   }
 
   return (
-    <main className="h-screen min-h-screen w-screen overflow-y-scroll bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-gray-100">
+    <main
+      className="h-screen min-h-screen w-screen overflow-y-auto bg-gray-100 text-gray-950 dark:bg-gray-900 dark:text-gray-100"
+      ref={mainDivRef}
+    >
       {isConnected ? (
         <>
           {showNotes ? (
-            <PanelGroup direction="horizontal">
+            <PanelGroup
+              direction={
+                mainDivRef.current && mainDivRef.current.offsetWidth <= 640
+                  ? "vertical"
+                  : "horizontal"
+              }
+            >
               <Panel defaultSize={50}>
                 <Suspense
                   fallback={
@@ -189,7 +200,9 @@ const Meeting: FC = () => {
                   />
                 </Suspense>
               </Panel>
-              <PanelResizeHandle className="mr-3 w-0.5 bg-amber-500 dark:bg-amber-300" />
+              <PanelResizeHandle
+                className={`bg-amber-500 dark:bg-amber-300 ${mainDivRef.current && mainDivRef.current.offsetWidth <= 640 ? "my-3 h-0.5" : "mr-3 w-0.5"}`}
+              />
               <Panel>
                 <VideoGrid
                   participants={participants}
