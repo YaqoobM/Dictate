@@ -118,7 +118,7 @@ const Calendar: FC<Props> = ({
 
   return (
     <section className={`${className}`}>
-      <div className="mb-1 grid grid-cols-7 items-center justify-items-center gap-x-3">
+      <div className="mb-1 hidden grid-cols-7 items-center justify-items-center gap-x-3 sm:grid">
         <h1 className="text-xs sm:text-base">Sunday</h1>
         <h1 className="text-xs sm:text-base">Monday</h1>
         <h1 className="text-xs sm:text-base">Tuesday</h1>
@@ -127,7 +127,7 @@ const Calendar: FC<Props> = ({
         <h1 className="text-xs sm:text-base">Friday</h1>
         <h1 className="text-xs sm:text-base">Saturday</h1>
       </div>
-      <div className="grid grid-cols-7 items-center justify-items-center gap-1 text-center sm:gap-2">
+      <div className="grid grid-cols-3 items-center justify-items-center gap-1 text-center sm:grid-cols-7 sm:gap-2">
         {loadedCalendar.map((day) => (
           <div
             className={`relative w-full cursor-pointer rounded-md border-2 border-transparent pt-[120%] shadow-sm transition-transform hover:scale-105 hover:border-amber-500 hover:dark:border-amber-300 ${isToday(day) ? "bg-amber-500/60 dark:bg-amber-300/60" : "bg-gray-200 dark:bg-gray-900"} ${selectedDay && isToday(day, selectedDay) ? "!border-blue-500 dark:!border-blue-400" : ""} ${day.disabled ? "opacity-50" : ""}`}
