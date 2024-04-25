@@ -19,6 +19,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "secret_key_123")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG") is not None
 
+# set in docker-compose (overridden in .env?)
 ENVIRONMENT = os.getenv("ENVIRONMENT") or "development"
 
 
