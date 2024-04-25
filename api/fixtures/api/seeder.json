@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "email": "test@dictate.com",
-      "username": "Douglas",
+      "username": "Simon",
       "password": "123"
     }
   },
@@ -21,7 +21,7 @@
     "model": "api.user",
     "pk": 3,
     "fields": {
-      "email": "mary@hotmail.co.uk",
+      "email": "mary@dictate.com",
       "username": "Mary H",
       "password": "123"
     }
