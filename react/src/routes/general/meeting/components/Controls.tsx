@@ -136,6 +136,8 @@ const Controls: FC<Props> = ({
           isError: true,
           error: "Recordings not supported on mobile devices",
         });
+        setRecording(false);
+        return;
       }
     }
 
