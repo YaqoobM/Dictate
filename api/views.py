@@ -113,17 +113,16 @@ class MeetingViewSet(HashedIdModelViewSet):
             # prevent listing all public meetings w/o searching by id
             return Meeting.objects.none()
 
-        query = Q()
+        # default empty list
+        query = Q(pk=0)
 
         if self.action == "retrieve":
             # append "OR"
-            query |= Q(team__isnull=True) & Q(end_time__isnull=True)
+            query |= Q(team__isnull=True)
 
         if self.request.user.is_authenticated:
-            # append "OR"
-            query |= Q(participants__email=self.request.user.email) | Q(
-                team__in=self.request.user.teams.all()
-            )
+            query |= Q(participants__email=self.request.user.email)
+            query |= Q(team__in=self.request.user.teams.all())
 
         return Meeting.objects.filter(query).order_by("-start_time")
 
