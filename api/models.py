@@ -114,9 +114,18 @@ class Recording(HashedIdModel):
         temp_output_path = (
             self.temp_upload.path[: self.temp_upload.path.rfind(".")] + ".mp4"
         )
-        ffmpeg.input(self.temp_upload.path).filter("scale", w=720, h=-2).filter(
-            "fps", fps=30, round="up"
-        ).output(temp_output_path, vcodec="libx264", crf=24, acodec="aac").run()
+
+        video = (
+            ffmpeg.input(self.temp_upload.path)
+            .video.filter("scale", w=720, h=-2)
+            .filter("fps", fps=30, round="up")
+        )
+
+        audio = ffmpeg.input(self.temp_upload.path).audio
+
+        ffmpeg.output(
+            video, audio, temp_output_path, vcodec="libx264", crf=24, acodec="aac"
+        ).run()
 
         # create nice output filename
         # (possible race conditions if multiple recordings saved at same time)
