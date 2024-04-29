@@ -78,12 +78,78 @@ const Controls: FC<Props> = ({
     if (recording) {
       setRecordingStates({ isPending: true, isSuccess: false, isError: false });
       let opts = {
-        audio: true,
+        // audio: true,
+        audio: {
+          googAutoGainControl: false,
+          googEchoCancellation: false,
+          googNoiseSuppression: false,
+          googTypingNoiseDetection: false,
+          echoCancellation: false,
+          noiseSuppression: false,
+          typingNoiseDetection: false,
+        },
         video: { displaySurface: "browser" },
         preferCurrentTab: true,
       };
 
       try {
+        // Promise.all([
+        //   navigator.mediaDevices.getDisplayMedia(opts),
+        //   navigator.mediaDevices.getUserMedia({
+        //     audio: true,
+        //   }),
+        // ])
+        //   .then((streams) => {
+        //     const [displayStream, audioStream] = streams;
+
+        //     recorder.current.stream = displayStream;
+
+        //     audioStream.getAudioTracks().forEach((track) => {
+        //       recorder.current.stream!.addTrack(track);
+        //     });
+
+        //     recorder.current.recorder = new MediaRecorder(displayStream, {
+        //       audioBitsPerSecond: 128000,
+        //       videoBitsPerSecond: 2500000,
+        //       mimeType: "video/webm;codecs=vp8",
+        //     });
+
+        //     // store stream data
+        //     recorder.current.recorder.ondataavailable = (e) => {
+        //       if (e.data.size > 0) {
+        //         recorder.current.chunks.push(e.data);
+        //       }
+        //     };
+
+        //     // handle stop event (force clean-up)
+        //     recorder.current.recorder.onstop = () => {
+        //       console.log("stopped");
+        //       setRecording(false);
+        //     };
+
+        //     recorder.current.stream.getTracks().forEach((track) => {
+        //       track.onended = () => recorder.current.recorder?.stop();
+        //     });
+
+        //     setRecordingStates({
+        //       isPending: false,
+        //       isSuccess: true,
+        //       isError: false,
+        //     });
+
+        //     recorder.current.recorder.start(200);
+        //     return;
+        //   })
+        //   .catch(() => {
+        //     setRecordingStates({
+        //       isPending: false,
+        //       isSuccess: false,
+        //       isError: true,
+        //     });
+        //     setRecording(false);
+        //     return;
+        //   });
+
         navigator.mediaDevices
           .getDisplayMedia(opts)
           .then((stream) => {
