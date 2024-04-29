@@ -147,7 +147,7 @@
     - use cloudflare (if you want)
     - add dns records for <domain_name>, stun.<domain_name> and turn.<domain_name>
     - optionally add ssh.<domain_name> (w/o proxy)
-  - Setup tsl
+  - Setup TLS
 
     - create certs inside ec2 instance (run nginx then certbot in separate process):
 
