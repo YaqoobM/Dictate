@@ -14,6 +14,14 @@
 
 - #### Outside docker (for HMR)
 
+  - create virtual env
+
+    ```console
+    $ virtualenv venv
+    $ . venv/bin/activate
+    $ pip install -r requirements.txt
+    ```
+
   - build project
 
     ```console
