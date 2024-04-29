@@ -38,8 +38,9 @@
   - go to http://localhost:5137/ (web)
 
     ```console
-    $ python manage.py build
-    $ npm run --prefix frontend/react dev
+    $ cd react
+    $ npm install
+    $ npm run dev
     ```
 
 ### Prod Build
