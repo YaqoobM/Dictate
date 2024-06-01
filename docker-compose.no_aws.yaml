@@ -82,7 +82,7 @@ services:
     command:
       [
         "--psql-userdb",
-        "postgresql://${AWS_RDS_USER}:${AWS_RDS_PASSWORD}@${AWS_RDS_HOST}:5432/coturn",
+        "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/coturn",
       ]
     restart: unless-stopped
     volumes:
