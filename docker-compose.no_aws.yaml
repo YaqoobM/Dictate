@@ -1,5 +1,5 @@
 version: "3.9"
-name: dictate
+name: dictate_no_aws
 services:
   proxy:
     image: nginx:1.25.3-alpine3.18
