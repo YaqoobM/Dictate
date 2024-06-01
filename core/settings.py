@@ -127,7 +127,7 @@ ASGI_APPLICATION = "core.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-if ENVIRONMENT == "production":
+if ENVIRONMENT == "production" and os.getenv("AWS_RDS_DATABASE_NAME"):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -158,7 +158,7 @@ else:
     }
 
 # defaults cache to local memory
-if ENVIRONMENT == "production":
+if ENVIRONMENT == "production" and os.getenv("AWS_ELASTICACHE_HOST"):
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
@@ -185,7 +185,7 @@ if ENVIRONMENT == "production" or os.getenv("DOCKER_COMPOSE"):
     SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 
-if ENVIRONMENT == "production":
+if ENVIRONMENT == "production" and os.getenv("AWS_ELASTICACHE_HOST"):
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -249,7 +249,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-if ENVIRONMENT == "production":
+if ENVIRONMENT == "production" and os.getenv("AWS_S3_BUCKET_NAME"):
     STORAGES = {
         "default": {
             "BACKEND": "storages.backends.s3.S3Storage",
@@ -286,7 +286,7 @@ else:
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Celery Configuration Options
-if ENVIRONMENT == "production":
+if ENVIRONMENT == "production" and os.getenv("AWS_ELASTICACHE_HOST"):
     CELERY_BROKER_URL = "redis://" + os.getenv("AWS_ELASTICACHE_HOST") + ":6379"
     CELERY_RESULT_BACKEND = "django-cache"
 elif os.getenv("DOCKER_COMPOSE"):
