@@ -16,6 +16,12 @@ Feedback suggested advancements in video-conference technologies would push
 more individuals to choose a video-conference in the future and showed a positive
 correlation between the advancements in UI/UX design and user satisfaction.
 
+
+
+https://github.com/user-attachments/assets/da67ad8e-6fcb-4647-83b6-7aefdf0d7bfa
+
+
+
 ### How It Works
 
 The full project report and accompanying video showcase can be found in the **docs** folder ([project report](/docs/project-report.pdf) and [video showcase](/docs/project-video-submission.mp4)). Selected diagrams are copied below as a summary.
