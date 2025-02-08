@@ -22,27 +22,27 @@ The full project report and accompanying video showcase can be found in the **do
 
 #### Use Case Model
 
-![Use Case Model](docs/use-case-model.png)
+<img src="docs/use-case-model.png" alt="Use Case Modal" height="500"  />
 
 #### System Architecture
 
-![System Architecture](docs/system-architecture.png)
+<img src="docs/system-architecture.png" alt="System Architecture" height="400"  />
 
 #### API Diagram
 
-![API Diagram](docs/api_summarised.png)
+<img src="docs/api_summarised.png" alt="API Diagram" height="500"  />
 
 #### Websockets
 
-![Websockets](docs/websocket_summarised.png)
+<img src="docs/websocket_summarised.png" alt="Websockets" width="600"   />
 
 #### Database
 
-![Database Diagram](docs/er_model.png)
+<img src="docs/er_model.png" alt="Database Diagram" width="600"  />
 
 #### Deployment
 
-![Deployment](docs/aws-deployment.png)
+<img src="docs/aws-deployment.png" alt="Deployment" width="600"  />
 
 ## Running the app
 
