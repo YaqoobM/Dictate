@@ -63,6 +63,15 @@
       | Inbound   | 6379        | self           |
       | Outbound  | All Traffic | All Addresses  |
 
+    - EC2 security group (e.g. dictate_ec2_backend)
+
+      | Direction | Port(s)     | Destination(s) |
+      | --------- | ----------- | -------------- |
+      | Inbound   | HTTPS (443) | All Addresses  |
+      | Inbound   | HTTP (80)   | All Addresses  |
+      | Inbound   | SSH (22)    | All Addresses  |
+      | Outbound  | All Traffic | All Addresses  |
+
     - Notes:
       - first create an empty security group then edit to be able to select destination=self
       - other methods:
@@ -79,7 +88,7 @@
       - Attach a key-pair for ssh
       - Allow ssh from anywhere
       - Allow https & http
-      - Add Postgres and Redis security groups
+      - Add Postgres, Redis and Ec2 security groups
     - Post creation:
       - Setup Elastic IP
     - Notes:
@@ -100,7 +109,7 @@
 
       ```console
       $ sudo apt update -y && sudo apt upgrade -y
-      $ sudo apt install -y apt-transport-https ca-certificates curl software-properties-common git certbot
+      $ sudo apt install -y apt-transport-https ca-certificates curl software-properties-common git certbot postgresql-client
 
       $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
       $ echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
@@ -110,13 +119,15 @@
       $ git clone https://github.com/username/dictate_repo.git
       ```
 
+      - `$ sudo reboot` - is this needed?
+
   - Create a postgres RDS instance for db
     - Config:
       - make sure to create initial table (e.g. dictate_core)
       - don't connect to ec2 instance
       - add Postgres security group
     - Post creation:
-      - setup relay server db (from local machine)
+      - setup relay server db (from local machine or from ec2 instance (depends on security group config))
         ```console
         $ psql -h database_endpoint -U username -d intial_table -f coturn/coturn_schema.sql -a
         ```
@@ -181,6 +192,12 @@
       - `--dry-run` flag for testing first
 
   - Fill in .env file
+    - reminder: whenever we change this file we need to rebuild the docker image
+      - prune unused images/containers to save space on vm
+      - get overall memory usage for docker (with reclaimable space)
+        - `$ docker system df`
+      - removes build cache
+        - `$ docker builder prune`
   - Run setup db script
     - runs migrations and creates superuser
     ```console
